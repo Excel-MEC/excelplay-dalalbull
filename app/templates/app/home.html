@@ -1,0 +1,75 @@
+{% extends 'app/base.html' %}
+
+{% block main %}
+	<div class="col s12">
+		{% if get_data is not None %}
+			<h3>{{ get_data.companyName }}</h3>
+			<p><strong>Company Name: </strong>{{ get_data.companyName }}<br><strong>Percentage change: </strong>{{ get_data.pChange }}%<br><strong>Company Symbol: </strong>{{ get_data.symbol }}<br><strong>price of stock: </strong>{{ get_data.lastPrice }}<br><a href="{% url 'app:buy' get_data.symbol %}" class="waves-effect waves-light btn blue">Buy 1 stock</a></p>
+			<!-- {{ get_data }} -->
+		{% endif %}
+	</div>
+	<div class="row">
+		<div class="col s12 m5">
+			<h3>User Details</h3>
+			<div class="row">
+				<div class="col s12 m12">
+					<div class="card-panel teal">
+						<span class="white-text">User:{{ user_obj.email }}<br>Balance:{{ user_obj.cash_balance }}<br></span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col s12 m7">
+			<h3>Rank</h3>
+			<div class="row">
+				<div class="col s12 m12">
+					<div class="card-panel teal">
+					{% for i in users_rank|slice:"10" %}
+						<span class="white-text">{{ forloop.counter }} {{ i.email }} {{ i.cash_balance }}<br></span>
+					{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col s12">
+			<h3>Shares</h3>
+			<!--{% for i in user_shares %}
+				<p><a href="{% url 'app:home' i.company_code%}" class="waves-effect waves-light btn red">{{ i.company_code }}</a>:<a href="{% url 'app:sell' i.company_code %}" class="waves-effect waves-light btn green">Sell</a></p>
+			{% endfor %}
+		</div> -->
+		{% for i in user_shares %}
+			<div class="col s12 m4">
+					<div class="card blue-grey darken-1">
+						<div class="card-content white-text">
+							<span class="card-title"><a href="{% url 'app:home' i.company_code%}">{{ i.company_name }}<br>{{ i.company_code }}</a><br>{{ i.price_per_stock }}</span>
+							<p></p>
+						</div>
+						<div class="card-action">
+							<a href="{% url 'app:buy' i.company_code %}">Buy 1 more stock</a>
+							<a href="{% url 'app:sell' i.company_code %}">sell</a>
+						</div>
+					</div>
+			</div>
+		{% endfor %}
+	</div>
+	<div class="col s12">
+		<h3>Top gainers</h3>
+		{% for i in top_gainers_codes %}
+			<p><a href="{% url 'app:home' i.symbol %}">{{ i.symbol }}</a></p>
+		{% endfor %}
+	</div>
+
+	<!-- <p>{{ all_stock_codes }}</p> -->
+	<div class="col s12">
+		<h3>Other companies</h3>
+		<div class="row">
+		{% for key,value in all_stock_codes.items %}
+			<div class="col sd2">
+				<p><a href="{% url 'app:home' key %}">{{ value }}</a></p>
+			</div>	
+		{% endfor %}
+		</div>
+	</div>
+{% endblock %}

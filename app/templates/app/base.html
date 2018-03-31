@@ -1,0 +1,25 @@
+<html>
+<head>
+	<title>Dalalbull</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+</head>
+<body class="grey lighten-2">
+	<nav><div class="nav-wrapper purple  light-blue accent-2">
+		<a href="{% url 'app:home' %}" class="brand-logo">DalalBull</a>
+		<ul id="nav-mobile" class="right">
+			<!-- <li><a href={% url 'app:home' %}>HOME</a></li> -->
+			<li><a href="{% url 'app:logout' %}">LOGOUT </a></li>
+		</ul>
+	</div></nav>
+	<div class="container">
+		{% block main %}
+		{% endblock %}
+	</div>
+</body>
+</html>
