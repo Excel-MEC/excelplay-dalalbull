@@ -1,2 +1,2 @@
 django==2.0.3
-nsetools
+nsetools==1.0.5
