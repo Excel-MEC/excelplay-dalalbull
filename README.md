@@ -1,15 +1,11 @@
 # DalalBull
 
-## Requirements
+## STEPS
 
-* 1 python==3.5.2
-* 2 django==2.0.3
+## 1-Virtual environment
+### virtualenv -p python3 env
 
-# step 1
-Install 'nsetools' (pip install nsetools)
+## 2-Install the requirements
+### python -r requirements.txt
 
-## Step 2
-Run the server 
-
-## Step 3
-Go to 'localhost:portno/dalalbull/home' 
+## 3-Run the server
