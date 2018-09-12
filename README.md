@@ -6,6 +6,6 @@
 ### virtualenv -p python3 env
 
 ## 2-Install the requirements
-### pip -r requirements.txt
+### pip install -r requirements.txt
 
 ## 3-Run the server
