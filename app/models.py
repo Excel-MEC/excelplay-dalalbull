@@ -7,7 +7,7 @@ class user(models.Model):
 	cash_balance=models.FloatField(null=True)
 	cash_worth=models.FloatField(null=True)
 	def __str__(self):
-		return self.email 
+		return self.email
 
 #Details of the company user owns
 class user_company(models.Model):
