@@ -94,7 +94,7 @@ def newCompanyDetails(request):
 				data=nse.get_quote(str(company_code))
 				Stock_data.objects.update_or_create(
 					symbol=data['symbol'],
-					current_price=round(((-data['previousClose']+data['closePrice'])/data['previousClose'])*100,2),
+					current_price=data['lastPrice'],
 					high=data['dayHigh'],
 					low=data['dayLow'],
 					open_price=data['open'],
