@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'companyDetails/$',views.companyDetails,name='companyDetails'),
     url(r'leaderboard/$',views.leaderboard,name='leaderboard'),
     url(r'newCompanyDetails/$',views.newCompanyDetails,name='newCompanyDetails'),
+    url(r'buy/$',views.buy,name='buy'),
 ]

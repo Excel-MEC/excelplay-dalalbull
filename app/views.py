@@ -1,7 +1,8 @@
 from django.shortcuts import render,HttpResponse
 from django.http import HttpResponseRedirect,JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie,csrf_exempt
-
+import numbers
+import datetime
 from .decorators import login_required
 
 from nsetools import Nse
@@ -40,11 +41,12 @@ def handShake(request):
 			email=email,
 		)
 		print("new user................")
+	if not Portfolio.objects.filter(email=email).exists():
 		Portfolio.objects.create(
-			email=email,
-			cash_bal=1000000.00,
-			no_trans=0,
-		)
+				email=email,
+				cash_bal=1000000.00,
+				no_trans=0,
+			)
 	return JsonResponse({'success':True})
 
 #========Logout (Delete 'user' from session)========#
@@ -90,24 +92,94 @@ def companyDetails(request):
 def newCompanyDetails(request):
 	for company_code in all_stock_codes:
 		try:
-			if(company_code!="SYMBOL"):
+			if(company_code!="SYMBOL" or ""):
 				data=nse.get_quote(str(company_code))
-				Stock_data.objects.update_or_create(
-					symbol=data['symbol'],
-					current_price=data['lastPrice'],
-					high=data['dayHigh'],
-					low=data['dayLow'],
-					open_price=data['open'],
-					change=data['change'],
-					change_per=data['pChange'],
-					trade_Qty=data['deliveryQuantity'],
-					trade_Value=data['totalTradedValue']
-					)
+				if(Stock_data.objects.get(symbol=company_code)):
+					stock_data=Stock_data.objects.get(symbol=company_code)
+					stock_data.current_price=data['lastPrice']
+					stock_data.high=data['dayHigh']
+					stock_data.low=data['dayLow']
+					stock_data.open_price=data['open']
+					stock_data.change=data['change']
+					stock_data.change_per=data['pChange']
+					stock_data.trade_Qty=data['deliveryQuantity']
+					stock_data.trade_Value=data['totalTradedValue']
+
+					stock_data.save()
+				else:
+					Stock_data.objects.create(
+						symbol=data['symbol'],
+						current_price=data['lastPrice'],
+						high=data['dayHigh'],
+						low=data['dayLow'],
+						open_price=data['open'],
+						change=data['change'],
+						change_per=data['pChange'],
+						trade_Qty=data['deliveryQuantity'],
+						trade_Value=data['totalTradedValue']
+						)
 				print("success",end=" ")
 		except:
 			print("error")
 			pass
 	return JsonResponse({"msg":"success"})
+
+#========BUY========#
+'''
+POST format
+{
+	'quantity':<qty>,
+	'company':<company>
+}
+'''
+@csrf_exempt
+@login_required
+def buy(request):
+	data=request.POST
+	quantity=float(data['quantity'])
+	company=data['company']
+	try:
+		stock_data=Stock_data.objects.get(symbol=company)
+	except:
+		return JsonResponse({'msg':'Company does exist'})
+	if int(quantity)-quantity==0:
+		pass
+	else:
+		return JsonResponse({'msg':'Quantity error'})
+	user_portfolio=Portfolio.objects.get(email=request.session['user'])
+	no_trans=user_portfolio.no_trans
+	current_price=float(stock_data.current_price)
+	if(no_trans+1<=100):
+	        brokerage=((0.5/100)*current_price)*float(quantity) 
+	elif(no_trans+1<=1000):                     
+	        brokerage=((1/100)*current_price)*float(quantity)
+	else :                      
+	        brokerage=((1.5/100)*current_price)*float(quantity)
+	user_cash_balance=float(user_portfolio.cash_bal)
+	if(user_cash_balance-(quantity*current_price)-brokerage<0):
+		return JsonResponse({'msg':'Not enough balance'})
+	msg=''
+	if Transaction.objects.filter(email=request.session['user'],symbol=company).exists():
+		transaction=Transaction.objects.get(email=request.session['user'],symbol=company)
+		transaction.quantity+=int(quantity)
+		transaction.value=current_price
+		transaction.time=now=datetime.datetime.now()
+		transaction.save()
+	else:	
+		Transaction.objects.create(
+			email=request.session['user'],
+			symbol=company,
+			buy_ss="buy",
+			quantity=quantity,
+			value=current_price,
+			)
+	user_portfolio.cash_bal=user_cash_balance-(quantity*current_price)-brokerage
+	user_portfolio.no_trans+=1
+	user_portfolio.save()
+	msg+="{0} just bought {1} quantities of {2}".format(request.session['user'],quantity,company)
+	return JsonResponse({'msg':msg})
+
+
 
 #=================================#
 #       NON REQUEST FUNCTIONS     #

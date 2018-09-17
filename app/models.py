@@ -1,6 +1,6 @@
 from django.db import models
 from decimal import Decimal
-
+from django.core.validators import MinValueValidator
 #Details of the user
 class User(models.Model):
 	email=models.CharField(primary_key=True,max_length=100)
@@ -18,14 +18,21 @@ class Portfolio(models.Model):
 			)
 
 #Details of the company user owns
-class User_company(models.Model):
-	email=models.CharField(max_length=100,null=True,blank=True)
-	company_code=models.CharField(max_length=100,null=True,blank=True)
-	company_name=models.CharField(max_length=100,null=True,blank=True)
-	price_per_stock=models.FloatField(null=True)
-	no=models.IntegerField(null=True)
+class Transaction(models.Model):
+	email=models.CharField(max_length=200)
+	symbol=models.CharField(max_length=10)
+	buy_ss = models.CharField(max_length=30)
+	quantity=models.DecimalField(max_digits=19, decimal_places=0,validators=[MinValueValidator(Decimal('0.00'))])
+	value=models.DecimalField(max_digits=19,decimal_places=2)
+	time=models.DateTimeField(auto_now_add=True)
+
 	def __str__(self):
-		return self.email +' '+ self.company_code
+		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,
+			self.time,
+			self.buy_ss,
+			self.quantity,
+			self.value,
+			)
 
 class Stock_data(models.Model):
     symbol=models.CharField(max_length=30, primary_key=True)
