@@ -11,6 +11,7 @@ class Portfolio(models.Model):
 	email=models.CharField(primary_key=True,max_length=100)
 	cash_bal = models.DecimalField(max_digits=19, decimal_places=2, default=Decimal('100000'))
 	no_trans = models.DecimalField(max_digits=19, decimal_places=0, default=Decimal('0'))
+	margin = models.DecimalField(max_digits=19, decimal_places=2, default=Decimal('0.00'))
 	def __str__(self):
 		return ' %10s | %10s | %10s '%(self.email,
 			self.cash_bal,
@@ -25,6 +26,7 @@ class Transaction(models.Model):
 	quantity=models.DecimalField(max_digits=19, decimal_places=0,validators=[MinValueValidator(Decimal('0.00'))])
 	value=models.DecimalField(max_digits=19,decimal_places=2)
 	time=models.DateTimeField(auto_now_add=True)
+	
 
 	def __str__(self):
 		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,

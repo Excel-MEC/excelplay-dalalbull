@@ -52,8 +52,11 @@ def handShake(request):
 #========Logout (Delete 'user' from session)========#
 @login_required
 def logout(request):
-	del request.session['user']
-	return JsonResponse({'success':True})
+	try:
+		del request.session['user']
+		return JsonResponse({'success':True})
+	except:
+		return JsonResponse({'success':False})
 
 #========Details of user=========#
 @login_required
@@ -129,7 +132,8 @@ def newCompanyDetails(request):
 POST format
 {
 	'quantity':<qty>,
-	'company':<company>
+	'company':<company>,
+	'b_ss':<"buy"/"short sell">
 }
 '''
 @csrf_exempt
@@ -138,29 +142,42 @@ def buy(request):
 	data=request.POST
 	quantity=float(data['quantity'])
 	company=data['company']
+	b_ss=data['b_ss']
+
+	#To check if the Company exists
 	try:
 		stock_data=Stock_data.objects.get(symbol=company)
 	except:
 		return JsonResponse({'msg':'Company does exist'})
+
+	#To check if the quantity is an integer	
 	if int(quantity)-quantity==0:
 		pass
 	else:
 		return JsonResponse({'msg':'Quantity error'})
+
 	user_portfolio=Portfolio.objects.get(email=request.session['user'])
 	no_trans=user_portfolio.no_trans
+	margin=float(user_portfolio.margin)
 	current_price=float(stock_data.current_price)
+
+	#Brokerage
 	if(no_trans+1<=100):
-	        brokerage=((0.5/100)*current_price)*float(quantity) 
+		brokerage=((0.5/100)*current_price)*float(quantity) 
 	elif(no_trans+1<=1000):                     
-	        brokerage=((1/100)*current_price)*float(quantity)
+		brokerage=((1/100)*current_price)*float(quantity)
 	else :                      
-	        brokerage=((1.5/100)*current_price)*float(quantity)
+		brokerage=((1.5/100)*current_price)*float(quantity)
+
+	#To check if the user has enough cash balance
 	user_cash_balance=float(user_portfolio.cash_bal)
-	if(user_cash_balance-(quantity*current_price)-brokerage<0):
+	if((b_ss=="buy" and user_cash_balance-(quantity*current_price)-margin-brokerage<0) or (b_ss=="short sell" and user_cash_balance-margin-(quantity*current_price)/2-brokerage<0)):
 		return JsonResponse({'msg':'Not enough balance'})
+
+	#Executed only if the user has enough cash balance
 	msg=''
-	if Transaction.objects.filter(email=request.session['user'],symbol=company).exists():
-		transaction=Transaction.objects.get(email=request.session['user'],symbol=company)
+	if Transaction.objects.filter(email=request.session['user'],symbol=company,buy_ss=b_ss).exists():
+		transaction=Transaction.objects.get(email=request.session['user'],symbol=company,buy_ss=b_ss)
 		transaction.quantity+=int(quantity)
 		transaction.value=current_price
 		transaction.time=now=datetime.datetime.now()
@@ -169,15 +186,20 @@ def buy(request):
 		Transaction.objects.create(
 			email=request.session['user'],
 			symbol=company,
-			buy_ss="buy",
+			buy_ss=b_ss,
 			quantity=quantity,
 			value=current_price,
 			)
-	user_portfolio.cash_bal=user_cash_balance-(quantity*current_price)-brokerage
+	if(b_ss=="buy"):
+		user_portfolio.cash_bal=user_cash_balance-(quantity*current_price)-brokerage
+		msg+="{0} just bought {1} quantities of {2}".format(request.session['user'],quantity,company)
+	else:
+		user_portfolio.margin=float(user_portfolio.margin)+(quantity*current_price)
+		msg+="{0} just short sold {1} quantities of {2}".format(request.session['user'],quantity,company)
 	user_portfolio.no_trans+=1
 	user_portfolio.save()
-	msg+="{0} just bought {1} quantities of {2}".format(request.session['user'],quantity,company)
 	return JsonResponse({'msg':msg})
+
 
 
 
@@ -192,6 +214,7 @@ def portfolio(email):
 		'cash_bal' : user_portfolio.cash_bal,
 		'total_users' : total_no,
 		'total_transactions' : user_portfolio.no_trans,
+		'margin':user_portfolio.margin
 	}
 	return data_to_send
 
