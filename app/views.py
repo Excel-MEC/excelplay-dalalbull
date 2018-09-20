@@ -144,13 +144,13 @@ def buy(request):
 	company=data['company']
 	b_ss=data['b_ss']
 
-	#To check if the Company exists
+	#Checking if the Company exists
 	try:
 		stock_data=Stock_data.objects.get(symbol=company)
 	except:
 		return JsonResponse({'msg':'Company does exist'})
 
-	#To check if the quantity is an integer	
+	#Checking if the quantity is an integer	
 	if int(quantity)-quantity==0:
 		pass
 	else:
@@ -169,12 +169,12 @@ def buy(request):
 	else :                      
 		brokerage=((1.5/100)*current_price)*float(quantity)
 
-	#To check if the user has enough cash balance
+	#Checking if the user has enough cash balance
 	user_cash_balance=float(user_portfolio.cash_bal)
 	if((b_ss=="buy" and user_cash_balance-(quantity*current_price)-margin-brokerage<0) or (b_ss=="short sell" and user_cash_balance-margin-(quantity*current_price)/2-brokerage<0)):
 		return JsonResponse({'msg':'Not enough balance'})
 
-	#Executed only if the user has enough cash balance
+	#===Executed only if the user has enough cash balance===#
 	msg=''
 	if Transaction.objects.filter(email=request.session['user'],symbol=company,buy_ss=b_ss).exists():
 		transaction=Transaction.objects.get(email=request.session['user'],symbol=company,buy_ss=b_ss)
@@ -191,14 +191,88 @@ def buy(request):
 			value=current_price,
 			)
 	if(b_ss=="buy"):
-		user_portfolio.cash_bal=user_cash_balance-(quantity*current_price)-brokerage
-		msg+="{0} just bought {1} quantities of {2}".format(request.session['user'],quantity,company)
+		user_portfolio.cash_bal=user_cash_balance-(quantity*current_price)
+		msg+="You have succcessfully bought {1} quantities of {2}".format(request.session['user'],quantity,company)
 	else:
-		user_portfolio.margin=float(user_portfolio.margin)+(quantity*current_price)
-		msg+="{0} just short sold {1} quantities of {2}".format(request.session['user'],quantity,company)
+		user_portfolio.margin=float(user_portfolio.margin)+(quantity*current_price)/2
+		msg+="You have succcessfully short sold {1} quantities of {2}".format(request.session['user'],quantity,company)
+
+	user_portfolio.cash_bal=float(user_portfolio.cash_bal)-brokerage
 	user_portfolio.no_trans+=1
 	user_portfolio.save()
+
 	return JsonResponse({'msg':msg})
+
+#=======SELL========#
+'''
+POST format
+{
+	'quantity':<qty>,
+	'company':<company>,
+	's_sc':<"sell"/"short cover">
+}
+'''
+@csrf_exempt
+@login_required
+def sell(request):
+	data=request.POST
+	company=data['company']
+	s_sc=data['s_sc']
+	user_portfolio=Portfolio.objects.get(email=request.session['user'])
+	quantity=Decimal(data['quantity'])
+
+	b_ss="buy" if s_sc=="sell" else "short sell"
+	print(b_ss)
+
+	#To check if the Company exists
+	try:
+		stock_data=Stock_data.objects.get(symbol=company)
+	except:
+		return JsonResponse({'msg':'Company does exist'})
+
+	#To check if the quantity is an integer	
+	if int(quantity)-quantity==0 and int(quantity)!=0:
+		pass
+	else:
+		return JsonResponse({'msg':'Quantity error'})
+
+	#To check if the user has any share of the company
+	if not Transaction.objects.filter(email=request.session['user'],symbol=data['company'],buy_ss=b_ss).exists():
+		return JsonResponse({'msg':'No quantity to sell'})
+
+	transaction=Transaction.objects.get(email=request.session['user'],symbol=data['company'],buy_ss=b_ss)
+
+	#To check if the posted quantity is greater than the quantity user owns
+	if(transaction.quantity-quantity<0):
+		return JsonResponse({'msg':'Quantity error'})
+
+	#SELL
+	no_trans=user_portfolio.no_trans
+	if(no_trans<=100):
+		brokerage=(Decimal(0.5/100)*stock_data.current_price)*quantity
+	elif(no_trans<=1000):
+		brokerage=(Decimal(1/100)*stock_data.current_price)*quantity
+	else:
+		brokerage=(Decimal(1.5/100)*stock_data.current_price)*quantity
+
+	if s_sc=="sell":
+		user_portfolio.cash_bal+=stock_data.current_price*quantity
+	else:
+		user_portfolio.margin=user_portfolio.margin-(quantity*transaction.value)/2
+		user_portfolio.cash_bal=user_portfolio.cash_bal-(transaction.value-stock_data.current_price)*quantity
+
+	if(transaction.quantity==quantity):
+		transaction.delete()
+	else:
+		transaction.quantity-=quantity
+		transaction.save()
+
+	user_portfolio.cash_bal-=brokerage
+	user_portfolio.no_trans+=1
+	user_portfolio.save()
+
+
+	return JsonResponse({'msg':'Success'})
 
 
 
