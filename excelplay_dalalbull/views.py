@@ -97,7 +97,7 @@ def newCompanyDetails(request):
 		try:
 			if(company_code!="SYMBOL" or ""):
 				data=nse.get_quote(str(company_code))
-				if(Stock_data.objects.get(symbol=company_code)):
+				if(Stock_data.objects.filter(symbol=company_code).exists()):
 					stock_data=Stock_data.objects.get(symbol=company_code)
 					stock_data.current_price=data['lastPrice']
 					stock_data.high=data['dayHigh']
