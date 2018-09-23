@@ -140,6 +140,18 @@ POST format
 @login_required
 def buy(request):
 	data=request.POST
+	
+	if(data['b_ss']=="buy"):
+		msg=submit_buy(request)
+	else:
+		msg=submit_shortSell(request)
+
+	print(msg)
+
+	return JsonResponse({'msg':msg})
+
+def submit_buy(request):
+	data=request.POST
 	quantity=Decimal(data['quantity'])
 	company=data['company']
 	b_ss=data['b_ss']
@@ -147,9 +159,6 @@ def buy(request):
 	#Checking if the Company exists
 	stock_data=companyCheck(company)
 	current_price=stock_data.current_price
-
-	#Checking if the quantity is an integer	
-	quantityCheck(quantity)
 
 	user_portfolio=Portfolio.objects.get(email=request.session['user'])
 	no_trans=user_portfolio.no_trans
@@ -160,11 +169,11 @@ def buy(request):
 
 	#Checking if the user has enough cash balance
 	user_cash_balance=user_portfolio.cash_bal
-	if((b_ss=="buy" and user_cash_balance-(quantity*current_price)-margin-brokerage<0) or (b_ss=="short sell" and user_cash_balance-margin-(quantity*current_price)/2-brokerage<0)):
-		return JsonResponse({'msg':'Not enough balance'})
+	if(user_cash_balance-(quantity*current_price)-margin-brokerage<0):
+		msg="Not enough balance"
+		return msg
 
 	#===Executed only if the user has enough cash balance===#
-	msg=''
 	if Transaction.objects.filter(email=request.session['user'],symbol=company,buy_ss=b_ss).exists():
 		transaction=Transaction.objects.get(email=request.session['user'],symbol=company,buy_ss=b_ss)
 		transaction.quantity+=int(quantity)
@@ -179,18 +188,61 @@ def buy(request):
 			quantity=quantity,
 			value=current_price,
 			)
-	if(b_ss=="buy"):
-		user_portfolio.cash_bal=user_cash_balance-(quantity*current_price)
-		msg+="You have succcessfully bought {1} quantities of {2}".format(request.session['user'],quantity,company)
-	else:
-		user_portfolio.margin=(user_portfolio.margin)+(quantity*current_price)/2
-		msg+="You have succcessfully short sold {1} quantities of {2}".format(request.session['user'],quantity,company)
+	user_portfolio.cash_bal=user_cash_balance-(quantity*current_price)
+	msg="You have succcessfully bought {1} quantities of {2}".format(request.session['user'],quantity,company)
 
 	user_portfolio.cash_bal-=brokerage
 	user_portfolio.no_trans+=1
 	user_portfolio.save()
 
-	return JsonResponse({'msg':msg})
+	return msg
+
+def submit_shortSell(request):
+	data=request.POST
+	quantity=Decimal(data['quantity'])
+	company=data['company']
+	b_ss=data['b_ss']
+
+	#Checking if the Company exists
+	stock_data=companyCheck(company)
+	current_price=stock_data.current_price
+
+	user_portfolio=Portfolio.objects.get(email=request.session['user'])
+	no_trans=user_portfolio.no_trans
+	margin=(user_portfolio.margin)
+
+	#Brokerage
+	brokerage=calculateBrokerage(no_trans,quantity,current_price)
+
+	#Checking if the user has enough cash balance
+	user_cash_balance=user_portfolio.cash_bal
+	if(user_cash_balance-margin-(quantity*current_price)/2-brokerage<0):
+		msg="Not enough balance"
+		return msg
+
+	#===Executed only if the user has enough cash balance===#
+	if Transaction.objects.filter(email=request.session['user'],symbol=company,buy_ss=b_ss).exists():
+		transaction=Transaction.objects.get(email=request.session['user'],symbol=company,buy_ss=b_ss)
+		transaction.quantity+=int(quantity)
+		transaction.value=current_price
+		transaction.time=now=datetime.datetime.now()
+		transaction.save()
+	else:	
+		Transaction.objects.create(
+			email=request.session['user'],
+			symbol=company,
+			buy_ss=b_ss,
+			quantity=quantity,
+			value=current_price,
+			)
+	user_portfolio.margin=(user_portfolio.margin)+(quantity*current_price)/2
+	msg="You have succcessfully short sold {1} quantities of {2}".format(request.session['user'],quantity,company)
+
+	user_portfolio.cash_bal-=brokerage
+	user_portfolio.no_trans+=1
+	user_portfolio.save()
+
+	return msg
 
 #=======SELL========#
 '''
@@ -216,9 +268,6 @@ def sell(request):
 	#Checking if the Company exists
 	stock_data=companyCheck(company)
 	current_price=Decimal(stock_data.current_price)
-
-	#Checking if the quantity is an integer	
-	quantityCheck(quantity)
 
 	#Checking if the user has any share of the company
 	if not Transaction.objects.filter(email=request.session['user'],symbol=data['company'],buy_ss=b_ss).exists():
@@ -253,10 +302,6 @@ def sell(request):
 
 
 
-
-#=================================#
-#       NON REQUEST FUNCTIONS     #
-#=================================#
 
 def portfolio(email):
 	user_portfolio=Portfolio.objects.get(email=email)
