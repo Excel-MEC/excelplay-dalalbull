@@ -112,3 +112,5 @@ db.sqlite3
 media
 migrations
 
+#Confidential data 
+database.cnf
