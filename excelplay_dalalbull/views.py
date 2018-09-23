@@ -257,13 +257,23 @@ POST format
 @login_required
 def sell(request):
 	data=request.POST
+
+	if data['s_sc']=="sell":
+		msg=submit_sell(request)
+	else:
+		msg=submit_shortCover(request)
+
+	return JsonResponse({'msg':msg})
+
+def submit_sell(request):
+	data=request.POST
 	company=data['company']
 	quantity=Decimal(data['quantity'])
 	s_sc=data['s_sc']
 	user_portfolio=Portfolio.objects.get(email=request.session['user'])
 	no_trans=user_portfolio.no_trans
 
-	b_ss="buy" if s_sc=="sell" else "short sell"
+	b_ss="buy"
 
 	#Checking if the Company exists
 	stock_data=companyCheck(company)
@@ -271,22 +281,21 @@ def sell(request):
 
 	#Checking if the user has any share of the company
 	if not Transaction.objects.filter(email=request.session['user'],symbol=data['company'],buy_ss=b_ss).exists():
-		return JsonResponse({'msg':'No quantity to sell'})
+		msg="No quantity to sell"
+		return msg
 
 	transaction=Transaction.objects.get(email=request.session['user'],symbol=data['company'],buy_ss=b_ss)
 
 	#Checking if the posted quantity is greater than the quantity user owns
 	if(transaction.quantity-quantity<0):
-		return JsonResponse({'msg':'Quantity error'})
+		msg="Quantity error"
+		return msg
 
 	#SELL
+	
 	brokerage=calculateBrokerage(user_portfolio.no_trans,quantity,current_price)
 
-	if s_sc=="sell":
-		user_portfolio.cash_bal+=stock_data.current_price*quantity
-	else:
-		user_portfolio.margin=user_portfolio.margin-(quantity*transaction.value)/2
-		user_portfolio.cash_bal=user_portfolio.cash_bal-(transaction.value-stock_data.current_price)*quantity
+	user_portfolio.cash_bal+=stock_data.current_price*quantity
 
 	if(transaction.quantity==quantity):
 		transaction.delete()
@@ -298,8 +307,54 @@ def sell(request):
 	user_portfolio.no_trans+=1
 	user_portfolio.save()
 
-	return JsonResponse({'msg':'Success'})
+	msg="Success"
+	return msg
 
+def submit_shortCover(request):
+	data=request.POST
+	company=data['company']
+	quantity=Decimal(data['quantity'])
+	s_sc=data['s_sc']
+	user_portfolio=Portfolio.objects.get(email=request.session['user'])
+	no_trans=user_portfolio.no_trans
+
+	b_ss="short sell"
+
+	#Checking if the Company exists
+	stock_data=companyCheck(company)
+	current_price=Decimal(stock_data.current_price)
+
+	#Checking if the user has any share of the company
+	if not Transaction.objects.filter(email=request.session['user'],symbol=data['company'],buy_ss=b_ss).exists():
+		msg="No quantity to sell"
+		return msg
+
+	transaction=Transaction.objects.get(email=request.session['user'],symbol=data['company'],buy_ss=b_ss)
+
+	#Checking if the posted quantity is greater than the quantity user owns
+	if(transaction.quantity-quantity<0):
+		msg="Quantity error"
+		return msg
+
+	#SHORT COVER
+
+	brokerage=calculateBrokerage(user_portfolio.no_trans,quantity,current_price)
+
+	user_portfolio.margin=user_portfolio.margin-(quantity*transaction.value)/2
+	user_portfolio.cash_bal=user_portfolio.cash_bal-(transaction.value-stock_data.current_price)*quantity
+
+	if(transaction.quantity==quantity):
+		transaction.delete()
+	else:
+		transaction.quantity-=quantity
+		transaction.save()
+
+	user_portfolio.cash_bal-=brokerage
+	user_portfolio.no_trans+=1
+	user_portfolio.save()
+	
+	msg="Success"
+	return msg
 
 
 
