@@ -1,3 +1,5 @@
+celery==4.2.1
 django==2.0.3
-nsetools==1.0.5
 mysqlclient
+nsetools==1.0.5
+redis==2.10.6

@@ -23,7 +23,6 @@ urlpatterns = [
     url(r'portfolioView/$',views.portfolioView,name='portfolioView'),
     url(r'companyDetails/$',views.companyDetails,name='companyDetails'),
     url(r'leaderboard/$',views.leaderboard,name='leaderboard'),
-    url(r'newCompanyDetails/$',views.newCompanyDetails,name='newCompanyDetails'),
     url(r'buy/$',views.buy,name='buy'),
     url(r'sell/$',views.sell,name='sell'),
 ]
