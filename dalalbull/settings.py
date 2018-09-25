@@ -124,18 +124,24 @@ STATIC_URL = '/static/'
 
 from datetime import timedelta
 
+# Redis session settings
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS_HOST = 'localhost'
+SESSION_REDIS_PORT = 6378
+SESSION_REDIS_DB = 0
+SESSION_REDIS_PREFIX = 'session'
+
 # CELERY STUFF
-BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://localhost:6378'
+CELERY_RESULT_BACKEND = 'redis://localhost:6378'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Africa/Nairobi'
 
 CELERYBEAT_SCHEDULE = {
     'net-every-20-seconds': { #update Company Details
             'task': 'excelplay_dalalbull.tasks.tq',
-            'schedule': timedelta(seconds=5),
+            'schedule': timedelta(seconds=1),
             'args': ()
      },
 }

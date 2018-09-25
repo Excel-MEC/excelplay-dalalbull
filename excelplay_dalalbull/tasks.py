@@ -63,6 +63,3 @@ def stockdata():
 			pass
 	print("Updating successful")
 	return JsonResponse({"msg":"success"})
-
-add.delay(1,2)
-tq.delay()

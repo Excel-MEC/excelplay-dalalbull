@@ -1,5 +1,6 @@
 celery==4.2.1
 django==2.0.3
+django-redis-sessions==0.6.1
 mysqlclient
 nsetools==1.0.5
 redis==2.10.6

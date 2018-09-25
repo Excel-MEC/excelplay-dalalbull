@@ -6,7 +6,7 @@ from django.conf import settings
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dalalbull.settings')
 
-app = Celery('dalalbull')
+app = Celery('dalalbull',broker='redis://localhost:6378/0')
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
