@@ -145,3 +145,12 @@ CELERYBEAT_SCHEDULE = {
             'args': ()
      },
 }
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6378)],
+        },
+    },
+}

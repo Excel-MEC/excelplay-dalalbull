@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'leaderboard/$',views.leaderboard,name='leaderboard'),
     url(r'buy/$',views.buy,name='buy'),
     url(r'sell/$',views.sell,name='sell'),
+    url(r'dashboard/$',views.dashboard,name='dashboard'),
 ]
