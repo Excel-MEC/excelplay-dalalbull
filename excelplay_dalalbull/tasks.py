@@ -5,6 +5,7 @@ from urllib import request
 
 import urllib
 import json
+import os
 
 from nsetools import Nse
 nse=Nse()
@@ -79,7 +80,7 @@ def net():
 # 	print("Updating successful")
 # 	return JsonResponse({"msg":"success"})
 
-API_KEY="c0e298ec-1912-483a-84f9-20b1a1142e28"
+API_KEY = os.environ.get('DALLALBULL_API_KEY')
 nse_url = 'http://nseindia.com/live_market/dynaContent/live_watch/stock_watch/niftyStockWatch.json'
 
 hdr = {
