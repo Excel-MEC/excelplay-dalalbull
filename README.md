@@ -32,7 +32,18 @@ $ python manage.py migrate
 $ sudo apt-get install redis-server
 $ redis-server --port <portno>
 ```
-## 6-Run the server
+## 6-Start the worker in a new terminal
+
+```
+celery -A dalalbull worker -l info
+
+(In a different terminal)
+python manage.py shell 
+	$ from excelplay_dalalbull.tasks import *
+	$ stock_update.delay()
+```
+
+## 7-Run the server
 ```
 $ python manage.py runserver
 ```
