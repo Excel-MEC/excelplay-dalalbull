@@ -5,14 +5,7 @@ import numbers
 import datetime
 from .decorators import login_required
 
-from nsetools import Nse
-nse=Nse()
-
 from .models import *
-
-#To get the stock codes of all the companies
-all_stock_codes=nse.get_stock_codes()
-
 #========Register users========#
 '''
 
@@ -46,8 +39,27 @@ def handShake(request):
 				email=email,
 				cash_bal=1000000.00,
 				no_trans=0,
+				net_worth=1000000.00,
+				rank=Portfolio.objects.count
 			)
 	return JsonResponse({'success':True})
+
+#======Dashboard======#
+@login_required
+@csrf_exempt
+def dashboard(request):
+    total_users = User.objects.count()
+
+    data_to_send = {
+        'total_users' : total_users,
+        'stockholdings':getStockHoldings(request.session['user']),
+        'topGainers' : getTopGainers(),
+        'topLosers' : getTopLosers(),
+        'mostActiveVol' : getMostActiveVolume(),
+        'mostActiveVal' : getMostActiveValue(),
+    }
+
+    return JsonResponse(data_to_send)
 
 #========Logout (Delete 'user' from session)========#
 @login_required
@@ -90,42 +102,6 @@ def companyDetails(request):
         return JsonResponse({ 
             'result' : 'wrong company name!'}
             )
-
-#=========Update details of company========#
-def newCompanyDetails(request):
-	for company_code in all_stock_codes:
-		try:
-			if(company_code!="SYMBOL" or ""):
-				data=nse.get_quote(str(company_code))
-				if(Stock_data.objects.filter(symbol=company_code).exists()):
-					stock_data=Stock_data.objects.get(symbol=company_code)
-					stock_data.current_price=data['lastPrice']
-					stock_data.high=data['dayHigh']
-					stock_data.low=data['dayLow']
-					stock_data.open_price=data['open']
-					stock_data.change=data['change']
-					stock_data.change_per=data['pChange']
-					stock_data.trade_Qty=data['deliveryQuantity']
-					stock_data.trade_Value=data['totalTradedValue']
-
-					stock_data.save()
-				else:
-					Stock_data.objects.create(
-						symbol=data['symbol'],
-						current_price=data['lastPrice'],
-						high=data['dayHigh'],
-						low=data['dayLow'],
-						open_price=data['open'],
-						change=data['change'],
-						change_per=data['pChange'],
-						trade_Qty=data['deliveryQuantity'],
-						trade_Value=data['totalTradedValue']
-						)
-				print("success",end=" ")
-		except:
-			print("error")
-			pass
-	return JsonResponse({"msg":"success"})
 
 #========BUY========#
 '''
@@ -292,7 +268,7 @@ def submit_sell(request):
 		return msg
 
 	#SELL
-	
+
 	brokerage=calculateBrokerage(user_portfolio.no_trans,quantity,current_price)
 
 	user_portfolio.cash_bal+=stock_data.current_price*quantity
@@ -363,9 +339,11 @@ def portfolio(email):
 	total_no=User.objects.count()
 	data_to_send = {
 		'cash_bal' : user_portfolio.cash_bal,
+		'net_worth': user_portfolio.net_worth,
+		'rank': user_portfolio.rank,
 		'total_users' : total_no,
 		'total_transactions' : user_portfolio.no_trans,
-		'margin':user_portfolio.margin
+		'margin':user_portfolio.margin,
 	}
 	return data_to_send
 
@@ -376,7 +354,7 @@ def stock_symbols():
     return data_to_send
 
 def leaderboardData():
-    p=Portfolio.objects.all().order_by('-cash_bal')[:100]
+    p=Portfolio.objects.all().order_by('-net_worth')[:100]
     i=1
     l=[]
     for t in p:
@@ -414,3 +392,56 @@ def calculateBrokerage(no_trans,quantity,current_price):
 	else :                      
 		brokerage=(Decimal(1.5/100)*current_price)*(quantity)
 	return Decimal(brokerage)
+
+def getStockHoldings(email):
+	stock_holdings=[]
+	transactions=Transaction.objects.filter(email=email)
+	for i in transactions:
+		stock={}
+		stock['company']=i.symbol
+		stock['number']=i.quantity
+		stock['type']=i.buy_ss
+		stock['purchase']=(i.value)
+		stock['current']=(Stock_data.objects.get(symbol=i.symbol).current_price)
+		stock_holdings.append(stock)
+	return stock_holdings
+
+def getTopGainers():
+    gainers=[]
+    stocks=Stock_data.objects.all().order_by('-change_per')[:5]
+    for stock in stocks:
+        gainers.append({
+            'name' : stock.symbol,
+            'change_per' : stock.change_per,
+            })
+    return gainers
+
+def getTopLosers():
+    losers=[]
+    stocks=Stock_data.objects.all().order_by('change_per')[:5]
+    for stock in stocks:
+        losers.append({
+            'name' : stock.symbol,
+            'change_per' : stock.change_per,
+            })
+    return losers
+
+def getMostActiveVolume():
+    mostActiveVol=[]
+    stocks=Stock_data.objects.all().order_by('-trade_Qty')[:5]
+    for stock in stocks:
+        mostActiveVol.append({
+            'name' : stock.symbol,
+            'trade_Qty' : stock.trade_Qty,
+            })
+    return mostActiveVol
+
+def getMostActiveValue():
+    mostActiveVal=[]
+    stocks=Stock_data.objects.all().order_by('-trade_Value')[:5]
+    for stock in stocks:
+        mostActiveVal.append({
+            'name' : stock.symbol,
+            'trade_value' : stock.trade_Value,
+            })
+    return mostActiveVal

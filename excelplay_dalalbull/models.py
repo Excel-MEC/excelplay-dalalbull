@@ -10,6 +10,8 @@ class User(models.Model):
 class Portfolio(models.Model):
 	email=models.CharField(primary_key=True,max_length=100)
 	cash_bal = models.DecimalField(max_digits=19, decimal_places=2, default=Decimal('100000'))
+	net_worth = models.DecimalField(max_digits=19, decimal_places=2, default=Decimal('100000'))
+	rank = models.IntegerField(default=131)
 	no_trans = models.DecimalField(max_digits=19, decimal_places=0, default=Decimal('0'))
 	margin = models.DecimalField(max_digits=19, decimal_places=2, default=Decimal('0.00'))
 	def __str__(self):
