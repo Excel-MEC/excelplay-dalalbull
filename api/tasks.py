@@ -81,9 +81,9 @@ def net():
 # 	print("Updating successful")
 # 	return JsonResponse({"msg":"success"})
 
-API_KEY = "c0e298ec-1912-483a-84f9-20b1a1142e28"
+API_KEY = os.environ.get("DALALBULL_API_KEY")
 print("api key")
-print(API_KEY)
+print(os.environ.get("DALALBULL_API_KEY"))
 nse_url = 'http://nseindia.com/live_market/dynaContent/live_watch/stock_watch/niftyStockWatch.json'
 
 hdr = {
