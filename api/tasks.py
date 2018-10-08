@@ -11,6 +11,8 @@ nse=Nse()
 
 from .models import *
 
+import os
+
 #To get the stock codes of all the companies
 all_stock_codes=nse.get_stock_codes()
 
@@ -79,7 +81,9 @@ def net():
 # 	print("Updating successful")
 # 	return JsonResponse({"msg":"success"})
 
-API_KEY="c0e298ec-1912-483a-84f9-20b1a1142e28"
+API_KEY = "c0e298ec-1912-483a-84f9-20b1a1142e28"
+print("api key")
+print(API_KEY)
 nse_url = 'http://nseindia.com/live_market/dynaContent/live_watch/stock_watch/niftyStockWatch.json'
 
 hdr = {
