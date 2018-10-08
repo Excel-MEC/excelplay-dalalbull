@@ -21,10 +21,24 @@ class Portfolio(models.Model):
 			)
 
 #Details of the company user owns
-class Transaction(models.Model):
+class TransactionBuy(models.Model):
 	email=models.CharField(max_length=200)
 	symbol=models.CharField(max_length=10)
-	buy_ss = models.CharField(max_length=30)
+	quantity=models.DecimalField(max_digits=19, decimal_places=0,validators=[MinValueValidator(Decimal('0.00'))])
+	value=models.DecimalField(max_digits=19,decimal_places=2)
+	time=models.DateTimeField(auto_now_add=True)
+	
+
+	def __str__(self):
+		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,
+			self.time,
+			self.buy_ss,
+			self.quantity,
+			self.value,
+			)
+class TransactionShortSell(models.Model):
+	email=models.CharField(max_length=200)
+	symbol=models.CharField(max_length=10)
 	quantity=models.DecimalField(max_digits=19, decimal_places=0,validators=[MinValueValidator(Decimal('0.00'))])
 	value=models.DecimalField(max_digits=19,decimal_places=2)
 	time=models.DateTimeField(auto_now_add=True)

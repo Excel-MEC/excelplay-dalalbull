@@ -210,7 +210,7 @@ def networth():
 			i=Portfolio.objects.get(email=k.email)	
 			net_worth=float(i.cash_bal)
 			try:
-				trans=Transaction.objects.filter(email=i.email	,buy_ss='Buy')
+				trans=TransactionBuy.objects.filter(email=i.email)
 				for j in trans:
 					try:
 						current_price = float(Stock_data.objects.get(symbol=j.symbol).current_price)
@@ -219,7 +219,7 @@ def networth():
 						print("Company Not Listed")
 				i.net_worth = net_worth
 				i.save()
-			except Transaction.DoesNotExist:
+			except TransactionBuy.DoesNotExist:
 				print("No Transactons")
 		except Portfolio.DoesNotExist:
 			print("Fail")
