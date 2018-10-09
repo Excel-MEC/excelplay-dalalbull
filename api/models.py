@@ -32,7 +32,6 @@ class TransactionBuy(models.Model):
 	def __str__(self):
 		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,
 			self.time,
-			self.buy_ss,
 			self.quantity,
 			self.value,
 			)
@@ -47,7 +46,6 @@ class TransactionShortSell(models.Model):
 	def __str__(self):
 		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,
 			self.time,
-			self.buy_ss,
 			self.quantity,
 			self.value,
 			)
