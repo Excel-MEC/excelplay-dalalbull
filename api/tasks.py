@@ -5,12 +5,13 @@ from urllib import request
 
 import urllib
 import json
-import os
 
 from nsetools import Nse
 nse=Nse()
 
 from .models import *
+
+import os
 
 #To get the stock codes of all the companies
 all_stock_codes=nse.get_stock_codes()
@@ -80,7 +81,9 @@ def net():
 # 	print("Updating successful")
 # 	return JsonResponse({"msg":"success"})
 
-API_KEY = os.environ.get('DALLALBULL_API_KEY')
+API_KEY = os.environ.get("DALALBULL_API_KEY")
+print("api key")
+print(os.environ.get("DALALBULL_API_KEY"))
 nse_url = 'http://nseindia.com/live_market/dynaContent/live_watch/stock_watch/niftyStockWatch.json'
 
 hdr = {
@@ -207,7 +210,7 @@ def networth():
 			i=Portfolio.objects.get(email=k.email)	
 			net_worth=float(i.cash_bal)
 			try:
-				trans=Transaction.objects.filter(user_id=i.user_id,buy_ss='Buy')
+				trans=TransactionBuy.objects.filter(email=i.email)
 				for j in trans:
 					try:
 						current_price = float(Stock_data.objects.get(symbol=j.symbol).current_price)
@@ -216,7 +219,7 @@ def networth():
 						print("Company Not Listed")
 				i.net_worth = net_worth
 				i.save()
-			except Transaction.DoesNotExist:
+			except TransactionBuy.DoesNotExist:
 				print("No Transactons")
 		except Portfolio.DoesNotExist:
 			print("Fail")

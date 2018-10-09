@@ -30,7 +30,7 @@ $ python manage.py migrate
 ## 5-Setting up Redis Server 
 ```
 $ sudo apt-get install redis-server
-$ redis-server --port <portno>
+$ redis-server --port <portno> (6378)
 ```
 ## 6-Start the worker in a new terminal
 

@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'excelplay_dalalbull',
+    'api',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'dalalbull.urls'
+ROOT_URLCONF = 'excelplay_dalalbull.urls'
 
 TEMPLATES = [
     {
@@ -68,8 +68,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'dalalbull.wsgi.application'
+WSGI_APPLICATION = 'excelplay_dalalbull.wsgi.application'
 
+print(BASE_DIR+'/excelplay_dalalbull/')
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -78,7 +79,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': BASE_DIR+'/dalalbull/database.cnf',
+            'read_default_file': BASE_DIR+'/excelplay_dalalbull/database.cnf',
         },
     }
 }

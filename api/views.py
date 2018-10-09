@@ -130,7 +130,6 @@ def submit_buy(request):
 	data=request.POST
 	quantity=Decimal(data['quantity'])
 	company=data['company']
-	b_ss=data['b_ss']
 
 	#Checking if the Company exists
 	stock_data=companyCheck(company)
@@ -150,17 +149,16 @@ def submit_buy(request):
 		return msg
 
 	#===Executed only if the user has enough cash balance===#
-	if Transaction.objects.filter(email=request.session['user'],symbol=company,buy_ss=b_ss).exists():
-		transaction=Transaction.objects.get(email=request.session['user'],symbol=company,buy_ss=b_ss)
+	if TransactionBuy.objects.filter(email=request.session['user'],symbol=company).exists():
+		transaction=TransactionBuy.objects.get(email=request.session['user'],symbol=company)
 		transaction.quantity+=int(quantity)
 		transaction.value=current_price
 		transaction.time=now=datetime.datetime.now()
 		transaction.save()
 	else:	
-		Transaction.objects.create(
+		TransactionBuy.objects.create(
 			email=request.session['user'],
 			symbol=company,
-			buy_ss=b_ss,
 			quantity=quantity,
 			value=current_price,
 			)
@@ -177,7 +175,6 @@ def submit_shortSell(request):
 	data=request.POST
 	quantity=Decimal(data['quantity'])
 	company=data['company']
-	b_ss=data['b_ss']
 
 	#Checking if the Company exists
 	stock_data=companyCheck(company)
@@ -197,17 +194,16 @@ def submit_shortSell(request):
 		return msg
 
 	#===Executed only if the user has enough cash balance===#
-	if Transaction.objects.filter(email=request.session['user'],symbol=company,buy_ss=b_ss).exists():
-		transaction=Transaction.objects.get(email=request.session['user'],symbol=company,buy_ss=b_ss)
+	if TransactionShortSell.objects.filter(email=request.session['user'],symbol=company).exists():
+		transaction=TransactionShortSell.objects.get(email=request.session['user'],symbol=company)
 		transaction.quantity+=int(quantity)
 		transaction.value=current_price
 		transaction.time=now=datetime.datetime.now()
 		transaction.save()
 	else:	
-		Transaction.objects.create(
+		TransactionShortSell.objects.create(
 			email=request.session['user'],
 			symbol=company,
-			buy_ss=b_ss,
 			quantity=quantity,
 			value=current_price,
 			)
@@ -245,22 +241,20 @@ def submit_sell(request):
 	data=request.POST
 	company=data['company']
 	quantity=Decimal(data['quantity'])
-	s_sc=data['s_sc']
 	user_portfolio=Portfolio.objects.get(email=request.session['user'])
 	no_trans=user_portfolio.no_trans
 
-	b_ss="buy"
 
 	#Checking if the Company exists
 	stock_data=companyCheck(company)
 	current_price=Decimal(stock_data.current_price)
 
 	#Checking if the user has any share of the company
-	if not Transaction.objects.filter(email=request.session['user'],symbol=data['company'],buy_ss=b_ss).exists():
+	if not TransactionBuy.objects.filter(email=request.session['user'],symbol=data['company']).exists():
 		msg="No quantity to sell"
 		return msg
 
-	transaction=Transaction.objects.get(email=request.session['user'],symbol=data['company'],buy_ss=b_ss)
+	transaction=TransactionBuy.objects.get(email=request.session['user'],symbol=data['company'])
 
 	#Checking if the posted quantity is greater than the quantity user owns
 	if(transaction.quantity-quantity<0):
@@ -290,22 +284,20 @@ def submit_shortCover(request):
 	data=request.POST
 	company=data['company']
 	quantity=Decimal(data['quantity'])
-	s_sc=data['s_sc']
 	user_portfolio=Portfolio.objects.get(email=request.session['user'])
 	no_trans=user_portfolio.no_trans
 
-	b_ss="short sell"
 
 	#Checking if the Company exists
 	stock_data=companyCheck(company)
 	current_price=Decimal(stock_data.current_price)
 
 	#Checking if the user has any share of the company
-	if not Transaction.objects.filter(email=request.session['user'],symbol=data['company'],buy_ss=b_ss).exists():
+	if not TransactionShortSell.objects.filter(email=request.session['user'],symbol=data['company']).exists():
 		msg="No quantity to sell"
 		return msg
 
-	transaction=Transaction.objects.get(email=request.session['user'],symbol=data['company'],buy_ss=b_ss)
+	transaction=TransactionShortSell.objects.get(email=request.session['user'],symbol=data['company'])
 
 	#Checking if the posted quantity is greater than the quantity user owns
 	if(transaction.quantity-quantity<0):
@@ -395,12 +387,22 @@ def calculateBrokerage(no_trans,quantity,current_price):
 
 def getStockHoldings(email):
 	stock_holdings=[]
-	transactions=Transaction.objects.filter(email=email)
+	transactions=TransactionBuy.objects.filter(email=email)
 	for i in transactions:
 		stock={}
 		stock['company']=i.symbol
 		stock['number']=i.quantity
-		stock['type']=i.buy_ss
+		stock['type']="Buy"
+		stock['purchase']=(i.value)
+		stock['current']=(Stock_data.objects.get(symbol=i.symbol).current_price)
+		stock_holdings.append(stock)
+
+	transactions=TransactionShortSell.objects.filter(email=email)
+	for i in transactions:
+		stock={}
+		stock['company']=i.symbol
+		stock['number']=i.quantity
+		stock['type']="Short Sell"
 		stock['purchase']=(i.value)
 		stock['current']=(Stock_data.objects.get(symbol=i.symbol).current_price)
 		stock_holdings.append(stock)
