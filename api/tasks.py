@@ -11,6 +11,8 @@ nse=Nse()
 
 from .models import *
 
+from .consumers import portfolioDataPush
+
 import os
 
 #To get the stock codes of all the companies
@@ -42,6 +44,11 @@ def net():
     print("Networth Update");
     networth()
     return
+
+@shared_task
+def broadcastPortfolioData():
+	print("Portfolio data broadcasted!")
+	portfolioDataPush()
 
 #=========Update details of company========#
 # def stockdata():
