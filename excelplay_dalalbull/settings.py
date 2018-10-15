@@ -131,13 +131,13 @@ from datetime import timedelta
 # Redis session settings
 SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS_HOST = 'localhost'
-SESSION_REDIS_PORT = 6378
+SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 0
 SESSION_REDIS_PREFIX = 'session'
 
 # CELERY STUFF
-CELERY_BROKER_URL = 'redis://localhost:6378'
-CELERY_RESULT_BACKEND = 'redis://localhost:6378'
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -154,7 +154,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "asgi_redis.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("localhost", 6378)],
+            "hosts": [("localhost", 6379)],
         },
         "ROUTING": "api.routing.channel_routing",
     },

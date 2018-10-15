@@ -94,14 +94,19 @@ Post data format:
 @csrf_exempt
 @login_required
 def companyDetails(request):                          
-    company = request.POST['company']
-    try:
-        data_to_send = Stock_data.objects.get(symbol=company).as_dict()
-        return JsonResponse(data_to_send)
-    except:
-        return JsonResponse({ 
-            'result' : 'wrong company name!'}
-            )
+	try:
+		company = request.POST['company']
+	except:
+		return JsonResponse({ 
+		    'msg' : 'error'}
+		    )
+	try:
+	    data_to_send = Stock_data.objects.get(symbol=company).as_dict()
+	    return JsonResponse(data_to_send)
+	except:
+	    return JsonResponse({ 
+	        'result' : 'wrong company name!'}
+	        )
 
 #========BUY========#
 '''
@@ -169,6 +174,16 @@ def submit_buy(request):
 	user_portfolio.no_trans+=1
 	user_portfolio.save()
 
+	history=History(
+		email=request.session['user'],
+		time=datetime.datetime.now().time(),
+		symbol=company,
+		buy_ss="BUY",
+		quantity=quantity,
+		price=stocks.current_price
+		)
+	history.save()
+
 	return msg
 
 def submit_shortSell(request):
@@ -213,6 +228,16 @@ def submit_shortSell(request):
 	user_portfolio.cash_bal-=brokerage
 	user_portfolio.no_trans+=1
 	user_portfolio.save()
+
+	history=History(
+		email=request.session['user'],
+		time=datetime.datetime.now().time(),
+		symbol=company,
+		buy_ss="SHORT SELL",
+		quantity=quantity,
+		price=stocks.current_price
+	)
+	history.save()
 
 	return msg
 
@@ -322,8 +347,29 @@ def submit_shortCover(request):
 	user_portfolio.save()
 	
 	msg="Success"
+
 	return msg
 
+#=======History========#
+'''
+    Details of all transactions.
+'''
+@login_required
+def history(request):
+    hist = History.objects.filter(email=request.session['user'])
+
+    hf = []
+    for i in hist:
+        h = i.as_dict()
+        h['time'] = h['time'].strftime("%a  %d %b %I:%M:%S %p")
+        h['total']= (float(i.quantity) * float(i.price))
+        hf.append(h)
+
+    data = {
+    'history' : hf,
+    }
+
+    return JsonResponse(data)
 
 
 def portfolio(email):

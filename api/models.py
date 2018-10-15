@@ -78,3 +78,28 @@ class Stock_data(models.Model):
     	'trade_Qty' : float(self.trade_Qty),
     	'trade_Value' : float(self.trade_Value),
     	}
+
+class History(models.Model):
+	email=models.CharField(max_length=200)
+	time=models.DateTimeField(auto_now_add=True)
+	symbol=models.CharField(max_length=10)
+	buy_ss=models.CharField(max_length=30)
+	quantity=models.DecimalField(max_digits=19, decimal_places=0,validators=[MinValueValidator(Decimal('0.00'))])
+	price=models.DecimalField(max_digits=19,decimal_places=2)
+
+	def as_dict(self):
+		return {
+		'time' : self.time,
+		'symbol' : self.symbol,
+		'buy_ss' : self.buy_ss,
+		'quantity' : float(self.quantity),
+		'price' : float(self.price),
+		}
+
+	def __str__(self):
+		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,
+			self.time,
+			self.buy_ss,
+			self.quantity,
+			self.price,
+			)
