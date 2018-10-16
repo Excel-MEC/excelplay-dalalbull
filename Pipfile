@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+celery = "==4.2.1"
+django-redis-sessions = "==0.6.1"
+mysqlclient = "*"
+nsetools = "==1.0.5"
+redis = "==2.10.6"
+Django = "==2.0.3"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"
