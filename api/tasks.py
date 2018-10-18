@@ -11,6 +11,8 @@ nse=Nse()
 
 from .models import *
 
+from .consumers import portfolioDataPush
+
 import os
 
 #To get the stock codes of all the companies
@@ -42,6 +44,11 @@ def net():
     print("Networth Update");
     networth()
     return
+
+@shared_task
+def broadcastPortfolioData():
+	print("Portfolio data broadcasted!")
+	portfolioDataPush()
 
 #=========Update details of company========#
 # def stockdata():
@@ -81,7 +88,8 @@ def net():
 # 	print("Updating successful")
 # 	return JsonResponse({"msg":"success"})
 
-API_KEY = os.environ.get("DALALBULL_API_KEY")
+# API_KEY = os.environ.get("DALALBULL_API_KEY")
+API_KEY="c0e298ec-1912-483a-84f9-20b1a1142e28"
 print("api key")
 print(os.environ.get("DALALBULL_API_KEY"))
 nse_url = 'http://nseindia.com/live_market/dynaContent/live_watch/stock_watch/niftyStockWatch.json'
@@ -207,10 +215,10 @@ def networth():
 	u = User.objects.all()
 	for k in u:
 		try:
-			i=Portfolio.objects.get(email=k.email)	
+			i=Portfolio.objects.get(user_id=k.user_id)	
 			net_worth=float(i.cash_bal)
 			try:
-				trans=TransactionBuy.objects.filter(email=i.email)
+				trans=TransactionBuy.objects.filter(user_id=i.user_id)
 				for j in trans:
 					try:
 						current_price = float(Stock_data.objects.get(symbol=j.symbol).current_price)

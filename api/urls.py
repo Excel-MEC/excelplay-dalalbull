@@ -21,9 +21,12 @@ urlpatterns = [
     url(r'handShake/$',views.handShake,name='handShake'),
     url(r'logout/$',views.logout,name='logout'),
     url(r'portfolioView/$',views.portfolioView,name='portfolioView'),
-    url(r'companyDetails/$',views.companyDetails,name='companyDetails'),
+    url(r'companydetails/$',views.companyDetails,name='companyDetails'),
     url(r'leaderboard/$',views.leaderboard,name='leaderboard'),
     url(r'buy/$',views.buy,name='buy'),
     url(r'sell/$',views.sell,name='sell'),
     url(r'dashboard/$',views.dashboard,name='dashboard'),
+    url(r'history/$',views.history,name='history'),
+    url(r'currentprice/$',views.currentPrice,name='currentPrice'),
+
 ]
