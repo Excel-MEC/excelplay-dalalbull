@@ -12,13 +12,14 @@ from .models import *
 POST FORMAT
 
 	{
-		'user':<email>
+		'user':<user_id>
 	}
 
 '''
 @csrf_exempt
 def register(request):
 	try:
+		request.session['logged_in']=True
 		request.session['user']=request.POST['user']
 		return JsonResponse({'success':True})
 	except:
@@ -27,20 +28,25 @@ def register(request):
 #========Create User object if not created========#
 @login_required
 def handShake(request):
-	email = request.session['user']
-	print(email)
-	if not User.objects.filter(email=email).exists():
+	user_id = request.session['user']
+	print(user_id)
+	total_users=Portfolio.objects.count()
+	if(not isinstance(total_users,int)):
+		print('First user')
+		total_users=1
+	print(total_users)
+	if not User.objects.filter(user_id=user_id).exists():
 		User.objects.create(
-			email=email,
+			user_id=user_id,
 		)
 		print("new user................")
-	if not Portfolio.objects.filter(email=email).exists():
+	if not Portfolio.objects.filter(user_id=user_id).exists():
 		Portfolio.objects.create(
-				email=email,
+				user_id=user_id,
 				cash_bal=1000000.00,
 				no_trans=0,
 				net_worth=1000000.00,
-				rank=Portfolio.objects.count
+				rank=total_users,
 			)
 	return JsonResponse({'success':True})
 
@@ -140,7 +146,7 @@ def submit_buy(request):
 	stock_data=companyCheck(company)
 	current_price=stock_data.current_price
 
-	user_portfolio=Portfolio.objects.get(email=request.session['user'])
+	user_portfolio=Portfolio.objects.get(user_id=request.session['user'])
 	no_trans=user_portfolio.no_trans
 	margin=(user_portfolio.margin)
 
@@ -154,15 +160,15 @@ def submit_buy(request):
 		return msg
 
 	#===Executed only if the user has enough cash balance===#
-	if TransactionBuy.objects.filter(email=request.session['user'],symbol=company).exists():
-		transaction=TransactionBuy.objects.get(email=request.session['user'],symbol=company)
+	if TransactionBuy.objects.filter(user_id=request.session['user'],symbol=company).exists():
+		transaction=TransactionBuy.objects.get(user_id=request.session['user'],symbol=company)
 		transaction.quantity+=int(quantity)
 		transaction.value=current_price
 		transaction.time=now=datetime.datetime.now()
 		transaction.save()
 	else:	
 		TransactionBuy.objects.create(
-			email=request.session['user'],
+			user_id=request.session['user'],
 			symbol=company,
 			quantity=quantity,
 			value=current_price,
@@ -175,12 +181,12 @@ def submit_buy(request):
 	user_portfolio.save()
 
 	history=History(
-		email=request.session['user'],
+		user_id=request.session['user'],
 		time=datetime.datetime.now().time(),
 		symbol=company,
 		buy_ss="BUY",
 		quantity=quantity,
-		price=stocks.current_price
+		price=stock_data.current_price
 		)
 	history.save()
 
@@ -195,7 +201,7 @@ def submit_shortSell(request):
 	stock_data=companyCheck(company)
 	current_price=stock_data.current_price
 
-	user_portfolio=Portfolio.objects.get(email=request.session['user'])
+	user_portfolio=Portfolio.objects.get(user_id=request.session['user'])
 	no_trans=user_portfolio.no_trans
 	margin=(user_portfolio.margin)
 
@@ -209,15 +215,15 @@ def submit_shortSell(request):
 		return msg
 
 	#===Executed only if the user has enough cash balance===#
-	if TransactionShortSell.objects.filter(email=request.session['user'],symbol=company).exists():
-		transaction=TransactionShortSell.objects.get(email=request.session['user'],symbol=company)
+	if TransactionShortSell.objects.filter(user_id=request.session['user'],symbol=company).exists():
+		transaction=TransactionShortSell.objects.get(user_id=request.session['user'],symbol=company)
 		transaction.quantity+=int(quantity)
 		transaction.value=current_price
 		transaction.time=now=datetime.datetime.now()
 		transaction.save()
 	else:	
 		TransactionShortSell.objects.create(
-			email=request.session['user'],
+			user_id=request.session['user'],
 			symbol=company,
 			quantity=quantity,
 			value=current_price,
@@ -230,12 +236,12 @@ def submit_shortSell(request):
 	user_portfolio.save()
 
 	history=History(
-		email=request.session['user'],
+		user_id=request.session['user'],
 		time=datetime.datetime.now().time(),
 		symbol=company,
 		buy_ss="SHORT SELL",
 		quantity=quantity,
-		price=stocks.current_price
+		price=stock_data.current_price
 	)
 	history.save()
 
@@ -266,7 +272,7 @@ def submit_sell(request):
 	data=request.POST
 	company=data['company']
 	quantity=Decimal(data['quantity'])
-	user_portfolio=Portfolio.objects.get(email=request.session['user'])
+	user_portfolio=Portfolio.objects.get(user_id=request.session['user'])
 	no_trans=user_portfolio.no_trans
 
 
@@ -275,11 +281,11 @@ def submit_sell(request):
 	current_price=Decimal(stock_data.current_price)
 
 	#Checking if the user has any share of the company
-	if not TransactionBuy.objects.filter(email=request.session['user'],symbol=data['company']).exists():
+	if not TransactionBuy.objects.filter(user_id=request.session['user'],symbol=data['company']).exists():
 		msg="No quantity to sell"
 		return msg
 
-	transaction=TransactionBuy.objects.get(email=request.session['user'],symbol=data['company'])
+	transaction=TransactionBuy.objects.get(user_id=request.session['user'],symbol=data['company'])
 
 	#Checking if the posted quantity is greater than the quantity user owns
 	if(transaction.quantity-quantity<0):
@@ -309,7 +315,7 @@ def submit_shortCover(request):
 	data=request.POST
 	company=data['company']
 	quantity=Decimal(data['quantity'])
-	user_portfolio=Portfolio.objects.get(email=request.session['user'])
+	user_portfolio=Portfolio.objects.get(user_id=request.session['user'])
 	no_trans=user_portfolio.no_trans
 
 
@@ -318,11 +324,11 @@ def submit_shortCover(request):
 	current_price=Decimal(stock_data.current_price)
 
 	#Checking if the user has any share of the company
-	if not TransactionShortSell.objects.filter(email=request.session['user'],symbol=data['company']).exists():
+	if not TransactionShortSell.objects.filter(user_id=request.session['user'],symbol=data['company']).exists():
 		msg="No quantity to sell"
 		return msg
 
-	transaction=TransactionShortSell.objects.get(email=request.session['user'],symbol=data['company'])
+	transaction=TransactionShortSell.objects.get(user_id=request.session['user'],symbol=data['company'])
 
 	#Checking if the posted quantity is greater than the quantity user owns
 	if(transaction.quantity-quantity<0):
@@ -356,7 +362,7 @@ def submit_shortCover(request):
 '''
 @login_required
 def history(request):
-    hist = History.objects.filter(email=request.session['user'])
+    hist = History.objects.filter(user_id=request.session['user'])
 
     hf = []
     for i in hist:
@@ -366,14 +372,47 @@ def history(request):
         hf.append(h)
 
     data = {
-    'history' : hf,
+		'history' : hf,
     }
 
     return JsonResponse(data)
 
 
-def portfolio(email):
-	user_portfolio=Portfolio.objects.get(email=email)
+#======To Get Current Price======#
+
+'''
+This is called when user selects the company
+in buy/short sell,
+UI performs the required calculations
+
+POST format
+	{
+		'company':<company code>,
+	}
+'''
+@csrf_exempt
+@login_required
+def currentPrice(request):
+    user_id=request.session['user']
+    company = request.POST['company']
+    curr_price = Stock_data.objects.get(symbol=company).current_price
+    portfo = Portfolio.objects.get(user_id=user_id)
+    cash_bal = portfo.cash_bal
+    margin = portfo.margin
+    no_trans = portfo.no_trans
+
+    data = {
+	    'curr_price' : curr_price,
+	    'cash_bal': cash_bal,
+	    'margin' : margin,
+	    'no_trans' : no_trans
+    }                    
+
+    return JsonResponse(data)
+
+
+def portfolio(user_id):
+	user_portfolio=Portfolio.objects.get(user_id=user_id)
 	total_no=User.objects.count()
 	data_to_send = {
 		'cash_bal' : user_portfolio.cash_bal,
@@ -385,19 +424,13 @@ def portfolio(email):
 	}
 	return data_to_send
 
-def stock_symbols():  
-    data_to_send = {
-        'companies' :all_stock_codes,
-        }
-    return data_to_send
-
 def leaderboardData():
     p=Portfolio.objects.all().order_by('-net_worth')[:100]
     i=1
     l=[]
     for t in p:
         user = {
-        'name': t.email,
+        # 'name': t.email,
         'cash_bal': t.cash_bal,
         'no_trans':t.no_trans,
         }      
@@ -431,9 +464,9 @@ def calculateBrokerage(no_trans,quantity,current_price):
 		brokerage=(Decimal(1.5/100)*current_price)*(quantity)
 	return Decimal(brokerage)
 
-def getStockHoldings(email):
+def getStockHoldings(user_id):
 	stock_holdings=[]
-	transactions=TransactionBuy.objects.filter(email=email)
+	transactions=TransactionBuy.objects.filter(user_id=user_id)
 	for i in transactions:
 		stock={}
 		stock['company']=i.symbol
@@ -443,7 +476,7 @@ def getStockHoldings(email):
 		stock['current']=(Stock_data.objects.get(symbol=i.symbol).current_price)
 		stock_holdings.append(stock)
 
-	transactions=TransactionShortSell.objects.filter(email=email)
+	transactions=TransactionShortSell.objects.filter(user_id=user_id)
 	for i in transactions:
 		stock={}
 		stock['company']=i.symbol

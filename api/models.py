@@ -3,26 +3,26 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator
 #Details of the user
 class User(models.Model):
-	email=models.CharField(primary_key=True,max_length=100)
+	user_id=models.CharField(primary_key=True,max_length=100)
 	def __str__(self):
-		return self.email
+		return self.user_id
 
 class Portfolio(models.Model):
-	email=models.CharField(primary_key=True,max_length=100)
+	user_id=models.CharField(primary_key=True,max_length=100)
 	cash_bal = models.DecimalField(max_digits=19, decimal_places=2, default=Decimal('100000'))
 	net_worth = models.DecimalField(max_digits=19, decimal_places=2, default=Decimal('100000'))
 	rank = models.IntegerField(default=131)
 	no_trans = models.DecimalField(max_digits=19, decimal_places=0, default=Decimal('0'))
 	margin = models.DecimalField(max_digits=19, decimal_places=2, default=Decimal('0.00'))
 	def __str__(self):
-		return ' %10s | %10s | %10s '%(self.email,
+		return ' %10s | %10s | %10s '%(self.user_id,
 			self.cash_bal,
 			self.no_trans,
 			)
 
 #Details of the company user owns
 class TransactionBuy(models.Model):
-	email=models.CharField(max_length=200)
+	user_id=models.CharField(max_length=200)
 	symbol=models.CharField(max_length=10)
 	quantity=models.DecimalField(max_digits=19, decimal_places=0,validators=[MinValueValidator(Decimal('0.00'))])
 	value=models.DecimalField(max_digits=19,decimal_places=2)
@@ -36,7 +36,7 @@ class TransactionBuy(models.Model):
 			self.value,
 			)
 class TransactionShortSell(models.Model):
-	email=models.CharField(max_length=200)
+	user_id=models.CharField(max_length=200)
 	symbol=models.CharField(max_length=10)
 	quantity=models.DecimalField(max_digits=19, decimal_places=0,validators=[MinValueValidator(Decimal('0.00'))])
 	value=models.DecimalField(max_digits=19,decimal_places=2)
@@ -80,7 +80,7 @@ class Stock_data(models.Model):
     	}
 
 class History(models.Model):
-	email=models.CharField(max_length=200)
+	user_id=models.CharField(max_length=200)
 	time=models.DateTimeField(auto_now_add=True)
 	symbol=models.CharField(max_length=10)
 	buy_ss=models.CharField(max_length=30)

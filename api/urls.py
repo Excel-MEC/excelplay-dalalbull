@@ -27,4 +27,6 @@ urlpatterns = [
     url(r'sell/$',views.sell,name='sell'),
     url(r'dashboard/$',views.dashboard,name='dashboard'),
     url(r'history/$',views.history,name='history'),
+    url(r'currentprice/$',views.currentPrice,name='currentPrice'),
+
 ]

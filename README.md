@@ -30,7 +30,7 @@ $ python manage.py migrate
 ## 5-Setting up Redis Server 
 ```
 $ sudo apt-get install redis-server
-$ redis-server 
+$ redis-server
 ```
 ## 6-Start the worker in a new terminal
 
