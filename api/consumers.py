@@ -52,7 +52,7 @@ def portfolioDataPush():
 
 		Group("user-{}".format(user.id)).send({
 			"type":"websocket.send",
-        	"text": send_json(portfolio(userid)),
+        	"text": self.send_json(portfolio(userid)),
     	})
 
 
