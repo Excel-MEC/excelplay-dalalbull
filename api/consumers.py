@@ -10,6 +10,8 @@ import redis
 from channels import Group
 redis_conn = redis.Redis("localhost", 6379)
 
+import json
+
 class LeaderBoard(AsyncJsonWebsocketConsumer):
 	async def connect(self):
 		await self.accept()
@@ -52,7 +54,7 @@ def portfolioDataPush():
 
 		Group("user-{}".format(user.id)).send({
 			"type":"websocket.send",
-        	"text": self.send_json(portfolio(userid)),
+        	"text": json.dumps(portfolio(userid)),
     	})
 
 
