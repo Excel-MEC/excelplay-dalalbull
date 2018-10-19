@@ -356,6 +356,30 @@ def submit_shortCover(request):
 
 	return msg
 
+
+#======STOCKINFO======#
+'''
+Page stock information.
+List of all companies.
+'''
+def stock_symbols():  
+    stocks=Stock_data.objects.all()    
+    companies =[]                      
+    for c in stocks:
+        companies.append(c.symbol)
+
+    data_to_send = {
+        'companies' : companies,
+        }
+    return data_to_send
+
+
+@login_required
+def stockinfo(request):                           
+    data_to_send = stock_symbols()
+    return JsonResponse(data_to_send)
+
+
 #=======History========#
 '''
     Details of all transactions.

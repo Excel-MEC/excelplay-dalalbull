@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'api',
 
     'channels',
+
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -144,7 +146,12 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-CELERYBEAT_SCHEDULE = {
+
+from celery import Celery
+app = Celery('dalalbull',broker='redis://localhost:6379/0')
+
+
+app.conf.beat_schedule = {
     'net-every-20-seconds': { #update Company Details
             'task': 'excelplay_dalalbull.tasks.stock_update',
             'schedule': timedelta(seconds=1),
@@ -157,12 +164,11 @@ CELERYBEAT_SCHEDULE = {
      },
 }
 
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.redisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("localhost", 6379)],
-#         },
-#         "ROUTING": "api.routing.channel_routing",
-#     },
-# }
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}

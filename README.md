@@ -29,6 +29,8 @@ $ python manage.py migrate
 ```
 ## 5-Setting up Redis Server 
 ```
+( for production : pip install -U channels_redis )
+
 $ sudo apt-get install redis-server
 $ redis-server
 ```

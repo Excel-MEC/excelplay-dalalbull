@@ -4,14 +4,19 @@ from channels.consumer import AsyncConsumer
 
 from .views import leaderboardData,portfolio
 
+from asgiref.sync import async_to_sync
 
 import redis
 
-from channels import Group
+# from channels import Group
 redis_conn = redis.Redis("localhost", 6379)
 
 import json
 
+from channels.layers import get_channel_layer
+channel_layer = get_channel_layer()
+
+#LeaderBoard
 class LeaderBoard(AsyncJsonWebsocketConsumer):
 	async def connect(self):
 		await self.accept()
@@ -20,20 +25,20 @@ class LeaderBoard(AsyncJsonWebsocketConsumer):
 			await asyncio.sleep(1)
 
 
-
 ################PORTFOLIO UPDATE#################
 class Portfolio(AsyncJsonWebsocketConsumer):
 	async def connect(self):
 		
 		await self.accept()
 
-		userid = self.scope['session']['user']
+		userid = 100#self.scope['session']['user']
 		
 		print('Portfolio listener added!',userid)
 		
 		redis_conn.hset("online-users", userid, 'portfolio')
 		
-		Group("user-{}".format(userid)).add(self.reply_channel)
+		# Group("user-{}".format(userid)).add(self.reply_channel)
+		async_to_sync(self.channel_layer.group_add)("user-{}".format(userid), self.channel_name)
 
 		await self.send_json({"msg": "success"}) #{ "close" : True }
 
@@ -41,21 +46,24 @@ class Portfolio(AsyncJsonWebsocketConsumer):
 		try:
 			userid = self.scope['session']['user']	
 			redis_conn.hdel("online-users",userid)
+			async_to_sync(self.channel_layer.group_discard)("user-{}".format(userid), self.channel_name)
 		except:
 			pass
 		print('disonnected')
-
-
 
 def portfolioDataPush():
 	for userid in redis_conn.hkeys("online-users"):
 		userid = userid.decode("utf-8")
 		print(userid)
 
-		Group("user-{}".format(user.id)).send({
-			"type":"websocket.send",
-        	"text": json.dumps(portfolio(userid)),
-    	})
+
+		channel_layer.group_send("user-{}".format(userid),{"type": "chat.system_message", "text": portfolio(userid)},)
+
+		# Group("user-{}".format(user.id)).send({
+		# 	"type":"websocket.send",
+  		#       	"text": json.dumps(portfolio(userid)),
+        #   	})
+  		 
 
 
 class EchoConsumer(AsyncConsumer):
