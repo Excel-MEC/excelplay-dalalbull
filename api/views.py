@@ -430,14 +430,13 @@ def leaderboardData():
     l=[]
     for t in p:
         user = {
-        # 'name': t.email,
-        'cash_bal': t.cash_bal,
-        'no_trans':t.no_trans,
+        'user_id': t.user_id,
+        'cash_bal': float(t.cash_bal),
+        'no_trans': float(t.no_trans),
         }      
-
         l.append(user)
     data_to_send = {
-    'leaderboard_data' : l,
+    	'leaderboard_data' : l,
     }
     return data_to_send
 

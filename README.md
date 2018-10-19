@@ -35,12 +35,10 @@ $ redis-server
 ## 6-Start the worker in a new terminal
 
 ```
-celery -A excelplay_dalalbull worker -l info
+celery -A excelplay_dalalbull beat
 
-(In a different terminal)
-python manage.py shell 
-	$ from api.tasks import *
-	$ stock_update.delay()
+To see the status
+	celery -A excelplay_dalalbull worker -l info 
 ```
 
 ## 7-Run the server

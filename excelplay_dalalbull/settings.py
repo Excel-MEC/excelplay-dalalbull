@@ -73,6 +73,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'excelplay_dalalbull.wsgi.application'
 
+ASGI_APPLICATION = 'excelplay_dalalbull.routing.application'
+
 print(BASE_DIR+'/excelplay_dalalbull/')
 
 # Database
@@ -144,18 +146,23 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 CELERYBEAT_SCHEDULE = {
     'net-every-20-seconds': { #update Company Details
-            'task': 'excelplay_dalalbull.tasks.tq',
+            'task': 'excelplay_dalalbull.tasks.stock_update',
+            'schedule': timedelta(seconds=1),
+            'args': ()
+     },
+     'net-worth': { #networth
+            'task': 'excelplay_dalalbull.tasks.net',
             'schedule': timedelta(seconds=1),
             'args': ()
      },
 }
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
-        },
-        "ROUTING": "api.routing.channel_routing",
-    },
-}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.redisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("localhost", 6379)],
+#         },
+#         "ROUTING": "api.routing.channel_routing",
+#     },
+# }
