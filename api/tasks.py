@@ -14,7 +14,7 @@ from .models import *
 from .consumers import portfolioDataPush
 
 import os
-
+import datetime
 #To get the stock codes of all the companies
 all_stock_codes=nse.get_stock_codes()
 
@@ -26,6 +26,8 @@ print("dalalbull tasks")
 def stock_update():	
 	print("Stock Update");	
 	stockdata()
+	print("Orders");	
+	orders()
 	return 
 
 @shared_task
@@ -49,11 +51,9 @@ def net():
 def broadcastPortfolioData():
 	print("Portfolio data broadcasted!")
 	portfolioDataPush()
-	
+
 # API_KEY = os.environ.get("DALALBULL_API_KEY")
 API_KEY="c0e298ec-1912-483a-84f9-20b1a1142e28"
-print("api key")
-print(os.environ.get("DALALBULL_API_KEY"))
 nse_url = 'http://nseindia.com/live_market/dynaContent/live_watch/stock_watch/niftyStockWatch.json'
 
 hdr = {
@@ -141,10 +141,6 @@ def stockdata():
 	
 	company = json_data['latestData'][0]
 
-	#print(company)
-
-	# print(json_data)
-
 	c,__ = Stock_data.objects.get_or_create(symbol='NIFTY 50')
 	c.current_price = float(company['ltp'].replace(",",""))
 	c.high = float(company['high'].replace(",",""))
@@ -194,3 +190,194 @@ def networth():
 		except Portfolio.DoesNotExist:
 			print("Fail")
 	return
+#==========Sell/Short-Cover========#        
+def sell_sc(username,symbol,quantity,typ):
+	qnty=float(quantity)
+	try:
+		price = float(Stock_data.objects.get(symbol=symbol).current_price)
+		port = Portfolio.objects.get(user_id=username)
+		cash_bal = float(port.cash_bal)
+		no_trans = float(port.no_trans)
+		margin = float(port.margin)
+		
+		if(typ=="Sell"):
+			b_ss="Buy"
+			t=TransactionBuy.objects.get(symbol=symbol,user_id=username)
+		else:
+			b_ss="Short Sell"
+			t=TransactionShortSell.objects.get(symbol=symbol,user_id=username)
+		
+		try:
+			old_quantity = float(t.quantity)
+			old_value = float(t.value)
+			
+			if(quantity<=old_quantity):
+				new_quantity=old_quantity-qnty
+				old_total=(old_value/old_quantity)*qnty
+				new_value=old_value-old_total;
+				if(new_quantity==0):
+					t.delete()
+				else:
+					t.quantity=new_quantity
+					t.value=new_value
+					t.save()
+				try:
+					port = Portfolio.objects.get(user_id=username)
+					old_cash_bal = float(port.cash_bal)
+					margin =float(port.margin)
+					no_trans = float(port.no_trans)
+					if(typ == "Short Cover"):
+						sc_profit=old_total-qnty*price
+						cash_bal=old_cash_bal+sc_profit
+						margin=(margin-(old_value/2))+(new_value/2)
+					elif(typ == "Sell"):
+						cash_bal=old_cash_bal+(qnty*price)						
+					no_trans=no_trans+1
+					if(no_trans<=100):
+						brokerage=((0.5/100)*price)*qnty
+					elif(no_trans<=1000):
+						brokerage=((1/100)*price)*qnty
+					else:
+						brokerage=((1.5/100)*price)*qnty
+					
+					print("\nupdating portfolio")
+					cash_bal-=brokerage
+					port.cash_bal=cash_bal
+					port.margin=margin
+					port.no_trans=no_trans
+					port.save()
+					print("Pending order completed")
+					history=History(user_id=username,time=datetime.datetime.now(),symbol=symbol,buy_ss=typ,quantity=qnty,price=price)
+					history.save()
+					return True
+				except Portfolio.DoesNotExist:
+					print("Error fetching portfolio")
+		except Transaction.DoesNotExist:
+			print("Error fetching from transactions ")
+			return False
+	except Stock_data.DoesNotExist:
+		return False
+	return False
+#==========Buy/Short-Sell========#
+def buy_ss(username,symbol,quantity,typ):	
+	qnty=float(quantity)
+	try:
+		price = float(Stock_data.objects.get(symbol=symbol).current_price)
+		port = Portfolio.objects.get(user_id=username)
+		cash_bal = float(port.cash_bal)
+		no_trans = float(port.no_trans)
+		margin = float(port.margin)
+		if(no_trans+1<=100):
+			brokerage=((0.5/100)*price)*qnty
+		else:
+			if(no_trans+1<=1000):
+				brokerage=((1/100)*price)*qnty
+			else:
+				brokerage=((1.5/100)*price)*qnty
+		if(((cash_bal-margin-brokerage)>0 and (cash_bal-margin-brokerage)>=(price*qnty) and typ == "Buy") or ((cash_bal-margin-brokerage)>=((price*qnty)/2) and typ == "Short Sell")):
+			try:
+				if typ=="BUY":
+					trans = TransactionBuy.objects.get(user_id=username,symbol=symbol)
+				else :
+					trans= TransactionShortSell.objects.get(user_id=username,symbol=symbol)
+
+				old_qnty = float(trans.quantity)
+				value = float(trans.value)
+				value +=(qnty*price)
+				new_qnty = old_qnty + qnty
+				trans.quantity=new_qnty
+				trans.value=value
+				trans.save()
+				print("Pending order completed")
+			except Transaction.DoesNotExist:
+				value = qnty*price
+				if typ=="BUY":
+					trans = TransactionBuy(user_id=username,symbol=symbol,quantity=qnty,value=value)
+				else:
+					trans = TransactionShortSell(user_id=username,symbol=symbol,quantity=qnty,value=value)
+				trans.save()
+				print("Pending order completed")  					
+			if(typ =="Buy"): 
+				cash_bal_up = cash_bal-(qnty*price)
+				margin_up = margin
+			else:
+				if(typ =="Short Sell"): 
+					cash_bal_up = cash_bal
+					margin_up = margin+(qnty*price)/2
+			cash_bal_up -= brokerage
+			no_trans+=1
+			port.cash_bal=cash_bal_up
+			port.margin=margin_up
+			port.no_trans=no_trans
+			port.save()
+			history=History(user_id=username,time=datetime.datetime.now(),symbol=symbol,buy_ss=typ,quantity=qnty,price=price)
+			history.save()
+			return True
+	except Stock_data.DoesNotExist:
+		return False	
+	return False
+
+#===============Orders=================#
+def orders():
+	ret=False
+	if(datetime.datetime.now().strftime("%A")!='Sunday' and datetime.datetime.now().strftime("%A")!='Saturday'):
+		if((datetime.datetime.now().time()>=datetime.time(hour=9,minute=00,second=00)) and (datetime.datetime.now().time()<=datetime.time(hour=9,minute=1,second=00))):
+			Old_Stock_data.objects.all().delete()
+	if (datetime.datetime.now().time()>=datetime.time(hour=9,minute=6,second=0)) and (datetime.datetime.now().time()<=datetime.time(hour=9,minute=6,second=30)):
+		oldstockdata()
+	if(datetime.datetime.now().time()>=datetime.time(hour=15,minute=30,second=00)):
+		try:
+			day_endq=TransactionShortSell.objects.all()
+			for i in day_endq :
+				username = i.user_id 
+				symbol = i.symbol
+				quantity = i.quantity
+				type_temp = "Short Cover";
+				print("Short Cover")
+				ret= sell_sc(username,symbol,quantity,type_temp)		
+		except Transaction.DoesNotExist :
+			print("No Transactions")   		
+		Pending.objects.all().delete()
+	else:
+		try:
+			pending_ord = Pending.objects.all()
+			for i in pending_ord :
+				idn = i.id
+				username = i.user_id
+				symbol = i.symbol
+				typ = i.buy_ss
+				quantity = i.quantity
+				price = i.value
+				try:
+					stock_qry = Stock_data.objects.get(symbol=symbol)
+					current_price  = stock_qry.current_price
+					if(current_price >0):
+						if(current_price<=price):
+							if(typ == "BUY"):
+								ret= buy_ss(username,symbol,quantity,typ)
+							else:
+								if(typ == "SHORT COVER"):
+									ret=sell_sc(username,symbol,quantity,typ)
+						else:
+							if(current_price>=price):
+								if(typ == "SELL"):
+									ret=sell_sc(username,symbol,quantity,typ)
+								else:
+									if(typ == "SHORT SELL"):
+										ret=buy_ss(username,symbol,quantity,typ)
+						if(ret==True):
+							ret=False
+							del_query = Pending.objects.get(id=idn,user_id=username,symbol=symbol,buy_ss=typ,quantity=quantity,value=price)
+							del_query.delete()
+				except Stock_data.DoesNotExist:
+					print("Company Not Listed")
+		except Pending.DoesNotExist:
+			print("No Pending Orders")	
+
+def oldstockdata():
+	json_data = getRemoteData(nse_url)
+	company=json_data['latestData'][0]
+	c=Old_Stock_data(symbol="NIFTY 50",
+		current_price=company['ltp'].replace(",",""),
+		)
+	c.save() 	 	

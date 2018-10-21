@@ -120,7 +120,8 @@ POST format
 {
 	'quantity':<qty>,
 	'company':<company>,
-	'b_ss':<"buy"/"short sell">
+	'pending':<null or price>,
+	'b_ss':<"buy"/"short sell">,
 }
 '''
 @csrf_exempt
@@ -138,6 +139,7 @@ def buy(request):
 	return JsonResponse({'msg':msg})
 
 def submit_buy(request):
+
 	data=request.POST
 	quantity=Decimal(data['quantity'])
 	company=data['company']
@@ -149,6 +151,41 @@ def submit_buy(request):
 	user_portfolio=Portfolio.objects.get(user_id=request.session['user'])
 	no_trans=user_portfolio.no_trans
 	margin=(user_portfolio.margin)
+
+	try:
+		pending_price=data['pending']
+	except:
+		pending_price=''
+
+	if(pending_price!=''):
+		if pending_price==current_price:  
+			return JsonResponse({'msg':'Pending price error'})
+		pending_price=Decimal(pending_price)
+		percentager = Decimal(0.05 * float(current_price))
+		t=current_price-percentager
+		l=current_price+percentager
+		q=False
+		if(pending_price > current_price or pending_price <= t ):
+			q=True
+
+		if(q):
+			msg='Pending Price for Buying should be less than and maximum of 5% below Current Price'
+			return msg
+		# elif r:
+		# 	return JsonResponse({'msg':'Pending Price for Short Selling should be greater than and maximum of 5% above Current Price'})
+		else:
+			p=Pending(
+				user_id=request.session['user'],
+				symbol=company,
+				buy_ss="BUY",
+				quantity=quantity,
+				value=pending_price,
+				time=datetime.datetime.now().time()
+			)
+			p.save()
+			msg= "You have made a Pending Order to "+"buy"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
+			return msg
+
 
 	#Brokerage
 	brokerage=calculateBrokerage(no_trans,quantity,current_price)
@@ -205,6 +242,39 @@ def submit_shortSell(request):
 	no_trans=user_portfolio.no_trans
 	margin=(user_portfolio.margin)
 
+	try:
+		pending_price=data['pending']
+	except:
+		pending_price=''
+
+	if(pending_price!=''):
+		if pending_price==current_price:  
+			return JsonResponse({'msg':'Pending price error'})
+		pending_price=Decimal(pending_price)
+		percentager = Decimal(0.05 * float(current_price))
+		t=current_price-percentager
+		l=current_price+percentager
+
+		r=False
+		if(pending_price < current_price or pending_price >= l ):
+			r=True
+
+		if r:
+			msg='Pending Price for Short Selling should be greater than and maximum of 5% above Current Price'
+			return msg
+		else:
+			p=Pending(
+				user_id=request.session['user'],
+				symbol=company,
+				buy_ss="SHORT SELL",
+				quantity=quantity,
+				value=pending_price,
+				time=datetime.datetime.now().time()
+			)
+			p.save()
+			msg= "You have made a Pending Order to "+"short sell"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
+			return msg
+
 	#Brokerage
 	brokerage=calculateBrokerage(no_trans,quantity,current_price)
 
@@ -253,7 +323,8 @@ POST format
 {
 	'quantity':<qty>,
 	'company':<company>,
-	's_sc':<"sell"/"short cover">
+	's_sc':<"sell"/"short cover">,
+	'pending':<null or price>,
 }
 '''
 @csrf_exempt
@@ -285,12 +356,39 @@ def submit_sell(request):
 		msg="No quantity to sell"
 		return msg
 
-	transaction=TransactionBuy.objects.get(user_id=request.session['user'],symbol=data['company'])
-
 	#Checking if the posted quantity is greater than the quantity user owns
 	if(transaction.quantity-quantity<0):
 		msg="Quantity error"
 		return msg
+
+	try:
+		pending_price=data['pending']
+	except:
+		pending_price=''
+
+	if(pending_price!=''):
+		if pending_price==current_price:  
+			return JsonResponse({'msg':'Pending price error'})
+		pending_price=Decimal(pending_price)
+		percentager = Decimal(0.05 * float(current_price))
+
+		if(pending_price<current_price):
+			msg='Pending Price for selling should be greater current price'
+			return msg
+		else:
+			p=Pending(
+				user_id=request.session['user'],
+				symbol=company,
+				buy_ss="SELL",
+				quantity=quantity,
+				value=pending_price,
+				time=datetime.datetime.now().time()
+			)
+			p.save()
+			msg= "You have made a Pending Order to "+"sell"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
+			return msg
+
+	transaction=TransactionBuy.objects.get(user_id=request.session['user'],symbol=data['company'])
 
 	#SELL
 
@@ -309,6 +407,17 @@ def submit_sell(request):
 	user_portfolio.save()
 
 	msg="Success"
+
+	history=History(
+		user_id=request.session['user'],
+		time=datetime.datetime.now().time(),
+		symbol=company,
+		buy_ss="SELL",
+		quantity=quantity,
+		price=stock_data.current_price
+		)
+	history.save()
+
 	return msg
 
 def submit_shortCover(request):
@@ -335,6 +444,35 @@ def submit_shortCover(request):
 		msg="Quantity error"
 		return msg
 
+
+	try:
+		pending_price=data['pending']
+	except:
+		pending_price=''
+
+	if(pending_price!=''):
+		if pending_price==current_price:  
+			msg='Pending price error'
+			return msg
+		pending_price=Decimal(pending_price)
+		percentager = Decimal(0.05 * float(current_price))
+
+		if(pending_price>current_price):
+			msg='Pending Price for short cover should be less than current price'
+			return msg
+		else:
+			p=Pending(
+				user_id=request.session['user'],
+				symbol=company,
+				buy_ss="SHORT COVER",
+				quantity=quantity,
+				value=pending_price,
+				time=datetime.datetime.now().time()
+			)
+			p.save()
+			msg= "You have made a Pending Order to "+"short cover"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
+			return msg
+
 	#SHORT COVER
 
 	brokerage=calculateBrokerage(user_portfolio.no_trans,quantity,current_price)
@@ -354,8 +492,82 @@ def submit_shortCover(request):
 	
 	msg="Success"
 
+	history=History(
+		user_id=request.session['user'],
+		time=datetime.datetime.now().time(),
+		symbol=company,
+		buy_ss="SHORT COVER",
+		quantity=quantity,
+		price=stock_data.current_price
+		)
+	history.save()
+
 	return msg
 
+@csrf_exempt
+@login_required
+def pending(request):      
+	no_stock=False
+
+	try:
+		t = Pending.objects.filter(user_id=request.session['user'])
+		row=[]
+		for i in t:
+			print(i.symbol)
+			temp={}
+			temp['quantity']=float(i.quantity)
+			temp['value']=float(i.value)
+			temp['type']=i.buy_ss
+			temp['symbol']=i.symbol
+			try:
+				s=Stock_data.objects.get(symbol=temp['symbol'])
+				temp['current_price']=(str(s.current_price))
+			except Stock_data.DoesNotExist:
+				temp['current_price']='Not Listed'
+				temp['id']=i.id
+			row.append(temp)
+	except Pending.DoesNotExist:
+		no_stock=True
+
+	data = {
+		'pending':row,
+	}
+
+	return JsonResponse(data)
+
+'''
+POST DATA Format:
+{
+'iddel' : <id>, 
+'company' : <company code>,
+}
+
+'''
+@login_required
+def cancels(request):
+	iddel=request.POST['iddel']
+	company=request.POST['company']
+	username=request.session['user']
+	msg=""
+	if(iddel!="" and company !=""):
+		try:
+			p=Pending.objects.get(user_id=username,
+			id=iddel,
+			symbol=company,
+			)
+			p.delete()
+			msg = "Specified pending order has been cancelled"
+
+		except Pending.DoesNotExist:
+			msg="Error Cancelling"
+	else:
+		msg="Invalid Data"
+
+	data_to_send = {
+	'message' : msg,
+	}
+
+	return JsonResponse(data_to_send)
 
 #======STOCKINFO======#
 '''
@@ -439,14 +651,47 @@ def portfolio(user_id):
 	user_portfolio=Portfolio.objects.get(user_id=user_id)
 	total_no=User.objects.count()
 	data_to_send = {
-		'cash_bal' : user_portfolio.cash_bal,
-		'net_worth': user_portfolio.net_worth,
-		'rank': user_portfolio.rank,
-		'total_users' : total_no,
-		'total_transactions' : user_portfolio.no_trans,
-		'margin':user_portfolio.margin,
+		'cash_bal' : float(user_portfolio.cash_bal),
+		'net_worth': float(user_portfolio.net_worth),
+		'rank': float(user_portfolio.rank),
+		'total_users' : float(total_no),
+		'total_transactions' : float(user_portfolio.no_trans),
+		'margin':float(user_portfolio.margin),
 	}
 	return data_to_send
+
+@login_required
+def ticker(request):
+    return JsonResponse(ticker_data())
+
+def ticker_data():
+    stocks = Stock_data.objects.all()
+    tickerData = []
+    for stock in stocks:
+        tickerData.append({
+            'name': stock.symbol,
+            'current_price' : stock.current_price,
+            'change_per' : stock.change_per,
+		})
+    return{
+		'tickerData': tickerData,
+	}
+
+@login_required
+def nifty(request):
+    return JsonResponse(niftyData())
+
+def niftyData():
+
+    nifty= Stock_data.objects.get(symbol='NIFTY 50')
+
+    data_to_send = {
+        'current_price': float(nifty.current_price),
+        'change' : float(nifty.change) , 
+    }
+    
+
+    return data_to_send
 
 def leaderboardData():
     p=Portfolio.objects.all().order_by('-net_worth')[:100]
@@ -465,6 +710,8 @@ def leaderboardData():
     return data_to_send
 
 def companyCheck(company):
+	if company =="" or company =="NIFTY 50":
+		return JsonResponse({'msg':'Error'})
 	try:
 		stock_data=Stock_data.objects.get(symbol=company)
 	except:

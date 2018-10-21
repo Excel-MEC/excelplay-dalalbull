@@ -29,5 +29,9 @@ urlpatterns = [
     url(r'dashboard/$',views.dashboard,name='dashboard'),
     url(r'history/$',views.history,name='history'),
     url(r'currentprice/$',views.currentPrice,name='currentPrice'),
+    url(r'ticker', views.ticker, name='ticker'),
+    url(r'nifty', views.nifty, name='nifty'),
+    url(r'cancels', views.cancels, name='cancels'),
+    url(r'pending', views.pending, name='pending'),
 
 ]
