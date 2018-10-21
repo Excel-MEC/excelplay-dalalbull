@@ -91,14 +91,9 @@ def getCompanyDetails(symbol):
 	return required_data
 
 
-nifty_top50 = [
-	'HCLTECH', 'CIPLA', 'TATAMOTORS', 'SUNPHARMA', 'BOSCHLTD', 'WIPRO', 'ITC', 'TATAMTRDVR', 'TECHM',
-	'INFRATEL', 'KOTAKBANK', 'BPCL', 'LUPIN', 'DRREDDY', 'HDFC', 'TCS', 'MARUTI', 'HDFCBANK', 'ONGC',
-	'POWERGRID', 'ASIANPAINT', 'COALINDIA', 'AXISBANK', 'BAJAJ-AUTO', 'HINDUNILVR', 'BHARTIARTL', 'SBIN', 'IOC',
-	'ADANIPORTS', 'INFY', 'EICHERMOT', 'AUROPHARMA', 'INDUSINDBK', 'NTPC', 'BANKBARODA', 'TATAPOWER', 'RELIANCE', 
-	'ZEEL', 'HEROMOTOCO', 'AMBUJACEM', 'LT', 'ACC', 'ICICIBANK', 'IBULHSGFIN', 'TATASTEEL', 'VEDL', 
-	'HINDALCO', 'YESBANK', 'ULTRACEMCO', 'GAIL',
-]
+nifty_top50 = ['ADANIPORTS', 'ASIANPAINT', 'AXISBANK', 'BAJAJ-AUTO', 'BAJFINANCE', 'BAJAJFINSV', 'BHARTIARTL', 'INFRATEL', 'BPCL', 'CIPLA', 'COALINDIA', 'DRREDDY', 'EICHERMOT', 'GAIL', 'GRASIM', 'HCLTECH', 'HDFC', 'HDFCBANK', 'HEROMOTOCO', 'HINDALCO', 'HINDUNILVR', 'HINDPETRO', 'ICICIBANK', 'IBULHSGFIN', 'INDUSINDBK', 'INFY', 'IOC', 'ITC', 'JSWSTEEL', 'KOTAKBANK', 'LT', 'M&M', 'MARUTI', 'NTPC', 'ONGC', 'POWERGRID', 'RELIANCE', 'SBIN', 'SUNPHARMA', 'TCS', 'TATAMOTORS', 'TATASTEEL', 'TECHM', 'TITAN', 'ULTRACEMCO', 'UPL', 'VEDL', 'WIPRO', 'YESBANK', 'ZEEL']
+
+
 
 _first_half_query = '+'.join(nifty_top50[:25])
 _second_half_query = '+'.join(nifty_top50[25:])
@@ -114,21 +109,29 @@ def getBulkData():
 	
 	formatted_data = []
 	count = 0
-	for d in data: 
+	for d in data:
+		flag=0 
 		count += 1
 		required_data = {}
 		print(d)
-		required_data['current_price'] = float(d['SELLPRICE'])
+		required_data['current_price'] = float(d['BUYPRICE'])
 		required_data['high'] = float(d['HIGH'])
 		required_data['low'] = float(d['LOW'])
 		required_data['open_price'] = float(d['OPEN'])
 		required_data['change'] = required_data['current_price'] - float(d['CLOSE']) 
 		print(required_data['change'])
-		required_data['change_per'] = float(required_data['change']*100)/float(d['OPEN']) 
+		try:
+			required_data['change_per'] = float(required_data['change']*100)/float(d['OPEN']) 
+		except:
+			flag=1
+			required_data['change_per'] = float(required_data['change']*100) 
 		required_data['trade_Qty'] = float(d['TOTALQTYTRADED'])/100000
 		required_data['trade_Value'] = float(d['VALUE'])
 
-		yield (required_data,d['INSTRUMENTIDENTIFIER'])
+		if not required_data['current_price'] >0:
+			flag=1
+		if flag==0:
+			yield (required_data,d['INSTRUMENTIDENTIFIER'])
 
 
 
