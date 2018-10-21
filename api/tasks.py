@@ -49,45 +49,7 @@ def net():
 def broadcastPortfolioData():
 	print("Portfolio data broadcasted!")
 	portfolioDataPush()
-
-#=========Update details of company========#
-# def stockdata():
-# 	print("Updating")
-# 	for company_code in all_stock_codes:
-# 		try:
-# 			if(company_code!="SYMBOL" or ""):
-# 				data=nse.get_quote(str(company_code))
-# 				if(Stock_data.objects.filter(symbol=company_code).exists()):
-# 					stock_data=Stock_data.objects.get(symbol=company_code)
-# 					stock_data.current_price=data['lastPrice']
-# 					stock_data.high=data['dayHigh']
-# 					stock_data.low=data['dayLow']
-# 					stock_data.open_price=data['open']
-# 					stock_data.change=data['change']
-# 					stock_data.change_per=data['pChange']
-# 					stock_data.trade_Qty=data['deliveryQuantity']
-# 					stock_data.trade_Value=data['totalTradedValue']
-
-# 					stock_data.save()
-# 				else:
-# 					Stock_data.objects.create(
-# 						symbol=data['symbol'],
-# 						current_price=data['lastPrice'],
-# 						high=data['dayHigh'],
-# 						low=data['dayLow'],
-# 						open_price=data['open'],
-# 						change=data['change'],
-# 						change_per=data['pChange'],
-# 						trade_Qty=data['deliveryQuantity'],
-# 						trade_Value=data['totalTradedValue']
-# 						)
-# 				print("success",end=" ")
-# 		except:
-# 			print("error")
-# 			pass
-# 	print("Updating successful")
-# 	return JsonResponse({"msg":"success"})
-
+	
 # API_KEY = os.environ.get("DALALBULL_API_KEY")
 API_KEY="c0e298ec-1912-483a-84f9-20b1a1142e28"
 print("api key")

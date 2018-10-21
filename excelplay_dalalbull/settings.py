@@ -139,36 +139,36 @@ SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 0
 SESSION_REDIS_PREFIX = 'session'
 
-# CELERY STUFF
 CELERY_BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-
-
-from celery import Celery
-app = Celery('dalalbull',broker='redis://localhost:6379/0')
-
-
-app.conf.beat_schedule = {
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Makassar'
+CELERY_BEAT_SCHEDULE = {
     'net-every-20-seconds': { #update Company Details
-            'task': 'excelplay_dalalbull.tasks.stock_update',
-            'schedule': timedelta(seconds=1),
-            'args': ()
+        'task': 'api.tasks.stock_update',
+        'schedule': timedelta(seconds=10),
      },
-     'net-worth': { #networth
-            'task': 'excelplay_dalalbull.tasks.net',
-            'schedule': timedelta(seconds=1),
-            'args': ()
-     },
+    'net-worth': { #networth
+        'task': 'api.tasks.net',
+        'schedule': timedelta(seconds=10),
+    },
+    'Leaderboard': { #Leaderboard
+        'task': 'api.tasks.leaderboard_update',
+        'schedule': timedelta(seconds=20),
+    },
+    'Portfolio ': { #Portfolio data
+        'task': 'api.tasks.broadcastPortfolioData',
+        'schedule': timedelta(seconds=5),
+    },
 }
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("localhost", 6379)],
+            "hosts": [('localhost', 6379)],
         },
     },
 }
