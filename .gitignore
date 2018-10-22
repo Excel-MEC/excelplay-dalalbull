@@ -114,3 +114,5 @@ migrations
 
 #Confidential data 
 database.cnf
+
+secret.py
