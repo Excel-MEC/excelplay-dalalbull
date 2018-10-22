@@ -10,7 +10,7 @@ application = ProtocolTypeRouter({
 				path("portfolio-channel/",Portfolio),
 				path("nifty-channel/",nifty_channel),
 				path("graph-channel/",graph_data_channel),
-				path("ticker_data/",ticker_data_channel),
+				path("ticker-channel/",ticker_data_channel),
 				path("sell-channel/",sell_channel),
 			])
 

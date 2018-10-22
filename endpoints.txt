@@ -1,0 +1,153 @@
+root url : /dalalbull/
+ 
+
+1: /handshake/
+	POST 
+	{
+		'user':<token>,
+	}
+	RETURNS
+		{'success':True} if success
+
+2: /logout/
+	GET
+	RETURNS 
+		{'success':True} if success else False
+
+3: /dashboard/
+	GET
+	RETURNS
+		{
+		    'total_users' : total_users,
+		    'stockholdings':getStockHoldings(request.session['user']),
+		    'topGainers' : getTopGainers(),
+		    'topLosers' : getTopLosers(),
+		    'mostActiveVol' : getMostActiveVolume(),
+		    'mostActiveVal' : getMostActiveValue(),
+		}
+
+4: /portfolioview/
+	GET
+	returns 
+		{
+			'cash_bal' : float(user_portfolio.cash_bal),
+			'net_worth': float(user_portfolio.net_worth),
+			'rank': float(user_portfolio.rank),
+			'total_users' : float(total_no),
+			'total_transactions' : float(user_portfolio.no_trans),
+			'margin':float(user_portfolio.margin),
+		}
+
+5: /leaderboard/
+	GET
+	RETURNS 
+		{
+			'leaderboard_data' : l,
+		}
+
+6: /companydetails/
+	POST
+	{
+		'company':<company code>,
+	}
+	RETURNS
+		{
+		    current_price:'',
+		    high:'',
+		    low:'',
+		    open_price:'',
+		    change:'',
+		    change_per:'',
+		    trade_Qty:'',
+		    trade_Value:'',
+		}
+
+7: /buy/
+	POST
+	{
+		'quantity':<qty>,
+		'company':<company>,
+		'pending':<null or price>,
+		'b_ss':<"buy"/"short sell">,
+	}
+	RETURNS
+		{
+			msg:'<message>',
+		}
+
+8: /sell/
+	POST
+	{
+		'quantity':<qty>,
+		'company':<company>,
+		's_sc':<"sell"/"short cover">,
+		'pending':<null or price>,
+	}
+	RETURNS
+		{
+			msg:'<message>'.
+		}
+
+9: /pending/
+	GET
+	RETURNS
+		{
+			'pending':,
+		}
+
+10: /cancels/ (for cancelling pending orders)
+	POST
+	{
+		'iddel' : <id>, 
+		'company' : <company code>,
+	}
+	RETURNS
+		{
+			'msg' : <message>,
+		}
+
+11: /stockinfo/
+	GET 
+	RETURNS all stock symbols
+
+12: /history/
+	GET
+	RETURNS history of all the Transactions of that particular user
+
+13: /currentprice/
+	POST 
+	{
+		'company':<company code>,
+	}
+	RETURNS
+		{
+		    'curr_price' : curr_price,
+		    'cash_bal': cash_bal,
+		    'margin' : margin,
+		    'no_trans' : no_trans
+	    }
+14: /ticker/
+	GET
+	RETURNS
+		LIST of all the stock data
+		{
+	        'name': stock.symbol,
+	        'current_price' : stock.current_price,
+	        'change_per' : stock.change_per,
+		}
+
+15: /nifty/
+	GET
+	RETURNS
+		{
+	        'current_price': float(nifty.current_price),
+	        'change' : float(nifty.change) , 
+	    }
+
+WEBSOCKET
+
+	/portfolio-channel/
+	/nifty-channel/
+	/graph-channel/
+	/ticker-channel/
+	/sell-channel/

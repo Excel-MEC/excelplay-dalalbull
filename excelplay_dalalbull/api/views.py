@@ -569,7 +569,7 @@ def cancels(request):
 		msg="Invalid Data"
 
 	data_to_send = {
-	'message' : msg,
+	'msg' : msg,
 	}
 
 	return JsonResponse(data_to_send)
@@ -907,6 +907,5 @@ def sell_data(user_id):
     'no_stock': no_stock,
     'trans':transactions,
     }
-
-
+    
     return data

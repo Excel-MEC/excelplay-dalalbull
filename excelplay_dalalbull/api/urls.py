@@ -18,9 +18,9 @@ urlpatterns = [
     # url(r'logout/$',views.logout,name='logout'),
 
     url(r'register/$',views.register,name='register'),
-    url(r'handShake/$',views.handShake,name='handShake'),
+    url(r'handshake/$',views.handShake,name='handShake'),
     url(r'logout/$',views.logout,name='logout'),
-    url(r'portfolioView/$',views.portfolioView,name='portfolioView'),
+    url(r'portfolioview/$',views.portfolioView,name='portfolioView'),
     url(r'companydetails/$',views.companyDetails,name='companyDetails'),
     url(r'leaderboard/$',views.leaderboard,name='leaderboard'),
     url(r'stockinfo', views.stockinfo, name='stockinfo'),
