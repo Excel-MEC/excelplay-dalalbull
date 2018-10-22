@@ -84,10 +84,11 @@ print(BASE_DIR+'/excelplay_dalalbull/')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': BASE_DIR+'/excelplay_dalalbull/database.cnf',
-        },
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'db3',
+        'PORT': 5432,
     }
 }
 

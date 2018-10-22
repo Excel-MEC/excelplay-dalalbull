@@ -27,8 +27,12 @@ def register(request):
 		return JsonResponse({'success':False})
 
 #========Create User object if not created========#
-@login_required
+@csrf_exempt
 def handShake(request):
+	try:
+		request.session['user']=request.POST['user']
+	except:
+		pass
 	user_id = request.session['user']
 	print(user_id)
 	total_users=Portfolio.objects.count()
