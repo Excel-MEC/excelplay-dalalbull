@@ -146,7 +146,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Makassar'
 CELERY_BEAT_SCHEDULE = {
-    'net-every-20-seconds': { #update Company Details
+    'stocks update': { #update Company Details
         'task': 'api.tasks.stock_update',
         'schedule': timedelta(seconds=10),
      },
@@ -160,7 +160,19 @@ CELERY_BEAT_SCHEDULE = {
     },
     'Portfolio ': { #Portfolio data
         'task': 'api.tasks.broadcastPortfolioData',
-        'schedule': timedelta(seconds=5),
+        'schedule': timedelta(seconds=10),
+    },
+    'Graph ': { 
+        'task': 'api.tasks.graphdata',
+        'schedule': timedelta(seconds=20),
+    },
+    'nifty data ': { 
+        'task': 'api.tasks.broadcastNiftyData',
+        'schedule': timedelta(seconds=20),
+    },
+    'sell data ': { 
+        'task': 'api.tasks.broadcastSellData',
+        'schedule': timedelta(seconds=100),
     },
 }
 

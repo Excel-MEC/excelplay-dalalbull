@@ -11,7 +11,7 @@ nse=Nse()
 
 from .models import *
 
-from .consumers import portfolioDataPush
+from .consumers import portfolioDataPush,graphDataPush,niftyChannelDataPush,sellDataPush
 
 import os
 import datetime
@@ -42,6 +42,18 @@ def leaderboard_update():
 	return
 
 @shared_task
+def graphdata():
+	print("Graph Values Update");
+	oldstockdata()
+	graphDataPush()
+	return 
+
+@shared_task
+def broadcastNiftyData():
+	print("Nifty data broadcasted!")
+	niftyChannelDataPush()
+
+@shared_task
 def net():
     print("Networth Update");
     networth()
@@ -51,6 +63,11 @@ def net():
 def broadcastPortfolioData():
 	print("Portfolio data broadcasted!")
 	portfolioDataPush()
+
+@shared_task
+def broadcastSellData():
+	print("Sellers data broadcasted!")
+	sellDataPush()
 
 # API_KEY = os.environ.get("DALALBULL_API_KEY")
 API_KEY="c0e298ec-1912-483a-84f9-20b1a1142e28"

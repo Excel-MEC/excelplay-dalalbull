@@ -4,7 +4,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie,csrf_exempt
 import numbers
 import datetime
 from .decorators import login_required
-
+from pytz import timezone
+from excelplay_dalalbull import settings
 from .models import *
 #========Register users========#
 '''
@@ -796,3 +797,112 @@ def getMostActiveValue():
             'trade_value' : stock.trade_Value,
             })
     return mostActiveVal
+
+def graph(company):
+    graph_values=Old_Stock_data.objects.filter(symbol=company).order_by('time')
+    graph_data=[]
+    for i in graph_values:
+        temp=[]
+        timez=timezone(settings.TIME_ZONE)
+        time=i.time.astimezone(timez)
+        temp.append( (time.hour-9)*60 + time.minute -15 )
+        temp.append( i.current_price )
+        graph_data.append(temp)
+
+    data_to_send = {
+        'graph_data' : graph_data,
+    }
+    return data_to_send
+
+def sell_data(user_id):                      
+    cclose = isWrongTime()
+    no_stock=False
+    transactions=[]
+    data={}
+    data_array={}
+    d=[]
+    k=0
+    s =set()
+    if not isWrongTime():
+        try:
+            t1 = TransactionBuy.objects.filter(user_id=user_id)
+
+            for i in t1:
+                temp={}
+
+                temp['old_quantity']=float(i.quantity)
+                temp['old_value']=float(i.value)
+
+                temp['buy_ss']="buy"
+                temp['symbol']=i.symbol
+
+                try:
+                    s = Stock_data.objects.get(symbol=temp['symbol'])
+                except:
+                    continue
+
+                temp['profit']=float(s.current_price)-(temp['old_value']/temp['old_quantity'])
+                   
+                temp['prof_per']=(temp['profit']/(temp['old_value']/temp['old_quantity']))*100
+                                               
+                temp['disp']='Sell'
+
+
+                transactions.append(
+                    {
+                        'company' : temp['symbol'],
+                        'type_of_trade' : temp['buy_ss'],
+                        'share_in_hand' : temp['old_quantity'],
+                        'current_price' : str(s.current_price),
+                        'gain' : temp['prof_per'],
+                        'type_of_trans' : temp['disp']
+                    })
+
+            t2 = TransactionShortSell.objects.filter(user_id=user_id)
+
+            for i in t2:
+                temp={}
+
+                temp['old_quantity']=float(i.quantity)
+                temp['old_value']=float(i.value)
+
+                temp['buy_ss']="short sell"
+                temp['symbol']=i.symbol
+
+                try:
+                    s = Stock_data.objects.get(symbol=temp['symbol'])
+                except:
+                    continue
+                   
+                temp['profit']=(temp['old_value']/temp['old_quantity'])-float(s.current_price)
+
+                temp['disp']='Short Cover'
+
+                temp['prof_per']=(temp['profit']/(temp['old_value']/temp['old_quantity']))*100
+
+
+                transactions.append(
+                    {
+                        'company' : temp['symbol'],
+                        'type_of_trade' : temp['buy_ss'],
+                        'share_in_hand' : temp['old_quantity'],
+                        'current_price' : str(s.current_price),
+                        'gain' : temp['prof_per'],
+                        'type_of_trans' : temp['disp']
+                    })
+
+
+            if(len(transactions)==0):
+                no_stock=True
+
+        except Transaction.DoesNotExist:
+            no_stock=True 
+
+    data = {
+    'cclose' : cclose,
+    'no_stock': no_stock,
+    'trans':transactions,
+    }
+
+
+    return data
