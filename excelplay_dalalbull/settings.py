@@ -19,7 +19,7 @@ from secret import secretkey
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '+6d%-wcghh2f60a@vm_e8r_5d5h_8vzf3_t9zhf-&eaybc!3!_'
+SECRET_KEY = secretkey
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
