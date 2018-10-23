@@ -3,5 +3,5 @@ from django.contrib import admin
 app_name='api'
 urlpatterns = [
     url(r'^admin/',admin.site.urls),
-    url(r'^dalalbull/',include('api.urls'),name='api'),
+    url(r'^api/',include('api.urls'),name='api'),
 ]

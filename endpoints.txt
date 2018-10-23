@@ -1,4 +1,4 @@
-root url : /dalalbull/
+root url : /dalalbull/api/
  
 
 1: /handshake/
