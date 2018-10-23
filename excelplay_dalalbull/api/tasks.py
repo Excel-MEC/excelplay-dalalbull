@@ -6,9 +6,6 @@ from urllib import request
 import urllib
 import json
 
-# from nsetools import Nse
-# nse=Nse()
-
 from .models import *
 
 from .consumers import portfolioDataPush,graphDataPush,niftyChannelDataPush,sellDataPush
