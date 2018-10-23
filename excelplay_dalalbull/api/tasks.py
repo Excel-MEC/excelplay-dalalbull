@@ -6,8 +6,8 @@ from urllib import request
 import urllib
 import json
 
-from nsetools import Nse
-nse=Nse()
+# from nsetools import Nse
+# nse=Nse()
 
 from .models import *
 
@@ -285,7 +285,7 @@ def sell_sc(username,symbol,quantity,typ):
 					return True
 				except Portfolio.DoesNotExist:
 					print("Error fetching portfolio")
-		except Transaction.DoesNotExist:
+		except:
 			print("Error fetching from transactions ")
 			return False
 	except Stock_data.DoesNotExist:
@@ -322,7 +322,7 @@ def buy_ss(username,symbol,quantity,typ):
 				trans.value=value
 				trans.save()
 				print("Pending order completed")
-			except Transaction.DoesNotExist:
+			except :
 				value = qnty*price
 				if typ=="BUY":
 					trans = TransactionBuy(user_id=username,symbol=symbol,quantity=qnty,value=value)
@@ -368,7 +368,7 @@ def orders():
 				type_temp = "Short Cover";
 				print("Short Cover")
 				ret= sell_sc(username,symbol,quantity,type_temp)		
-		except Transaction.DoesNotExist :
+		except:
 			print("No Transactions")   		
 		Pending.objects.all().delete()
 	else:

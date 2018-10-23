@@ -62,7 +62,7 @@ root url : /dalalbull/api/
 		    trade_Value:'',
 		}
 
-7: /buy/
+7: /submit_buy/
 	POST
 	{
 		'quantity':<qty>,
@@ -75,7 +75,7 @@ root url : /dalalbull/api/
 			msg:'<message>',
 		}
 
-8: /sell/
+8: /submit_sell/
 	POST
 	{
 		'quantity':<qty>,
@@ -142,6 +142,20 @@ root url : /dalalbull/api/
 		{
 	        'current_price': float(nifty.current_price),
 	        'change' : float(nifty.change) , 
+	    }
+16: /graph/
+	GET
+	RETURNS
+		{
+			'graph_data' : graph_data,
+		}
+
+17: /sell/
+	GET
+	RETURNS
+		{
+		    'no_stock': no_stock,
+		    'trans':transactions,
 	    }
 
 WEBSOCKET

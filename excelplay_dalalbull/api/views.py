@@ -527,6 +527,7 @@ def submit_shortCover_fun(request):
 @csrf_exempt
 @login_required
 def pending(request):      
+	
 	no_stock=False
 
 	try:
