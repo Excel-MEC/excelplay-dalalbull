@@ -129,21 +129,32 @@ POST format
 	'b_ss':<"buy"/"short sell">,
 }
 '''
+
+
+def sell(request):
+    data_to_send = sell_data(request.session['user'])
+    return JsonResponse(data_to_send)
+
+
 @csrf_exempt
 @login_required
-def buy(request):
+def submit_buy(request):
 	data=request.POST
 	
+	cclose = isWrongTime()
+	if(cclose):
+		return JsonResponse({'cclose': True})
+
 	if(data['b_ss']=="buy"):
-		msg=submit_buy(request)
+		msg=submit_buy_fun(request)
 	else:
-		msg=submit_shortSell(request)
+		msg=submit_shortSell_fun(request)
 
 	print(msg)
 
 	return JsonResponse({'msg':msg})
 
-def submit_buy(request):
+def submit_buy_fun(request):
 
 	data=request.POST
 	quantity=Decimal(data['quantity'])
@@ -234,7 +245,7 @@ def submit_buy(request):
 
 	return msg
 
-def submit_shortSell(request):
+def submit_shortSell_fun(request):
 	data=request.POST
 	quantity=Decimal(data['quantity'])
 	company=data['company']
@@ -334,17 +345,21 @@ POST format
 '''
 @csrf_exempt
 @login_required
-def sell(request):
+def submit_sell(request):
 	data=request.POST
 
+	cclose = isWrongTime()
+	if(cclose):
+		return JsonResponse({'cclose': True})
+
 	if data['s_sc']=="sell":
-		msg=submit_sell(request)
+		msg=submit_sell_fun(request)
 	else:
-		msg=submit_shortCover(request)
+		msg=submit_shortCover_fun(request)
 
 	return JsonResponse({'msg':msg})
 
-def submit_sell(request):
+def submit_sell_fun(request):
 	data=request.POST
 	company=data['company']
 	quantity=Decimal(data['quantity'])
@@ -425,7 +440,7 @@ def submit_sell(request):
 
 	return msg
 
-def submit_shortCover(request):
+def submit_shortCover_fun(request):
 	data=request.POST
 	company=data['company']
 	quantity=Decimal(data['quantity'])
@@ -550,6 +565,10 @@ POST DATA Format:
 '''
 @login_required
 def cancels(request):
+	cclose = isWrongTime()
+	if(cclose):
+		return JsonResponse({'cclose': True})
+
 	iddel=request.POST['iddel']
 	company=request.POST['company']
 	username=request.session['user']
@@ -618,6 +637,9 @@ def history(request):
 
     return JsonResponse(data)
 
+@login_required
+def graphView(request):
+    return JsonResponse( graph('NIFTY 50')) 
 
 #======To Get Current Price======#
 
@@ -819,7 +841,6 @@ def graph(company):
     return data_to_send
 
 def sell_data(user_id):                      
-    cclose = isWrongTime()
     no_stock=False
     transactions=[]
     data={}
@@ -827,85 +848,96 @@ def sell_data(user_id):
     d=[]
     k=0
     s =set()
+    cclose = isWrongTime()
     if not isWrongTime():
         try:
-            t1 = TransactionBuy.objects.filter(user_id=user_id)
+	        t1 = TransactionBuy.objects.filter(user_id=user_id)
 
-            for i in t1:
-                temp={}
+	        for i in t1:
+	            temp={}
 
-                temp['old_quantity']=float(i.quantity)
-                temp['old_value']=float(i.value)
+	            temp['old_quantity']=float(i.quantity)
+	            temp['old_value']=float(i.value)
 
-                temp['buy_ss']="buy"
-                temp['symbol']=i.symbol
+	            temp['buy_ss']="buy"
+	            temp['symbol']=i.symbol
 
-                try:
-                    s = Stock_data.objects.get(symbol=temp['symbol'])
-                except:
-                    continue
+	            try:
+	                s = Stock_data.objects.get(symbol=temp['symbol'])
+	            except:
+	                continue
 
-                temp['profit']=float(s.current_price)-(temp['old_value']/temp['old_quantity'])
-                   
-                temp['prof_per']=(temp['profit']/(temp['old_value']/temp['old_quantity']))*100
-                                               
-                temp['disp']='Sell'
-
-
-                transactions.append(
-                    {
-                        'company' : temp['symbol'],
-                        'type_of_trade' : temp['buy_ss'],
-                        'share_in_hand' : temp['old_quantity'],
-                        'current_price' : str(s.current_price),
-                        'gain' : temp['prof_per'],
-                        'type_of_trans' : temp['disp']
-                    })
-
-            t2 = TransactionShortSell.objects.filter(user_id=user_id)
-
-            for i in t2:
-                temp={}
-
-                temp['old_quantity']=float(i.quantity)
-                temp['old_value']=float(i.value)
-
-                temp['buy_ss']="short sell"
-                temp['symbol']=i.symbol
-
-                try:
-                    s = Stock_data.objects.get(symbol=temp['symbol'])
-                except:
-                    continue
-                   
-                temp['profit']=(temp['old_value']/temp['old_quantity'])-float(s.current_price)
-
-                temp['disp']='Short Cover'
-
-                temp['prof_per']=(temp['profit']/(temp['old_value']/temp['old_quantity']))*100
+	            temp['profit']=float(s.current_price)-(temp['old_value'])
+	               
+	            temp['prof_per']=(temp['profit']/(temp['old_value']))*100
+	                                           
+	            temp['disp']='Sell'
 
 
-                transactions.append(
-                    {
-                        'company' : temp['symbol'],
-                        'type_of_trade' : temp['buy_ss'],
-                        'share_in_hand' : temp['old_quantity'],
-                        'current_price' : str(s.current_price),
-                        'gain' : temp['prof_per'],
-                        'type_of_trans' : temp['disp']
-                    })
+	            transactions.append(
+	                {
+	                    'company' : temp['symbol'],
+	                    'type_of_trade' : temp['buy_ss'],
+	                    'share_in_hand' : temp['old_quantity'],
+	                    'current_price' : str(s.current_price),
+	                    'gain' : temp['prof_per'],
+	                    'type_of_trans' : temp['disp']
+	                })
+
+	        t2 = TransactionShortSell.objects.filter(user_id=user_id)
+
+	        for i in t2:
+	            temp={}
+
+	            temp['old_quantity']=float(i.quantity)
+	            temp['old_value']=float(i.value)
+
+	            temp['buy_ss']="short sell"
+	            temp['symbol']=i.symbol
+
+	            try:
+	                s = Stock_data.objects.get(symbol=temp['symbol'])
+	            except:
+	                continue
+	               
+	            temp['profit']=temp['old_value']-float(s.current_price)
+
+	            temp['disp']='Short Cover'
+
+	            temp['prof_per']=(temp['profit']/(temp['old_value']))*100
 
 
-            if(len(transactions)==0):
-                no_stock=True
+	            transactions.append(
+	                {
+	                    'company' : temp['symbol'],
+	                    'type_of_trade' : temp['buy_ss'],
+	                    'share_in_hand' : temp['old_quantity'],
+	                    'current_price' : str(s.current_price),
+	                    'gain' : temp['prof_per'],
+	                    'type_of_trans' : temp['disp']
+	                })
 
-        except Transaction.DoesNotExist:
+
+	            if(len(transactions)==0):
+	                no_stock=True
+        except:
             no_stock=True 
 
     data = {
-    'cclose' : cclose,
-    'no_stock': no_stock,
-    'trans':transactions,
+	    'cclose' : cclose,
+	    'no_stock': no_stock,
+	    'trans':transactions,
     }
     
     return data
+
+_start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
+_end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
+def isWrongTime():
+    cclose = True
+    now = datetime.datetime.now()
+    if (now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):
+        now = datetime.datetime.now()
+        if(_start_time<now.time()<_end_time):
+            cclose = False
+    return cclose

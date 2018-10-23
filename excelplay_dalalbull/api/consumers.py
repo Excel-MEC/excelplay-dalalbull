@@ -9,7 +9,7 @@ from asgiref.sync import async_to_sync
 import redis
 
 # from channels import Group
-redis_conn = redis.Redis("localhost", 6379)
+redis_conn = redis.Redis("redis", 6379)
 
 import json
 

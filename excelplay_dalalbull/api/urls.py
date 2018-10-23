@@ -24,8 +24,8 @@ urlpatterns = [
     url(r'companydetails/$',views.companyDetails,name='companyDetails'),
     url(r'leaderboard/$',views.leaderboard,name='leaderboard'),
     url(r'stockinfo', views.stockinfo, name='stockinfo'),
-    url(r'buy/$',views.buy,name='buy'),
-    url(r'sell/$',views.sell,name='sell'),
+    url(r'submit_buy/$',views.submit_buy,name='submit_buy'),
+    url(r'submit_sell/$',views.submit_sell,name='submit_sell'),
     url(r'dashboard/$',views.dashboard,name='dashboard'),
     url(r'history/$',views.history,name='history'),
     url(r'currentprice/$',views.currentPrice,name='currentPrice'),
@@ -33,5 +33,7 @@ urlpatterns = [
     url(r'nifty', views.nifty, name='nifty'),
     url(r'cancels', views.cancels, name='cancels'),
     url(r'pending', views.pending, name='pending'),
+    url(r'sell', views.sell, name='sell'), 
+    url(r'graph', views.graphView, name='graph'),
 
 ]

@@ -32,26 +32,33 @@ def stock_update():
 
 @shared_task
 def leaderboard_update():
-	print("Updating Leaderboard")
-	ordered_data = Portfolio.objects.order_by('-net_worth')
-	rank = 1
-	for obj in ordered_data:
-		obj.rank = rank
-		rank += 1
-		obj.save()
+	if isGoodTime():
+		print("Leaderboard ordered!")
+		ordered_data = Portfolio.objects.order_by('-net_worth')
+		rank = 1
+		for e in ordered_data:
+			e.rank = rank
+			rank += 1
+			e.save()
 	return
 
 @shared_task
 def graphdata():
-	print("Graph Values Update");
-	oldstockdata()
-	graphDataPush()
+	if isGoodTime(): 
+		print("Graph Values Update");
+		oldstockdata()
+		graphDataPush()
+	else:
+		print("Not the time for graph broadcast")
 	return 
 
 @shared_task
 def broadcastNiftyData():
-	print("Nifty data broadcasted!")
-	niftyChannelDataPush()
+	if isGoodTime():
+		print("Nifty data broadcasted!")
+		niftyChannelDataPush()
+	else:
+		print("Not the time for nifty broadcast")
 
 @shared_task
 def net():
@@ -61,13 +68,19 @@ def net():
 
 @shared_task
 def broadcastPortfolioData():
-	print("Portfolio data broadcasted!")
-	portfolioDataPush()
+	if isGoodTime():
+		print("Portfolio data broadcasted!")
+		portfolioDataPush()
+	else:
+		print("Not the time for portfolio broadcast")
 
 @shared_task
 def broadcastSellData():
-	print("Sellers data broadcasted!")
-	sellDataPush()
+	if isGoodTime():
+		print("Sellers data broadcasted!")
+		sellDataPush()
+	else:
+		print("Not the time for sell broadcast")
 
 # API_KEY = os.environ.get("DALALBULL_API_KEY")
 API_KEY="c0e298ec-1912-483a-84f9-20b1a1142e28"
@@ -401,3 +414,12 @@ def oldstockdata():
 		current_price=company['ltp'].replace(",",""),
 		)
 	c.save() 	 	
+
+_start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
+_end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
+def isGoodTime():
+	now = datetime.datetime.now()
+	if(now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):		
+		if( _start_time <= now.time() < _end_time):
+			return True
+	return False
