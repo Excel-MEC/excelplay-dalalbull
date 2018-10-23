@@ -30,11 +30,12 @@ def register(request):
 @csrf_exempt
 def handShake(request):
 	try:
-		request.session['user']=request.POST['user']
+		user_id = request.session['user']
 	except:
-		pass
-	user_id = request.session['user']
+		user_id=''
 	print(user_id)
+	if user_id =='':
+		return JsonResponse({'success':False})		
 	total_users=Portfolio.objects.count()
 	if(not isinstance(total_users,int)):
 		print('First user')
