@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'api',
+    'api.apps.AppConfig',
 
     'channels',
 
@@ -133,10 +133,14 @@ from datetime import timedelta
 
 # Redis session settings
 SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'redis'
-SESSION_REDIS_PORT = 6379
-SESSION_REDIS_DB = 0
-SESSION_REDIS_PREFIX = 'session'
+SESSION_REDIS = {
+    'host': 'redis',
+    'port': 6379,
+    'db': 0,
+    'prefix': 'session',
+    'socket_timeout': 10
+}
+
 
 CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_RESULT_BACKEND = 'redis://redis:6379'
