@@ -12,8 +12,6 @@ from .consumers import portfolioDataPush,graphDataPush,niftyChannelDataPush,sell
 
 import os
 import datetime
-#To get the stock codes of all the companies
-all_stock_codes=nse.get_stock_codes()
 
 print("dalalbull tasks")
 
