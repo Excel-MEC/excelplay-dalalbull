@@ -6,20 +6,12 @@ from api.consumers import LeaderBoard, Portfolio, nifty_channel, graph_data_chan
 
 application = ProtocolTypeRouter({
 		"websocket":URLRouter([
-				path("leaderboard-channel/",LeaderBoard),
-				path("portfolio-channel/",Portfolio),
-				path("nifty-channel/",nifty_channel),
-				path("graph-channel/",graph_data_channel),
-				path("ticker-channel/",ticker_data_channel),
-				path("sell-channel/",sell_channel),
+				path("channel/leaderboard/", LeaderBoard),
+				path("channel/portfolio/",Portfolio),
+				path("channel/nifty/",nifty_channel),
+				path("channel/graph/",graph_data_channel),
+				path("channel/ticker/",ticker_data_channel),
+				path("channel/sell/",sell_channel),
 			]),
-		"channel":ChannelNameRouter({
-				"leaderboard-channel": LeaderBoard,
-				"portfolio-channel": Portfolio,
-				"nifty-channel": nifty_channel,
-				"graph-channel": graph_data_channel,
-				"ticker-channel": ticker_data_channel,
-				"sell-channel": sell_channel,
-			})
-	})
+                })
 
