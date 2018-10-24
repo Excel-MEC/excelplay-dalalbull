@@ -1,6 +1,4 @@
-from channels.routing import ProtocolTypeRouter, URLRouter, 
-
-import channels.routing.ChannelNameRouter
+from channels.routing import ProtocolTypeRouter, URLRouter, ChannelNameRouter
 
 from django.urls import path
 
