@@ -1,11 +1,13 @@
-from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.routing import ProtocolTypeRouter, URLRouter, 
+
+import channels.routing.ChannelNameRouter
 
 from django.urls import path
 
-from api.consumers import LeaderBoard, Portfolio,nifty_channel,graph_data_channel, ticker_data_channel, sell_channel
+from api.consumers import LeaderBoard, Portfolio, nifty_channel, graph_data_channel, ticker_data_channel, sell_channel
 
 application = ProtocolTypeRouter({
-		"websocket":URLRouter([
+		"websocket":ChannelNameRouter([
 				path("leaderboard-channel/",LeaderBoard),
 				path("portfolio-channel/",Portfolio),
 				path("nifty-channel/",nifty_channel),
