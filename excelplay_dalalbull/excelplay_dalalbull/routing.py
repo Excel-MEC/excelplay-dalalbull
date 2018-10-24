@@ -13,13 +13,13 @@ application = ProtocolTypeRouter({
 				path("ticker-channel/",ticker_data_channel),
 				path("sell-channel/",sell_channel),
 			]),
-		"channel":ChannelNameRouter([
-				"leaderboard-channel":LeaderBoard,
-				"portfolio-channel":Portfolio,
-				"nifty-channel":nifty_channel,
-				"graph-channel":graph_data_channel,
-				"ticker-channel":ticker_data_channel,
-				"sell-channel":sell_channel,
-			])
+		"channel":ChannelNameRouter({
+				"leaderboard-channel": LeaderBoard,
+				"portfolio-channel": Portfolio,
+				"nifty-channel": nifty_channel,
+				"graph-channel": graph_data_channel,
+				"ticker-channel": ticker_data_channel,
+				"sell-channel": sell_channel,
+			})
 	})
 
