@@ -15,20 +15,15 @@ from channels.layers import get_channel_layer
 
 class PortfolioConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
-        await self.accept()
+        self.scope['session']['user'] = self.channel_name
+        self.scope['session'].save()
         print(self.scope['session']['user'])
-        try:
-            userid = self.scope['session']['user']
-            print('Portfolio listener added!',userid)
-            # redis_conn.hset("online-users", userid, self.channel_name)
-            await self.channel_layer.group_add("user-{}".format(userid), self.channel_name)
-            await self.send_json({"msg": "success"})
-        except Exception as e:
-            print(e)
+        await self.accept()
+        
 
     async def receive(self, portfolio_data):
-        await self.channel_layer.group_send(
-            "portfolio-data",
+        await self.channel_layer.send(
+            "self.channel_name",
             {
                 'type': "portfolio.data",
                 'text': portfolio_data,
@@ -39,14 +34,10 @@ class PortfolioConsumer(AsyncJsonWebsocketConsumer):
         portfoliodata = event['text']
         await self.send_json({'data': portfoliodata})
     
-    async def disconnect(self,x):
-        try:
-            userid = self.scope['session']['user']
-            # redis_conn.hdel("online-users", userid)
-            await self.channel_layer.group_discard("user-{}".format(userid), self.channel_name)
-        except:
-            pass
-        print('disonnected')
+    async def disconnect(self, close_code):
+        userid = self.scope['session']['user']
+        print(userid)
+        await self.close()
 
 # def portfolioDataPush():
 #     layer=get_channel_layer()
