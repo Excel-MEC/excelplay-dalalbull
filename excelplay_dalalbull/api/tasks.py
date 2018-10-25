@@ -8,7 +8,7 @@ import json
 
 from .models import *
 
-from .consumers import portfolioDataPush,graphDataPush,niftyChannelDataPush,sellDataPush
+from .consumers import portfolioDataPush, graphDataPush, niftyChannelDataPush
 
 import os
 import datetime
@@ -414,6 +414,8 @@ def oldstockdata():
 
 _start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
 _end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
+
+
 def isGoodTime():
 	now = datetime.datetime.now()
 	if(now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):		
