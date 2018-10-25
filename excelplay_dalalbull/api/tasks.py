@@ -9,6 +9,7 @@ import json
 from .models import *
 
 from .consumers import portfolioDataPush, graphDataPush, niftyChannelDataPush
+from redis_leaderboard.wrapper import RedisLeaderboard
 
 import os
 import datetime
@@ -209,8 +210,8 @@ def networth():
 				for j in trans:
 					try:
 						current_price = float(Stock_data.objects.get(symbol=j.symbol).current_price)
-						net_worth+=current_price*float(j.quantity)
-                                                rdb.add('dalalbull', i.user_id, networth)        
+						net_worth += current_price * float(j.quantity)
+						rdb.add('dalalbull', i.user_id, networth)
 					except Stock_data.DoesNotExist:
 						print("Company Not Listed")
 				i.net_worth = net_worth

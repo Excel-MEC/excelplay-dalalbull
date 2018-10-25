@@ -147,22 +147,22 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Makassar'
+CELERY_TIMEZONE = 'Asia/Kolkata'
 CELERY_BEAT_SCHEDULE = {
     'stocks update': { #update Company Details
-        'task': 'api.tasks.stock_update',
+        'task': 'excelplay_dalalbull.api.tasks.stock_update',
         'schedule': timedelta(seconds=10),
      },
     'net-worth': { #networth
-        'task': 'api.tasks.net',
+        'task': 'excelplay_dalalbull.api.tasks.net',
         'schedule': timedelta(seconds=10),
     },
     'Leaderboard': { #Leaderboard
-        'task': 'api.tasks.leaderboard_update',
+        'task': 'excelplay_dalalbull.api.tasks.leaderboard_update',
         'schedule': timedelta(seconds=20),
     },
     'Portfolio ': { #Portfolio data
-        'task': 'api.tasks.broadcastPortfolioData',
+        'task': 'excelplay_dalalbull.api.tasks.broadcastPortfolioData',
         'schedule': timedelta(seconds=10),
     },
     'Graph ': { 
