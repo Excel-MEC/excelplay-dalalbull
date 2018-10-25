@@ -1,12 +1,15 @@
 from django.shortcuts import render,HttpResponse
 from django.http import HttpResponseRedirect,JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie,csrf_exempt
+
 import numbers
 import datetime
+
 from .decorators import login_required
 from pytz import timezone
 from excelplay_dalalbull import settings
 from .models import *
+
 #========Register users========#
 '''
 
@@ -17,43 +20,33 @@ POST FORMAT
 	}
 
 '''
-@csrf_exempt
-def register(request):
-	try:
-		request.session['logged_in']=True
-		request.session['user']=request.POST['user']
-		return JsonResponse({'success':True})
-	except:
-		return JsonResponse({'success':False})
+rdb = RedisLeaderboard('redis', 6379, 0)
 
 #========Create User object if not created========#
-@csrf_exempt
+@login_required
 def handShake(request):
-	try:
-		user_id = request.session['user']
-	except:
-		user_id=''
-	print(user_id)
-	if user_id =='':
-		return JsonResponse({'success':False})		
-	total_users=Portfolio.objects.count()
-	if(not isinstance(total_users,int)):
-		print('First user')
+    try:
+        user_id = request.session['user']
+    	total_users = Portfolio.objects.count()
+	
+        if (not isinstance(total_users,int)):
 		total_users=1
-	print(total_users)
-	if not User.objects.filter(user_id=user_id).exists():
+	
+        if not User.objects.filter(user_id=user_id).exists():
 		User.objects.create(
-			user_id=user_id,
+			user_id=user_id
 		)
-		print("new user................")
+		
 	if not Portfolio.objects.filter(user_id=user_id).exists():
+                initial = 1000000.00
 		Portfolio.objects.create(
 				user_id=user_id,
-				cash_bal=1000000.00,
+				cash_bal=initial,
 				no_trans=0,
-				net_worth=1000000.00,
+				net_worth=initial,
 				rank=total_users,
 			)
+                rdb.add('dalalbull', user_id, initial)
 	return JsonResponse({'success':True})
 
 #======Dashboard======#
@@ -154,6 +147,7 @@ def submit_buy(request):
 	print(msg)
 
 	return JsonResponse({'msg':msg})
+
 
 def submit_buy_fun(request):
 
@@ -359,6 +353,7 @@ def submit_sell(request):
 		msg=submit_shortCover_fun(request)
 
 	return JsonResponse({'msg':msg})
+
 
 def submit_sell_fun(request):
 	data=request.POST

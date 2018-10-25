@@ -1,11 +1,14 @@
 from django.db import models
 from decimal import Decimal
 from django.core.validators import MinValueValidator
+
 #Details of the user
+
 class User(models.Model):
 	user_id=models.CharField(primary_key=True,max_length=100)
 	def __str__(self):
 		return self.user_id
+
 
 class Portfolio(models.Model):
 	user_id=models.CharField(primary_key=True,max_length=100)

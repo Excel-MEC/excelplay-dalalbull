@@ -15,6 +15,7 @@ import datetime
 
 print("dalalbull tasks")
 
+rdb = RedisLeaderboard('redis', 6379, 0)
 
 
 @shared_task
@@ -209,6 +210,7 @@ def networth():
 					try:
 						current_price = float(Stock_data.objects.get(symbol=j.symbol).current_price)
 						net_worth+=current_price*float(j.quantity)
+                                                rdb.add('dalalbull', i.user_id, networth)        
 					except Stock_data.DoesNotExist:
 						print("Company Not Listed")
 				i.net_worth = net_worth
