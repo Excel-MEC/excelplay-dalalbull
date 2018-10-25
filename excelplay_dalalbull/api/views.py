@@ -703,7 +703,7 @@ def ticker_data():
             'current_price' : stock.current_price,
             'change_per' : stock.change_per,
         })
-    return{
+    return {
         'tickerData': tickerData,
     }
 

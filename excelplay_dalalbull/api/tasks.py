@@ -8,7 +8,7 @@ import json
 
 from .models import *
 
-from .consumers import portfolioDataPush, graphDataPush, niftyChannelDataPush
+from .consumers import graphDataPush, tickerDataPush, portfolioDataPush
 from redis_leaderboard.wrapper import RedisLeaderboard
 
 import os
@@ -17,7 +17,6 @@ import datetime
 print("dalalbull tasks")
 
 rdb = RedisLeaderboard('redis', 6379, 0)
-
 
 @shared_task
 def stock_update():	
@@ -40,7 +39,7 @@ def leaderboard_update():
 	return
 
 @shared_task
-def graphdata():
+def broadcastGraphData():
 	if isGoodTime(): 
 		print("Graph Values Update");
 		oldstockdata()
@@ -48,6 +47,14 @@ def graphdata():
 	else:
 		print("Not the time for graph broadcast")
 	return 
+
+@shared_task
+def broadcastTickerData():
+	if isGoodTime():
+		print("Ticker broadcasted!")
+		tickerDataPush()
+	else:
+		print("Not the time for ticker broadcast")
 
 @shared_task
 def broadcastNiftyData():
@@ -71,13 +78,13 @@ def broadcastPortfolioData():
 	else:
 		print("Not the time for portfolio broadcast")
 
-@shared_task
-def broadcastSellData():
-	if isGoodTime():
-		print("Sellers data broadcasted!")
-		sellDataPush()
-	else:
-		print("Not the time for sell broadcast")
+# @shared_task
+# def broadcastSellData():
+# 	if isGoodTime():
+# 		print("Sellers data broadcasted!")
+# 		sellDataPush()
+# 	else:
+# 		print("Not the time for sell broadcast")
 
 # API_KEY = os.environ.get("DALALBULL_API_KEY")
 API_KEY="c0e298ec-1912-483a-84f9-20b1a1142e28"
@@ -418,8 +425,9 @@ _end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
 
 
 def isGoodTime():
-	now = datetime.datetime.now()
-	if(now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):		
-		if( _start_time <= now.time() < _end_time):
-			return True
-	return False
+	# now = datetime.datetime.now()
+	# if(now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):		
+	# 	if( _start_time <= now.time() < _end_time):
+	# 		return True
+	# return False
+	return True

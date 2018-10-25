@@ -148,35 +148,40 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
+CELERY_IMPORTS = ('api.tasks', )
 CELERY_BEAT_SCHEDULE = {
-    'stocks update': { #update Company Details
-        'task': 'excelplay_dalalbull.api.tasks.stock_update',
-        'schedule': timedelta(seconds=10),
-     },
-    'net-worth': { #networth
-        'task': 'excelplay_dalalbull.api.tasks.net',
-        'schedule': timedelta(seconds=10),
-    },
-    'Leaderboard': { #Leaderboard
-        'task': 'excelplay_dalalbull.api.tasks.leaderboard_update',
-        'schedule': timedelta(seconds=20),
-    },
+    # 'stocks update': { #update Company Details
+    #     'task': 'api.tasks.stock_update',
+    #     'schedule': timedelta(seconds=10),
+    #  },
+    # 'net-worth': { #networth
+    #     'task': 'api.tasks.net',
+    #     'schedule': timedelta(seconds=10),
+    # },
+    # 'Leaderboard': { #Leaderboard
+    #     'task': 'api.tasks.leaderboard_update',
+    #     'schedule': timedelta(seconds=20),
+    # },
     'Portfolio ': { #Portfolio data
-        'task': 'excelplay_dalalbull.api.tasks.broadcastPortfolioData',
+        'task': 'api.tasks.broadcastPortfolioData',
         'schedule': timedelta(seconds=10),
     },
     'Graph ': { 
-        'task': 'api.tasks.graphdata',
+        'task': 'api.tasks.broadcastGraphData',
         'schedule': timedelta(seconds=20),
     },
-    'nifty data ': { 
-        'task': 'api.tasks.broadcastNiftyData',
+    # 'nifty data ': { 
+    #     'task': 'api.tasks.broadcastNiftyData',
+    #     'schedule': timedelta(seconds=20),
+    # },
+    # 'sell data ': { 
+    #     'task': 'api.tasks.broadcastSellData',
+    #     'schedule': timedelta(seconds=100),
+    # },
+    'ticker data': {
+        'task': 'api.tasks.broadcastTickerData',
         'schedule': timedelta(seconds=20),
-    },
-    'sell data ': { 
-        'task': 'api.tasks.broadcastSellData',
-        'schedule': timedelta(seconds=100),
-    },
+    }
 }
 
 CHANNEL_LAYERS = {

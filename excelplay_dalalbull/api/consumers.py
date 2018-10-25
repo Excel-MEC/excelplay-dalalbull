@@ -1,86 +1,122 @@
 import asyncio
-from channels.generic.websocket import JsonWebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
+import simplejson as json
 
-
-from .views import leaderboardData, portfolio, niftyData, graph, sell_data, ticker_data
+from .views import leaderboardData, portfolio, niftyData, graph, sell_data, ticker_data, portfolio
 from asgiref.sync import async_to_sync
 
+from django.contrib.sessions.backends.db import SessionStore
+
 import redis
-import json
 
 from channels.layers import get_channel_layer
 
+# redis_conn = redis.Redis("localhost", 6379)
 
-'''
-################PORTFOLIO UPDATE#################
-class Portfolio(AJsonWebsocketConsumer):
+class PortfolioConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
-        
         await self.accept()
-
+        print(self.scope['session']['user'])
         try:
             userid = self.scope['session']['user']
-        except:
-            userid=100
-        print('Portfolio listener added!',userid)
-        redis_conn.hset("online-users", userid, self.channel_name)
-        await self.channel_layer.group_add("user-{}".format(userid), self.channel_name)
-        await self.send_json({"msg": "success"})
+            print('Portfolio listener added!',userid)
+            # redis_conn.hset("online-users", userid, self.channel_name)
+            await self.channel_layer.group_add("user-{}".format(userid), self.channel_name)
+            await self.send_json({"msg": "success"})
+        except Exception as e:
+            print(e)
 
+    async def receive(self, portfolio_data):
+        await self.channel_layer.group_send(
+            "portfolio-data",
+            {
+                'type': "portfolio.data",
+                'text': portfolio_data,
+            },
+        )
+
+    async def portfolio_data(self, event):
+        portfoliodata = event['text']
+        await self.send_json({'data': portfoliodata})
     
-        async def disconnect(self,x):
+    async def disconnect(self,x):
         try:
-            try:
-                userid = self.scope['session']['user']
-            except:
-                userid=100
-            redis_conn.hdel("online-users",userid)
+            userid = self.scope['session']['user']
+            # redis_conn.hdel("online-users", userid)
             await self.channel_layer.group_discard("user-{}".format(userid), self.channel_name)
         except:
             pass
-
         print('disonnected')
 
-def portfolioDataPush():
-    layer=get_channel_layer()
-    for userid in redis_conn.hkeys("online-users"):
-        userid = userid.decode("utf-8")
-        print(userid)
-        async_to_sync(layer.group_send)("user-{}".format(userid),{"type": "chat.system_message", "text": portfolio(userid)})
+# def portfolioDataPush():
+#     layer=get_channel_layer()
+#     for userid in redis_conn.hkeys("online-users"):
+#         userid = userid.decode("utf-8")
+#         print(userid)
+#         async_to_sync(layer.group_send)("user-{}".format(userid),{"type": "chat.system_message", "text": portfolio(userid)})
 
-'''
 
-class NiftyConsumer(JsonWebsocketConsumer):
-    def connect(self):
-        self.accept()
-        self.channel_layer.group_add("nifty", self.channel_name)
+# class NiftyConsumer(JsonWebsocketConsumer):
+#     def connect(self):
+#         self.accept()
+#         self.channel_layer.group_add("nifty", self.channel_name)
     
-    def receive(self, nifty_data):
-        async_to_sync(self.channel_layer.group_send)
-        (
-                "nifty-data",
-                {
-                    'type': "nifty.data",
-                    'text': nifty_data,
-                },
+#     def receive(self, nifty_data):
+#         async_to_sync(self.channel_layer.group_send)
+#         (
+#                 "nifty-data",
+#                 {
+#                     'type': "nifty.data",
+#                     'text': nifty_data,
+#                 },
+#         )
+
+#     def nifty_data(self, event):
+#         nifty_data = event['text']
+#         self.send_json({'data': nifty_data})
+
+#     def disconnect(self, close_code):
+#         async_to_sync(self.channel_layer.group_discard)("nifty-data", self.channel_name)
+
+# class PortfolioConsumer(AsyncJsonWebsocketConsumer):
+
+#     async def connect(self):
+#         await self.accept()
+#         # await self.channel_layer.group_add("portfolio-data-", self.channel_name)
+#         await self.send_json(
+#             {
+#                 'msg': "success",
+#             },
+#         )
+    
+#     async def receive(self, portfolio_data):
+#         await self.send_json(
+#                 "portfolio-data",
+#                 {
+#                     'type': "portfolio.data",
+#                     'text': portfolio_data,
+#                 },
+#         )
+
+#     async def portfolio_data(self, event):
+#         portfoliodata = event['text']
+#         await self.send_json({'data': portfoliodata})
+
+#     async def disconnect(self, close_code):
+#         await async_to_sync(self.channel_layer.group_discard)("portfolio-data", self.channel_name)
+
+class GraphConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+        await self.channel_layer.group_add("graph-data", self.channel_name)
+        await self.send_json(
+            {
+                'msg': "success",
+            },
         )
-
-    def graph_data(self, event):
-        nifty_data = event['text']
-        self.send_json({'data': nifty_data})
-
-    def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)("nifty-data", self.channel_name)
-
-
-class GraphConsumer(JsonWebsocketConsumer):
-    def connect(self):
-        self.accept()
-        self.channel_layer.group_add("graph-data", self.channel_name)
     
-    def receive(self, graph_data):
-        async_to_sync(self.channel_layer.group_send)
-        (
+    async def receive(self, graph_data):
+        await self.channel_layer.group_send(
                 "graph-data",
                 {
                     'type': "graph.data",
@@ -88,53 +124,68 @@ class GraphConsumer(JsonWebsocketConsumer):
                 },
         )
 
-    def graph_data(self, event):
-        graph_data = event['text']
-        self.send_json({'data': graph_data})
+    async def graph_data(self, event):
+        graphdata = event['text']
+        await self.send_json({'data': graphdata})
 
-    def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)("graph-data", self.channel_name)
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard("graph-data", self.channel_name)
 
 
-class TickerConsumer(JsonWebsocketConsumer):
-    def connect(self):
-        self.accept()
-        self.channel_layer.group_add("ticker", self.channel_name)
+class TickerConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+        await self.channel_layer.group_add("ticker", self.channel_name)
+        await self.send_json(
+            {
+                'msg': "success",
+            },
+        )
     
-    def receive(self, ticker_data):
-        async_to_sync(self.channel_layer.group_send)
-        (
-                "graph-data",
-                {
-                    'type': "ticker.data",
-                    'text': ticker_data,
-                },
+    async def receive(self, ticker_data):
+        # async_to_sync(self.channel_layer.group_send)
+        await self.channel_layer.group_send(
+            "graph-data",
+            {
+                'type': "ticker.data",
+                'text': ticker_data,
+            },
         )
 
-    def ticker_data(self, event):
-        ticker_data = event['text']
-        self.send_json({'data': ticker_data})
+    async def ticker_data(self, event):
+        tickerdata = event['text']
+        await self.send_json({'data': tickerdata})
 
-    def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)("ticker", self.channel_name)
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard("ticker", self.channel_name)
 
+def portfolioDataPush():
+    # data = json.dumps(portfolio())
+    layer = get_channel_layer()
+    # print(layer.scope['session']['user'])
+    s = SessionStore()
+    if ('user' in s):
+        user_id = s['user']
+        print('User ID is', user_id)
+        data = json.dumps(portfolio(user_id))
+        async_to_sync(layer.group_send)("user-{}".format(user_id), {"type": "portfolio.data", "text": data})
 
 def niftyChannelDataPush():
     nifty_data = niftyData()
-    layer=get_channel_layer()
+    layer = get_channel_layer()
     async_to_sync(layer.group_send)("nifty", {"type": "nifty.data", "text": nifty_data})
 
 
 def tickerDataPush():
-    data = ticker_data()
+    data = json.dumps(ticker_data())
     layer = get_channel_layer()
-    async_to_sync(layer.group_send)("Ticker", {"type": "ticker.data", "text": data})
+    async_to_sync(layer.group_send)("ticker", {"type": "ticker.data", "text": data})
 
 
 def graphDataPush():
-    data = graph('NIFTY 50')
+    data = json.dumps(graph('NIFTY 50'))
     layer=get_channel_layer()
-    async_to_sync(layer.group_send)("graph-data", {"type": "grpah.data", "text": data})
+    async_to_sync(layer.group_send)("graph-data", {"type": "graph.data", "text": data})
 
 
 
