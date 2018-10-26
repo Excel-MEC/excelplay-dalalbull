@@ -425,9 +425,8 @@ _end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
 
 
 def isGoodTime():
-	# now = datetime.datetime.now()
-	# if(now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):		
-	# 	if( _start_time <= now.time() < _end_time):
-	# 		return True
-	# return False
-	return True
+	now = datetime.datetime.now()
+	if(now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):		
+		if( _start_time <= now.time() < _end_time):
+			return True
+	return False

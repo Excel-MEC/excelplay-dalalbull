@@ -150,14 +150,14 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 CELERY_IMPORTS = ('api.tasks', )
 CELERY_BEAT_SCHEDULE = {
-    # 'stocks update': { #update Company Details
-    #     'task': 'api.tasks.stock_update',
-    #     'schedule': timedelta(seconds=10),
-    #  },
-    # 'net-worth': { #networth
-    #     'task': 'api.tasks.net',
-    #     'schedule': timedelta(seconds=10),
-    # },
+    'stocks update': { #update Company Details
+        'task': 'api.tasks.stock_update',
+        'schedule': timedelta(seconds=10),
+     },
+    'net-worth': { #networth
+        'task': 'api.tasks.net',
+        'schedule': timedelta(seconds=10),
+    },
     # 'Leaderboard': { #Leaderboard
     #     'task': 'api.tasks.leaderboard_update',
     #     'schedule': timedelta(seconds=20),

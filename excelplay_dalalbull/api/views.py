@@ -378,6 +378,8 @@ def submit_sell_fun(request):
         msg="No quantity to sell"
         return msg
 
+    transaction = TransactionBuy.objects.get(user_id=request.session['user'],symbol=data['company'])
+
     #Checking if the posted quantity is greater than the quantity user owns
     if(transaction.quantity-quantity<0):
         msg="Quantity error"
@@ -409,8 +411,6 @@ def submit_sell_fun(request):
             p.save()
             msg = "You have made a Pending Order to "+"sell"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
             return msg
-
-    transaction = TransactionBuy.objects.get(user_id=request.session['user'],symbol=data['company'])
 
     #SELL
 
@@ -678,7 +678,8 @@ def currentPrice(request):
 
 
 def portfolio(user_id):
-    user_portfolio=Portfolio.objects.get(user_id=user_id)
+    print("User ID: ", user_id)
+    user_portfolio = Portfolio.objects.get(user_id=user_id)
     total_no=User.objects.count()
     data_to_send = {
         'cash_bal' : float(user_portfolio.cash_bal),
