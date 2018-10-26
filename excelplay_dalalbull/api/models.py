@@ -5,7 +5,7 @@ from django.core.validators import MinValueValidator
 #Details of the user
 
 class User(models.Model):
-	user_id=models.CharField(primary_key=True,max_length=100)
+	user_id = models.CharField(primary_key=True,max_length=100)
 	def __str__(self):
 		return self.user_id
 
@@ -33,7 +33,7 @@ class TransactionBuy(models.Model):
 	
 
 	def __str__(self):
-		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,
+		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).user_id,
 			self.time,
 			self.quantity,
 			self.value,
@@ -47,7 +47,7 @@ class TransactionShortSell(models.Model):
 	
 
 	def __str__(self):
-		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,
+		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).user_id,
 			self.time,
 			self.quantity,
 			self.value,
@@ -100,7 +100,7 @@ class History(models.Model):
 		}
 
 	def __str__(self):
-		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,
+		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).user_id,
 			self.time,
 			self.buy_ss,
 			self.quantity,
@@ -115,7 +115,7 @@ class Pending(models.Model):
 	time=models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).name,
+		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).user_id,
 			self.time,
 			self.buy_ss,
 			self.quantity,
