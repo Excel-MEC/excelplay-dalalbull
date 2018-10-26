@@ -218,7 +218,7 @@ def networth():
 					try:
 						current_price = float(Stock_data.objects.get(symbol=j.symbol).current_price)
 						net_worth += current_price * float(j.quantity)
-						rdb.add('dalalbull', i.user_id, networth)
+						rdb.add('dalalbull', i.user_id, net_worth)
 					except Stock_data.DoesNotExist:
 						print("Company Not Listed")
 				i.net_worth = net_worth
