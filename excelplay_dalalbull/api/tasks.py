@@ -238,54 +238,54 @@ def sell_sc(username,symbol,quantity,typ):
 		no_trans = float(port.no_trans)
 		margin = float(port.margin)
 		
-		if(typ=="Sell"):
-			b_ss="Buy"
+		if(typ == "SELL"):
+			b_ss = "BUY"
 			t=TransactionBuy.objects.get(symbol=symbol,user_id=username)
 		else:
-			b_ss="Short Sell"
+			b_ss = "SHORT SELL"
 			t=TransactionShortSell.objects.get(symbol=symbol,user_id=username)
 		
 		try:
 			old_quantity = float(t.quantity)
 			old_value = float(t.value)
 			
-			if(quantity<=old_quantity):
-				new_quantity=old_quantity-qnty
-				old_total=(old_value/old_quantity)*qnty
-				new_value=old_value-old_total;
-				if(new_quantity==0):
+			if(quantity <= old_quantity):
+				new_quantity = old_quantity-qnty
+				old_total = old_value
+				new_value = old_value;
+				if(new_quantity == 0):
 					t.delete()
 				else:
-					t.quantity=new_quantity
-					t.value=new_value
+					t.quantity = new_quantity
+					t.value = new_value
 					t.save()
 				try:
-					port = Portfolio.objects.get(user_id=username)
+					port = Portfolio.objects.get(user_id = username)
 					old_cash_bal = float(port.cash_bal)
-					margin =float(port.margin)
+					margin = float(port.margin)
 					no_trans = float(port.no_trans)
-					if(typ == "Short Cover"):
-						sc_profit=old_total-qnty*price
-						cash_bal=old_cash_bal+sc_profit
-						margin=(margin-(old_value/2))+(new_value/2)
-					elif(typ == "Sell"):
-						cash_bal=old_cash_bal+(qnty*price)						
-					no_trans=no_trans+1
-					if(no_trans<=100):
-						brokerage=((0.5/100)*price)*qnty
-					elif(no_trans<=1000):
-						brokerage=((1/100)*price)*qnty
+					if(typ == "SHORT COVER"):
+						sc_profit = (old_total-price)*qnty
+						cash_bal = old_cash_bal+sc_profit
+						margin = (margin-(old_value/2)*qnty)+(new_value/2)*qnty
+					elif(typ == "SELL"):
+						cash_bal = old_cash_bal+(qnty*price)						
+					no_trans = no_trans+1
+					if(no_trans <= 100):
+						brokerage = ((0.5/100)*price)*qnty
+					elif(no_trans <= 1000):
+						brokerage = ((1/100)*price)*qnty
 					else:
-						brokerage=((1.5/100)*price)*qnty
+						brokerage = ((1.5/100)*price)*qnty
 					
 					print("\nupdating portfolio")
 					cash_bal-=brokerage
-					port.cash_bal=cash_bal
-					port.margin=margin
-					port.no_trans=no_trans
+					port.cash_bal = cash_bal
+					port.margin = margin
+					port.no_trans = no_trans
 					port.save()
 					print("Pending order completed")
-					history=History(user_id=username,time=datetime.datetime.now(),symbol=symbol,buy_ss=typ,quantity=qnty,price=price)
+					history = History(user_id = username,time = datetime.datetime.now(),symbol = symbol,buy_ss = typ,quantity = qnty,price = price)
 					history.save()
 					return True
 				except Portfolio.DoesNotExist:
@@ -300,55 +300,54 @@ def sell_sc(username,symbol,quantity,typ):
 def buy_ss(username,symbol,quantity,typ):	
 	qnty=float(quantity)
 	try:
-		price = float(Stock_data.objects.get(symbol=symbol).current_price)
-		port = Portfolio.objects.get(user_id=username)
+		price = float(Stock_data.objects.get(symbol = symbol).current_price)
+		port = Portfolio.objects.get(user_id = username)
 		cash_bal = float(port.cash_bal)
 		no_trans = float(port.no_trans)
 		margin = float(port.margin)
-		if(no_trans+1<=100):
+		if(no_trans+1 <= 100):
 			brokerage=((0.5/100)*price)*qnty
 		else:
-			if(no_trans+1<=1000):
-				brokerage=((1/100)*price)*qnty
+			if(no_trans+1 <= 1000):
+				brokerage = ((1/100)*price)*qnty
 			else:
-				brokerage=((1.5/100)*price)*qnty
-		if(((cash_bal-margin-brokerage)>0 and (cash_bal-margin-brokerage)>=(price*qnty) and typ == "Buy") or ((cash_bal-margin-brokerage)>=((price*qnty)/2) and typ == "Short Sell")):
+				brokerage = ((1.5/100)*price)*qnty
+		if(((cash_bal-margin-brokerage)>0 and (cash_bal-margin-brokerage)>=(price*qnty) and typ == "BUY") or ((cash_bal-margin-brokerage)>=((price*qnty)/2) and typ == "SHORT SELL")):
 			try:
-				if typ=="BUY":
+				if typ == "BUY":
 					trans = TransactionBuy.objects.get(user_id=username,symbol=symbol)
 				else :
 					trans= TransactionShortSell.objects.get(user_id=username,symbol=symbol)
 
 				old_qnty = float(trans.quantity)
 				value = float(trans.value)
-				value +=(qnty*price)
 				new_qnty = old_qnty + qnty
-				trans.quantity=new_qnty
-				trans.value=value
+				trans.quantity = new_qnty
+				trans.value = value
 				trans.save()
 				print("Pending order completed")
 			except :
-				value = qnty*price
-				if typ=="BUY":
+				value = price
+				if typ == "BUY":
 					trans = TransactionBuy(user_id=username,symbol=symbol,quantity=qnty,value=value)
 				else:
 					trans = TransactionShortSell(user_id=username,symbol=symbol,quantity=qnty,value=value)
 				trans.save()
 				print("Pending order completed")  					
-			if(typ =="Buy"): 
+			if(typ == "BUY"):
 				cash_bal_up = cash_bal-(qnty*price)
 				margin_up = margin
 			else:
-				if(typ =="Short Sell"): 
+				if(typ == "SHORT SELL"): 
 					cash_bal_up = cash_bal
 					margin_up = margin+(qnty*price)/2
 			cash_bal_up -= brokerage
-			no_trans+=1
-			port.cash_bal=cash_bal_up
-			port.margin=margin_up
-			port.no_trans=no_trans
+			no_trans += 1
+			port.cash_bal = cash_bal_up
+			port.margin = margin_up
+			port.no_trans = no_trans
 			port.save()
-			history=History(user_id=username,time=datetime.datetime.now(),symbol=symbol,buy_ss=typ,quantity=qnty,price=price)
+			history = History(user_id = username,time = datetime.datetime.now(),symbol = symbol,buy_ss = typ,quantity = qnty,price = price)
 			history.save()
 			return True
 	except Stock_data.DoesNotExist:
@@ -370,7 +369,7 @@ def orders():
 				username = i.user_id 
 				symbol = i.symbol
 				quantity = i.quantity
-				type_temp = "Short Cover";
+				type_temp = "SHORT COVER";
 				print("Short Cover")
 				ret= sell_sc(username,symbol,quantity,type_temp)		
 		except:
@@ -397,14 +396,14 @@ def orders():
 								if(typ == "SHORT COVER"):
 									ret=sell_sc(username,symbol,quantity,typ)
 						else:
-							if(current_price>=price):
+							if(current_price >= price):
 								if(typ == "SELL"):
 									ret=sell_sc(username,symbol,quantity,typ)
 								else:
 									if(typ == "SHORT SELL"):
 										ret=buy_ss(username,symbol,quantity,typ)
-						if(ret==True):
-							ret=False
+						if(ret == True):
+							ret = False
 							del_query = Pending.objects.get(id=idn,user_id=username,symbol=symbol,buy_ss=typ,quantity=quantity,value=price)
 							del_query.delete()
 				except Stock_data.DoesNotExist:
