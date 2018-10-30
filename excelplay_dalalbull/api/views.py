@@ -771,7 +771,7 @@ def getStockHoldings(user_id):
         stock={}
         stock['company']=i.symbol
         stock['number']=i.quantity
-        stock['type']="Buy"
+        stock['type']="BUY"
         stock['purchase']=(i.value)
         stock['current']=(Stock_data.objects.get(symbol=i.symbol).current_price)
         stock_holdings.append(stock)
@@ -781,7 +781,7 @@ def getStockHoldings(user_id):
         stock={}
         stock['company']=i.symbol
         stock['number']=i.quantity
-        stock['type']="Short Sell"
+        stock['type']="SHORT SELL"
         stock['purchase']=(i.value)
         stock['current']=(Stock_data.objects.get(symbol=i.symbol).current_price)
         stock_holdings.append(stock)
@@ -862,7 +862,7 @@ def sell_data(user_id):
                 temp['old_quantity']=float(i.quantity)
                 temp['old_value']=float(i.value)
 
-                temp['buy_ss']="buy"
+                temp['buy_ss']="BUY"
                 temp['symbol']=i.symbol
 
                 try:
@@ -895,7 +895,7 @@ def sell_data(user_id):
                 temp['old_quantity']=float(i.quantity)
                 temp['old_value']=float(i.value)
 
-                temp['buy_ss']="short sell"
+                temp['buy_ss']="SHORT SELL"
                 temp['symbol']=i.symbol
 
                 try:
@@ -905,7 +905,7 @@ def sell_data(user_id):
                    
                 temp['profit']=temp['old_value']-float(s.current_price)
 
-                temp['disp']='Short Cover'
+                temp['disp']='SHORT COVER'
 
                 temp['prof_per']=(temp['profit']/(temp['old_value']))*100
 
