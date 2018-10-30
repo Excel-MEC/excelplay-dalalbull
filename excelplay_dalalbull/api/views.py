@@ -500,7 +500,7 @@ def submit_shortCover_fun(request):
     brokerage=calculateBrokerage(user_portfolio.no_trans,quantity,current_price)
 
     user_portfolio.margin=user_portfolio.margin-(quantity*transaction.value)/2
-    user_portfolio.cash_bal=user_portfolio.cash_bal-(transaction.value-stock_data.current_price)*quantity
+    user_portfolio.cash_bal=user_portfolio.cash_bal+(transaction.value-stock_data.current_price)*quantity
 
     if(transaction.quantity==quantity):
         transaction.delete()
