@@ -33,7 +33,7 @@ class TransactionBuy(models.Model):
 	
 
 	def __str__(self):
-		return '%-30s| %10s | %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).user_id,
+		return '%-30s| %10s | %10s | %10s '%(User.objects.get(user_id=self.user_id).user_id,
 			self.time,
 			self.quantity,
 			self.value,
