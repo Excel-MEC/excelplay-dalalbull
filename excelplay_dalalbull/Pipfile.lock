@@ -43,7 +43,7 @@
                 "sha256:769f212ffd5762f72c764fa648fca3b7f7dd4ec27407198b68e7c4abf4609fd0"
             ],
             "index": "pypi",
-            "version": "==2.0.3"
+            "version": "==2.1.2"
         },
         "django-redis-sessions": {
             "hashes": [
