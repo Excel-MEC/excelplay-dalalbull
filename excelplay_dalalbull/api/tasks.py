@@ -1,22 +1,18 @@
 from __future__ import absolute_import, unicode_literals
+import requests
+import json
+from redis_leaderboard.wrapper import RedisLeaderboard
 from celery import shared_task, task
 
-from urllib import request
-
-import urllib
-import json
-
 from .models import *
-
 from .consumers import graphDataPush, tickerDataPush, portfolioDataPush
-from redis_leaderboard.wrapper import RedisLeaderboard
 
 import os
 import datetime
 
-print("dalalbull tasks")
 
 rdb = RedisLeaderboard('redis', 6379, 0)
+
 
 @shared_task
 def stock_update():	
@@ -25,6 +21,7 @@ def stock_update():
 	print("Orders");	
 	orders()
 	return 
+
 
 @shared_task
 def leaderboard_update():
@@ -38,15 +35,16 @@ def leaderboard_update():
 			e.save()
 	return
 
+
 @shared_task
 def broadcastGraphData():
 	if isGoodTime(): 
-		print("Graph Values Update");
-		oldstockdata()
+		print("Graph Values Update")
 		graphDataPush()
 	else:
 		print("Not the time for graph broadcast")
 	return 
+
 
 @shared_task
 def broadcastTickerData():
@@ -56,6 +54,7 @@ def broadcastTickerData():
 	else:
 		print("Not the time for ticker broadcast")
 
+
 @shared_task
 def broadcastNiftyData():
 	if isGoodTime():
@@ -64,11 +63,13 @@ def broadcastNiftyData():
 	else:
 		print("Not the time for nifty broadcast")
 
+
 @shared_task
 def net():
     print("Networth Update");
     networth()
     return
+
 
 @shared_task
 def broadcastPortfolioData():
@@ -78,129 +79,47 @@ def broadcastPortfolioData():
 	else:
 		print("Not the time for portfolio broadcast")
 
-# @shared_task
-# def broadcastSellData():
-# 	if isGoodTime():
-# 		print("Sellers data broadcasted!")
-# 		sellDataPush()
-# 	else:
-# 		print("Not the time for sell broadcast")
-
-# API_KEY = os.environ.get("DALALBULL_API_KEY")
-API_KEY="c0e298ec-1912-483a-84f9-20b1a1142e28"
-nse_url = 'http://nseindia.com/live_market/dynaContent/live_watch/stock_watch/niftyStockWatch.json'
-
-hdr = {
-	'User-Agent': "Mozilla/5.0 (Linux; Android 6.0.1; MotoG3 Build/MPI24.107-55) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.81 Mobile Safari/537.36",
-	'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-	'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-	'Accept-Encoding': 'none',
-	'Accept-Language': 'en-US,en;q=0.8',
-	'Connection': 'keep-alive'
-}
-
-def getRemoteData(url,tries_allowed=3):
-	while tries_allowed>0:
-		#try:
-		req = request.Request(url,headers=hdr)
-		page = request.urlopen(req).read()
-		data = json.loads(page.decode('utf-8'))
-		return data
-		#except:
-	return None
-
-
-def getCompanyDetails(symbol):
-	url = 'http://nimblerest.lisuns.com:4531/GetLastQuote/?accessKey=%s&xml=false&exchange=NSE&instrumentIdentifier=%s'%(API_KEY,symbol)
-	data = getRemoteData(url)
-	required_data = {}
-	required_data['current_price'] = float(data['SELLPRICE'])
-	required_data['high'] = float(data['HIGH'])
-	required_data['low'] = float(data['LOW'])
-	required_data['open_price'] = float(data['OPEN'])
-	required_data['change'] = required_data['current_price'] - float(data['CLOSE']) 
-	required_data['change_per'] = float(required_data['change']*100)/float(data['OPEN']) 
-	required_data['trade_Qty'] = float(data['TOTALQTYTRADED'])/100000
-	required_data['trade_Value'] = float(data['VALUE'])
-	return required_data
-
-
-nifty_top50 = ['ADANIPORTS', 'ASIANPAINT', 'AXISBANK', 'BAJAJ-AUTO', 'BAJFINANCE', 'BAJAJFINSV', 'BHARTIARTL', 'INFRATEL', 'BPCL', 'CIPLA', 'COALINDIA', 'DRREDDY', 'EICHERMOT', 'GAIL', 'GRASIM', 'HCLTECH', 'HDFC', 'HDFCBANK', 'HEROMOTOCO', 'HINDALCO', 'HINDUNILVR', 'HINDPETRO', 'ICICIBANK', 'IBULHSGFIN', 'INDUSINDBK', 'INFY', 'IOC', 'ITC', 'JSWSTEEL', 'KOTAKBANK', 'LT', 'M&M', 'MARUTI', 'NTPC', 'ONGC', 'POWERGRID', 'RELIANCE', 'SBIN', 'SUNPHARMA', 'TCS', 'TATAMOTORS', 'TATASTEEL', 'TECHM', 'TITAN', 'ULTRACEMCO', 'UPL', 'VEDL', 'WIPRO', 'YESBANK', 'ZEEL']
-
-
-
-_first_half_query = '+'.join(nifty_top50[:25])
-_second_half_query = '+'.join(nifty_top50[25:])
-
-
-base_url_formatted = 'http://nimblerest.lisuns.com:4531/GetLastQuoteArray/?accessKey=%s&exchange=NSE&instrumentIdentifiers=%s'
-def getBulkData():
-	url = base_url_formatted%(API_KEY,_first_half_query)
-	data = getRemoteData(url)
-	# print(data)
-	url = base_url_formatted%(API_KEY,_second_half_query)
-	data=data+getRemoteData(url)
-	
-	formatted_data = []
-	count = 0
-	for d in data:
-		flag=0 
-		count += 1
-		required_data = {}
-		print(d)
-		required_data['current_price'] = float(d['BUYPRICE'])
-		required_data['high'] = float(d['HIGH'])
-		required_data['low'] = float(d['LOW'])
-		required_data['open_price'] = float(d['OPEN'])
-		required_data['change'] = required_data['current_price'] - float(d['CLOSE']) 
-		print(required_data['change'])
-		try:
-			required_data['change_per'] = float(required_data['change']*100)/float(d['OPEN']) 
-		except:
-			flag=1
-			required_data['change_per'] = float(required_data['change']*100) 
-		required_data['trade_Qty'] = float(d['TOTALQTYTRADED'])/100000
-		required_data['trade_Value'] = float(d['VALUE'])
-
-		if not required_data['current_price'] >0:
-			flag=1
-		if flag==0:
-			yield (required_data,d['INSTRUMENTIDENTIFIER'])
-
-
 
 #=================================================================================================================
+def RealTimeCurrencyExchangeRate(from_currency, to_currency, api_key='UNTC3JM66R9PVUWN'):
+	url = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=" + from_currency + "&to_currency=" + to_currency + "&apikey=" + api_key
+	req_ob = requests.get(url)
+	result = req_ob.json()
+	return float(result['Realtime Currency Exchange Rate']['5. Exchange Rate'])
 
 
+api_token_key = '0oa4AZ1WYhRqMLeJOBXj8ht1NukxmmVymmOQEdvqnha0rqZQpfKaWdD4JNX9'
+root_url = 'https://api.worldtradingdata.com/api/v1/stock?symbol={}&api_token={}'
+company_symbols = ['AAPL', 'GOOGL', 'MSFT', 'FB', 'SNAP', 'NFLX', 'AMZN', '005930.KS', 'ADBE', 'ORCL', 'TSLA', 'INTC', 'AMD', 'NVDA', 'IBM', 'QCOM', 'CSCO', 'TXN', 'ACN', 'UBER', 'CRM', 'CTSH', 'SNE', 'NTDOF', 'SB3.F', 'TECHM.NS', 'TCS.NS', 'INFY', 'HCLTECH.NS', '0419.HK', 'BIDU', 'BABA', 'NOW', '1810.HK', 'DIS', 'SPOT', 'NOA3.F', 'HPQ', 'DELL', 'PYPL', 'RCOM.NS', '066570.KS', 'EBAY', 'SAP', 'VLKAF', 'DDAIF', 'TM', 'TWTR', 'T', 'VZ']
+no_companies_at_a_time = 5
 def stockdata():
-	print("Stockdata called!!")
-	json_data = getRemoteData(nse_url)
-	
-	company = json_data['latestData'][0]
+	company_data_generator = []
+	for i in range(0, 50, no_companies_at_a_time):
+		symbols = company_symbols[i:i+no_companies_at_a_time]
+		url = root_url.format(','.join(symbols), api_token_key)
+		r = requests.get(url)
+		data = r.json()['data']
+		company_data_generator.append(data)
 
-	c,__ = Stock_data.objects.get_or_create(symbol='NIFTY 50')
-	c.current_price = float(company['ltp'].replace(",",""))
-	c.high = float(company['high'].replace(",",""))
-	c.low = float(company['low'].replace(",",""))
-	c.open_price = float(company['open'].replace(",",""))
-	c.change = float(company['ch'].replace(",",""))
-	c.change_per = float(company['per'].replace(",",""))
-	c.trade_Qty = float(json_data['trdVolumesum'].replace(",",""))
-	c.trade_Value = float(json_data['trdValueSum'].replace(",",""))
-	c.save()
+	for data in company_data_generator:
+		if(data['currency'] != 'USD'):
+			multiplier = RealTimeCurrencyExchangeRate(data['currency'], 'USD')
+			data['currency'] = 'USD'
+			data['price'] = data['price'] * multiplier
+			data['day_high'] = data['day_high'] * multiplier
+			data['day_low'] = data['day_low'] * multiplier
+			data['price_open'] = data['price_open'] * multiplier
+			data['day_change'] = data['day_change'] * multiplier
 
-	company_data_generator = getBulkData()
-
-	for data,symbol in company_data_generator:
-		print(' ')
+		symbol = data['symbol']
 		c,__ = Stock_data.objects.get_or_create(symbol=symbol)
-		c.current_price = data['current_price'] 
-		c.high = data['high']
-		c.low = data['low']
-		c.open_price = data['open_price']
-		c.change = data['change']
-		c.change_per = data['change_per']
-		c.trade_Qty = data['trade_Qty']
+		c.current_price = data['price']
+		c.high = data['day_high']
+		c.low = data['day_low']
+		c.open_price = data['price_open']
+		c.change = data['day_change']
+		c.change_per = data['change_pct']
+		c.trade_Qty = data['volume']
 		c.trade_Value = data['trade_Value']
 		c.save()
 
@@ -357,11 +276,6 @@ def buy_ss(username,symbol,quantity,typ):
 #===============Orders=================#
 def orders():
 	ret=False
-	if(datetime.datetime.now().strftime("%A")!='Sunday' and datetime.datetime.now().strftime("%A")!='Saturday'):
-		if((datetime.datetime.now().time()>=datetime.time(hour=9,minute=00,second=00)) and (datetime.datetime.now().time()<=datetime.time(hour=9,minute=1,second=00))):
-			Old_Stock_data.objects.all().delete()
-	if (datetime.datetime.now().time()>=datetime.time(hour=9,minute=6,second=0)) and (datetime.datetime.now().time()<=datetime.time(hour=9,minute=6,second=30)):
-		oldstockdata()
 	if(datetime.datetime.now().time()>=datetime.time(hour=15,minute=30,second=00)):
 		try:
 			day_endq=TransactionShortSell.objects.all()
@@ -409,20 +323,11 @@ def orders():
 				except Stock_data.DoesNotExist:
 					print("Company Not Listed")
 		except Pending.DoesNotExist:
-			print("No Pending Orders")	
+			print("No Pending Orders")		 	
 
-def oldstockdata():
-	json_data = getRemoteData(nse_url)
-	company=json_data['latestData'][0]
-	c=Old_Stock_data(symbol="NIFTY 50",
-		current_price=company['ltp'].replace(",",""),
-		)
-	c.save() 	 	
 
 _start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
 _end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
-
-
 def isGoodTime():
 	now = datetime.datetime.now()
 	if(now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):		
