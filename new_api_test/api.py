@@ -8,7 +8,6 @@ no_companies_at_a_time = 5
 for i in range(0, 50, no_companies_at_a_time):
 	symbols = company_symbols[i:i+no_companies_at_a_time]
 	url = root_url.format(','.join(symbols), api_token_key)
-	print(url)
 	r = requests.get(url)
 	data = r.json()['data']
 	for each_company in data:
