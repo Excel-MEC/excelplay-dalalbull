@@ -99,9 +99,15 @@ def stockdata():
 		url = root_url.format(','.join(symbols), api_token_key)
 		r = requests.get(url)
 		data = r.json()['data']
-		company_data_generator.append(data)
+		company_data_generator += data
 
 	for data in company_data_generator:
+		print(data)
+		data['price']  = float(data['price'])
+		data['day_high'] = float(data['day_high'])
+		data['day_low'] = float(data['day_low'])
+		data['price_open'] = float(data['price_open'])
+		data['day_change'] = float(data['day_change'])
 		if(data['currency'] != 'USD'):
 			multiplier = RealTimeCurrencyExchangeRate(data['currency'], 'USD')
 			data['currency'] = 'USD'
@@ -111,8 +117,11 @@ def stockdata():
 			data['price_open'] = data['price_open'] * multiplier
 			data['day_change'] = data['day_change'] * multiplier
 
+		
+
 		symbol = data['symbol']
 		c,__ = Stock_data.objects.get_or_create(symbol=symbol)
+		c.name = data['name']
 		c.current_price = data['price']
 		c.high = data['day_high']
 		c.low = data['day_low']
@@ -120,7 +129,7 @@ def stockdata():
 		c.change = data['day_change']
 		c.change_per = data['change_pct']
 		c.trade_Qty = data['volume']
-		c.trade_Value = data['trade_Value']
+		c.trade_Value = 0 #data['trade_Value']
 		c.save()
 
 
