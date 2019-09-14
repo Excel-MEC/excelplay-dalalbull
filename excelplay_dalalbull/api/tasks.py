@@ -10,6 +10,10 @@ from .consumers import graphDataPush, tickerDataPush, portfolioDataPush
 import os
 import datetime
 
+from currency_converter import CurrencyConverter
+
+currency_converter = CurrencyConverter()
+
 
 rdb = RedisLeaderboard('redis', 6379, 0)
 
@@ -81,12 +85,6 @@ def broadcastPortfolioData():
 
 
 #=================================================================================================================
-def RealTimeCurrencyExchangeRate(from_currency, to_currency, api_key='UNTC3JM66R9PVUWN'):
-	url = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=" + from_currency + "&to_currency=" + to_currency + "&apikey=" + api_key
-	req_ob = requests.get(url)
-	result = req_ob.json()
-	return float(result['Realtime Currency Exchange Rate']['5. Exchange Rate'])
-
 
 api_token_key = '0oa4AZ1WYhRqMLeJOBXj8ht1NukxmmVymmOQEdvqnha0rqZQpfKaWdD4JNX9'
 root_url = 'https://api.worldtradingdata.com/api/v1/stock?symbol={}&api_token={}'
@@ -102,14 +100,13 @@ def stockdata():
 		company_data_generator += data
 
 	for data in company_data_generator:
-		print(data)
 		data['price']  = float(data['price'])
 		data['day_high'] = float(data['day_high'])
 		data['day_low'] = float(data['day_low'])
 		data['price_open'] = float(data['price_open'])
 		data['day_change'] = float(data['day_change'])
 		if(data['currency'] != 'USD'):
-			multiplier = RealTimeCurrencyExchangeRate(data['currency'], 'USD')
+			multiplier = currency_converter.convert(1, data['currency'], 'USD')
 			data['currency'] = 'USD'
 			data['price'] = data['price'] * multiplier
 			data['day_high'] = data['day_high'] * multiplier

@@ -1,6 +1,7 @@
 asgi-redis==1.4.2
 asgiref==2.3.2
 celery==4.2.1
+currencyconverter==0.13.9
 channels==2.1.3
 channels-redis==2.3.1 
 django==2.2
@@ -9,5 +10,5 @@ django-redis-sessions==0.6.1
 gunicorn==19.9.0
 psycopg2-binary==2.7.5
 redis==2.10.6
-requests=2.22.0
+requests==2.22.0
 simplejson==3.16.0
