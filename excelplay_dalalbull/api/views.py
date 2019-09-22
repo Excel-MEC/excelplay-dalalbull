@@ -30,6 +30,7 @@ def handShake(request):
     try:
         user_id = request.session['user']
         total_users = Portfolio.objects.count()
+        print(user_id)
     
         if (not isinstance(total_users,int)):
             total_users=1
@@ -50,7 +51,8 @@ def handShake(request):
             )
             rdb.add('dalalbull', user_id, initial)
 
-    except:
+    except Exception as e:
+        print(e)
         pass
 
     return JsonResponse({'success':True})
