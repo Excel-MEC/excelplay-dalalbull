@@ -946,6 +946,6 @@ def isWrongTime():
     now = datetime.datetime.now()
     if (now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):
         now = datetime.datetime.now()
-        if(_start_time<now.time()<_end_time):
+        if(_start_time <= now.time() or now.time() < _end_time):
             cclose = False
     return cclose
