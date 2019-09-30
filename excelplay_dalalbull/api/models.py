@@ -55,6 +55,7 @@ class TransactionShortSell(models.Model):
 
 class Stock_data(models.Model):
     symbol=models.CharField(max_length=30, primary_key=True)
+    name=models.CharField(max_length=200, null=True)
     current_price=models.DecimalField(max_digits=19, decimal_places=2,null=True)
     high=models.DecimalField(max_digits=19, decimal_places=2,null=True)
     low=models.DecimalField(max_digits=19, decimal_places=2,null=True)

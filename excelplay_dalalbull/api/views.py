@@ -12,6 +12,10 @@ from pytz import timezone
 from excelplay_dalalbull import settings
 from .models import *
 
+
+_start_time, _end_time = [settings._start_time, settings._end_time]
+
+
 #========Register users========#
 '''
 
@@ -30,6 +34,7 @@ def handShake(request):
     try:
         user_id = request.session['user']
         total_users = Portfolio.objects.count()
+        print(user_id)
     
         if (not isinstance(total_users,int)):
             total_users=1
@@ -50,7 +55,8 @@ def handShake(request):
             )
             rdb.add('dalalbull', user_id, initial)
 
-    except:
+    except Exception as e:
+        print(e)
         pass
 
     return JsonResponse({'success':True})
@@ -934,13 +940,16 @@ def sell_data(user_id):
     
     return data
 
-_start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
-_end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
+# _start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
+# _end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
+
+# _start_time = datetime.time(hour=19,minute=30,second=30)#,second=00)
+# _end_time = datetime.time(hour=1,minute=29,second=30)#,minute=30,second=00)
 def isWrongTime():
     cclose = True
     now = datetime.datetime.now()
     if (now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):
         now = datetime.datetime.now()
-        if(_start_time<now.time()<_end_time):
+        if(_start_time <= now.time() or now.time() < _end_time):
             cclose = False
     return cclose
