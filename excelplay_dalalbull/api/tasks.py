@@ -96,7 +96,11 @@ def stockdata():
 		symbols = company_symbols[i:i+no_companies_at_a_time]
 		url = root_url.format(','.join(symbols), api_token_key)
 		r = requests.get(url)
-		data = r.json()['data']
+		try:
+			data = r.json()['data']
+		except KeyError:
+			print(f"The data returned is: {r.content}")
+			break
 		company_data_generator += data
 
 	for data in company_data_generator:
@@ -113,8 +117,6 @@ def stockdata():
 			data['day_low'] = data['day_low'] * multiplier
 			data['price_open'] = data['price_open'] * multiplier
 			data['day_change'] = data['day_change'] * multiplier
-
-		
 
 		symbol = data['symbol']
 		c,__ = Stock_data.objects.get_or_create(symbol=symbol)
