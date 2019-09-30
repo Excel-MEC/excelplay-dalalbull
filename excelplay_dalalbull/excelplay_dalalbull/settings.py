@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -188,6 +189,10 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=20),
     }
 }
+
+# Share market start and end time
+_start_time = datetime.time(hour=19,minute=30,second=30)#,second=00)
+_end_time = datetime.time(hour=1,minute=29,second=30)#,minute=30,second=00)
 
 CHANNEL_LAYERS = {
     "default": {

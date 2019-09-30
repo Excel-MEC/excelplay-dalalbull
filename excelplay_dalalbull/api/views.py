@@ -12,6 +12,10 @@ from pytz import timezone
 from excelplay_dalalbull import settings
 from .models import *
 
+
+_start_time, _end_time = [settings._start_time, settings._end_time]
+
+
 #========Register users========#
 '''
 
@@ -939,8 +943,8 @@ def sell_data(user_id):
 # _start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
 # _end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
 
-_start_time = datetime.time(hour=19,minute=30,second=30)#,second=00)
-_end_time = datetime.time(hour=1,minute=29,second=30)#,minute=30,second=00)
+# _start_time = datetime.time(hour=19,minute=30,second=30)#,second=00)
+# _end_time = datetime.time(hour=1,minute=29,second=30)#,minute=30,second=00)
 def isWrongTime():
     cclose = True
     now = datetime.datetime.now()

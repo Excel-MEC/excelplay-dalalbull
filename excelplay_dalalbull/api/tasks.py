@@ -1,21 +1,23 @@
 from __future__ import absolute_import, unicode_literals
 import requests
 import json
-from redis_leaderboard.wrapper import RedisLeaderboard
 from celery import shared_task, task
-
-from .models import *
-from .consumers import graphDataPush, tickerDataPush, portfolioDataPush
-
 import os
 import datetime
-
 from currency_converter import CurrencyConverter
+from redis_leaderboard.wrapper import RedisLeaderboard
+
+from excelplay_dalalbull import settings
+from .models import *
+from .consumers import (
+	graphDataPush,
+	tickerDataPush,
+	portfolioDataPush
+)
 
 currency_converter = CurrencyConverter()
-
-
 rdb = RedisLeaderboard('redis', 6379, 0)
+_start_time, _end_time = [settings._start_time, settings._end_time]
 
 
 @shared_task
@@ -284,7 +286,7 @@ def buy_ss(username,symbol,quantity,typ):
 #===============Orders=================#
 def orders():
 	ret=False
-	if(datetime.datetime.now().time()>=datetime.time(hour=15,minute=30,second=00)):
+	if(datetime.datetime.now().time() >= _end_time and datetime.datetime.now().time() < _start_time):
 		try:
 			day_endq=TransactionShortSell.objects.all()
 			for i in day_endq :
@@ -337,8 +339,8 @@ def orders():
 # _start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
 # _end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
 
-_start_time = datetime.time(hour=19,minute=30,second=30)#,second=00)
-_end_time = datetime.time(hour=1,minute=29,second=30)#,minute=30,second=00)
+# _start_time = datetime.time(hour=19,minute=30,second=30)#,second=00)
+# _end_time = datetime.time(hour=1,minute=29,second=30)#,minute=30,second=00)
 def isGoodTime():
 	now = datetime.datetime.now()
 	if(now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):		
