@@ -936,8 +936,11 @@ def sell_data(user_id):
     
     return data
 
-_start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
-_end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
+# _start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
+# _end_time = datetime.time(hour=15,minute=29,second=30)#,minute=30,second=00)
+
+_start_time = datetime.time(hour=7,minute=30,second=30)#,second=00)
+_end_time = datetime.time(hour=1,minute=29,second=30)#,minute=30,second=00)
 def isWrongTime():
     cclose = True
     now = datetime.datetime.now()
