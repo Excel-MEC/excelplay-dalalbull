@@ -101,7 +101,7 @@ def stockdata():
 		try:
 			data = r.json()['data']
 		except KeyError:
-			print(f"The data returned is: {r.content}")
+			print(f"Failed to fetch stock data. The data returned is: {r.content}")
 			break
 		company_data_generator += data
 
@@ -286,20 +286,7 @@ def buy_ss(username,symbol,quantity,typ):
 #===============Orders=================#
 def orders():
 	ret=False
-	if(datetime.datetime.now().time() >= _end_time and datetime.datetime.now().time() < _start_time):
-		try:
-			day_endq=TransactionShortSell.objects.all()
-			for i in day_endq :
-				username = i.user_id 
-				symbol = i.symbol
-				quantity = i.quantity
-				type_temp = "SHORT COVER";
-				print("Short Cover")
-				ret= sell_sc(username,symbol,quantity,type_temp)		
-		except:
-			print("No Transactions")   		
-		Pending.objects.all().delete()
-	else:
+	if isGoodTime():
 		try:
 			pending_ord = Pending.objects.all()
 			for i in pending_ord :
@@ -312,7 +299,7 @@ def orders():
 				try:
 					stock_qry = Stock_data.objects.get(symbol=symbol)
 					current_price  = stock_qry.current_price
-					if(current_price >0):
+					if(current_price > 0):
 						if(current_price<=price):
 							if(typ == "BUY"):
 								ret= buy_ss(username,symbol,quantity,typ)
@@ -322,10 +309,10 @@ def orders():
 						else:
 							if(current_price >= price):
 								if(typ == "SELL"):
-									ret=sell_sc(username,symbol,quantity,typ)
+									ret = sell_sc(username,symbol,quantity,typ)
 								else:
 									if(typ == "SHORT SELL"):
-										ret=buy_ss(username,symbol,quantity,typ)
+										ret = buy_ss(username,symbol,quantity,typ)
 						if(ret == True):
 							ret = False
 							del_query = Pending.objects.get(id=idn,user_id=username,symbol=symbol,buy_ss=typ,quantity=quantity,value=price)
@@ -334,6 +321,19 @@ def orders():
 					print("Company Not Listed")
 		except Pending.DoesNotExist:
 			print("No Pending Orders")		 	
+	else:
+		try:
+			day_endq=TransactionShortSell.objects.all()
+			for i in day_endq :
+				username = i.user_id
+				symbol = i.symbol
+				quantity = i.quantity
+				type_temp = "SHORT COVER"
+				print("Short Cover")
+				ret = sell_sc(username,symbol,quantity,type_temp)
+		except:
+			print("No Transactions")
+		Pending.objects.all().delete()
 
 
 # _start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
