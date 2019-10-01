@@ -22,11 +22,11 @@ _start_time, _end_time = [settings._start_time, settings._end_time]
 
 @shared_task
 def stock_update():	
-	print("Stock Update");	
+	print("Stock Update")
 	stockdata()
-	print("Orders");	
+	print("Orders")
 	orders()
-	return 
+	return
 
 
 @shared_task
@@ -72,7 +72,7 @@ def broadcastNiftyData():
 
 @shared_task
 def net():
-    print("Networth Update");
+    print("Networth Update")
     networth()
     return
 
@@ -157,6 +157,8 @@ def networth():
 		except Portfolio.DoesNotExist:
 			print("Fail")
 	return
+
+
 #==========Sell/Short-Cover========#        
 def sell_sc(username,symbol,quantity,typ):
 	qnty=float(quantity)
@@ -173,7 +175,6 @@ def sell_sc(username,symbol,quantity,typ):
 		else:
 			b_ss = "SHORT SELL"
 			t=TransactionShortSell.objects.get(symbol=symbol,user_id=username)
-		
 		try:
 			old_quantity = float(t.quantity)
 			old_value = float(t.value)
@@ -181,7 +182,7 @@ def sell_sc(username,symbol,quantity,typ):
 			if(quantity <= old_quantity):
 				new_quantity = old_quantity-qnty
 				old_total = old_value
-				new_value = old_value;
+				new_value = old_value
 				if(new_quantity == 0):
 					t.delete()
 				else:
@@ -198,7 +199,7 @@ def sell_sc(username,symbol,quantity,typ):
 						cash_bal = old_cash_bal+sc_profit
 						margin = (margin-(old_value/2)*qnty)+(new_value/2)*qnty
 					elif(typ == "SELL"):
-						cash_bal = old_cash_bal+(qnty*price)						
+						cash_bal = old_cash_bal+(qnty*price)
 					no_trans = no_trans+1
 					if(no_trans <= 100):
 						brokerage = ((0.5/100)*price)*qnty
@@ -225,6 +226,8 @@ def sell_sc(username,symbol,quantity,typ):
 	except Stock_data.DoesNotExist:
 		return False
 	return False
+
+
 #==========Buy/Short-Sell========#
 def buy_ss(username,symbol,quantity,typ):	
 	qnty=float(quantity)
@@ -282,6 +285,7 @@ def buy_ss(username,symbol,quantity,typ):
 	except Stock_data.DoesNotExist:
 		return False	
 	return False
+
 
 #===============Orders=================#
 def orders():
