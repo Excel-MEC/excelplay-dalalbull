@@ -31,7 +31,7 @@ def stock_update():
 
 @shared_task
 def leaderboard_update():
-	if isGoodTime():
+	if isStockMarketTime():
 		print("Leaderboard ordered!")
 		ordered_data = Portfolio.objects.order_by('-net_worth')
 		rank = 1
@@ -44,7 +44,7 @@ def leaderboard_update():
 
 @shared_task
 def broadcastGraphData():
-	if isGoodTime(): 
+	if isStockMarketTime():
 		print("Graph Values Update")
 		graphDataPush()
 	else:
@@ -54,7 +54,7 @@ def broadcastGraphData():
 
 @shared_task
 def broadcastTickerData():
-	if isGoodTime():
+	if isStockMarketTime():
 		print("Ticker broadcasted!")
 		tickerDataPush()
 	else:
@@ -63,7 +63,7 @@ def broadcastTickerData():
 
 @shared_task
 def broadcastNiftyData():
-	if isGoodTime():
+	if isStockMarketTime():
 		print("Nifty data broadcasted!")
 		niftyChannelDataPush()
 	else:
@@ -79,7 +79,7 @@ def net():
 
 @shared_task
 def broadcastPortfolioData():
-	if isGoodTime():
+	if isStockMarketTime():
 		print("Portfolio data broadcasted!")
 		portfolioDataPush()
 	else:
@@ -290,7 +290,7 @@ def buy_ss(username,symbol,quantity,typ):
 #===============Orders=================#
 def orders():
 	ret=False
-	if isGoodTime():
+	if isStockMarketTime():
 		try:
 			pending_ord = Pending.objects.all()
 			for i in pending_ord :
@@ -345,7 +345,7 @@ def orders():
 
 # _start_time = datetime.time(hour=19,minute=30,second=30)#,second=00)
 # _end_time = datetime.time(hour=1,minute=29,second=30)#,minute=30,second=00)
-def isGoodTime():
+def isStockMarketTime():
 	now = datetime.datetime.now()
 	if(now.strftime("%A")!='Sunday' and now.strftime("%A")!='Saturday'):		
 		if( _start_time <= now.time() or now.time() < _end_time):
