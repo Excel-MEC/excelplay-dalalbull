@@ -88,10 +88,10 @@ def broadcastPortfolioData():
 
 #=================================================================================================================
 
-api_token_key = '0oa4AZ1WYhRqMLeJOBXj8ht1NukxmmVymmOQEdvqnha0rqZQpfKaWdD4JNX9'
+api_token_key = 'HodrBJaddlZmkQiWn4wOBv44snyZIpAMUn58Ef5oPfUiME1lv8ojl2lwV4A1'
 root_url = 'https://api.worldtradingdata.com/api/v1/stock?symbol={}&api_token={}'
 company_symbols = ['AAPL', 'GOOGL', 'MSFT', 'FB', 'SNAP', 'NFLX', 'AMZN', 'ADBE', 'ORCL', 'TSLA', 'INTC', 'AMD', 'NVDA', 'IBM', 'QCOM', 'CSCO', 'TXN', 'ACN', 'UBER', 'CRM', 'CTSH', 'SNE', 'INFY', 'BIDU', 'BABA', 'NOW', 'DIS', 'SPOT', 'HPQ', 'DELL', 'PYPL', 'EBAY', 'SAP', 'TM', 'TWTR', 'T', 'VZ', 'PEP', 'SBUX', 'MAR', 'WDC', 'ADSK', 'AKAM', 'ANSS', 'APA', 'JPM']
-no_companies_at_a_time = 5
+no_companies_at_a_time = 50
 def stockdata():
 	company_data_generator = []
 	for i in range(0, len(company_symbols), no_companies_at_a_time):
