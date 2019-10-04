@@ -131,7 +131,8 @@ root url : /dalalbull/api/
 	RETURNS
 		LIST of all the stock data
 		{
-	        'name': stock.symbol,
+	        'name': stock.name,
+			'symbol': stock.symbol,
 	        'current_price' : stock.current_price,
 	        'change_per' : stock.change_per,
 		}

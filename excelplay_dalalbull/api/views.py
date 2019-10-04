@@ -706,7 +706,8 @@ def ticker_data():
     tickerData = []
     for stock in stocks:
         tickerData.append({
-            'name': stock.symbol,
+            'name': stock.name,
+            'symbol': stock.symbol,
             'current_price' : stock.current_price,
             'change_per' : stock.change_per,
         })
