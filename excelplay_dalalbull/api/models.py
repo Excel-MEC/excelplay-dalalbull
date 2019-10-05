@@ -72,6 +72,7 @@ class Stock_data(models.Model):
 
     def as_dict(self):
     	return {
+	'name': self.name,
     	'symbol' : self.symbol,
     	'current_price' : float(self.current_price),
     	'high' : float(self.high),
