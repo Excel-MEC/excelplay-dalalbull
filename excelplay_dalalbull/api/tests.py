@@ -32,5 +32,5 @@ class UserCase(TestCase):
         buy_ss="safd",quantity=34,value=2323)  
         Pending.objects.create(user_id="111",time=datetime.now(),symbol="DLF",
         buy_ss="safd",quantity=11,value=42)    
-        Old_Stock_data.objects.create(symbol="tcs",current_price=3243,time=datetime.now())
-        Old_Stock_data.objects.create(symbol="DLF",current_price=1111,time=datetime.now())
+        StockDataHistory.objects.create(symbol="tcs",current_price=3243,time=datetime.now())
+        StockDataHistory.objects.create(symbol="DLF",current_price=1111,time=datetime.now())

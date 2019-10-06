@@ -53,6 +53,15 @@ def broadcastGraphData():
 
 
 @shared_task
+def StockDataHistoryUpdate():
+	if isStockMarketTime():
+		print("Stock data History")
+		updateGraphData()
+	else:
+		print("Wrong Time")
+
+
+@shared_task
 def broadcastTickerData():
 	if isStockMarketTime():
 		print("Ticker broadcasted!")
@@ -338,6 +347,16 @@ def orders():
 		except:
 			print("No Transactions")
 		Pending.objects.all().delete()
+
+#========= Store company data in History ===========#
+def updateGraphData():
+	latest_stock_data = Stock_data.objects.all()
+
+	for stock in latest_stock_data:
+		StockDataHistory.objects.create(
+			symbol = stock.symbol,
+			current_price = stock.current_price,
+		)
 
 
 # _start_time = datetime.time(hour=9,minute=15,second=30)#,second=00)
