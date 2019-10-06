@@ -2,10 +2,7 @@ root url : /dalalbull/api/
  
 
 1: /handshake/
-	POST 
-	{
-		'user':<token>,
-	}
+	GET
 	RETURNS
 		{'success':True} if success
 
