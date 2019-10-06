@@ -646,9 +646,21 @@ def history(request):
 
     return JsonResponse(data)
 
+
+'''
+Returns Company stock History
+
+POST format
+    {
+        'company':<company code>,
+    }
+'''
 @login_required
 def graphView(request):
-    return JsonResponse( graph('NIFTY 50')) 
+
+    company_symbol = request.POST['company']
+    return JsonResponse(graph(company_symbol)) 
+
 
 #======To Get Current Price======#
 
@@ -835,7 +847,7 @@ def getMostActiveValue():
     return mostActiveVal
 
 def graph(company):
-    graph_values=Old_Stock_data.objects.filter(symbol=company).order_by('time')
+    graph_values=StockDataHistory.objects.filter(symbol=company).order_by('time')
     graph_data=[]
     for i in graph_values:
         temp=[]

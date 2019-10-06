@@ -84,6 +84,16 @@ class Stock_data(models.Model):
     	'trade_Value' : float(self.trade_Value),
     	}
 
+class StockDataHistory(models.Model):
+    symbol=models.CharField(max_length=30)
+    current_price=models.DecimalField(max_digits=19, decimal_places=2,null=True)
+    time=models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+    	return '%10s    |   %10s |   %10s'%(self.symbol,
+			self.current_price,
+			self.time,
+			)
+
 class History(models.Model):
 	user_id=models.CharField(max_length=200)
 	time=models.DateTimeField(auto_now_add=True)
@@ -122,14 +132,4 @@ class Pending(models.Model):
 			self.buy_ss,
 			self.quantity,
 			self.value,
-			)
-
-class Old_Stock_data(models.Model):
-    symbol=models.CharField(max_length=30)
-    current_price=models.DecimalField(max_digits=19, decimal_places=2,null=True)
-    time=models.DateTimeField(auto_now_add=True)
-    def __str__(self):
-    	return '%10s    |   %10s |   %10s'%(self.symbol,
-			self.current_price,
-			self.time,
 			)
