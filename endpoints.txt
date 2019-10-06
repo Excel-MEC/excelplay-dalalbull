@@ -64,7 +64,7 @@ root url : /dalalbull/api/
 	{
 		'quantity':<qty>,
 		'company':<company>,
-		'pending':<null or price>,
+		'pending':<'' or price>, #should be empty string or price
 		'b_ss':<"buy"/"short sell">,
 	}
 	RETURNS
