@@ -144,8 +144,12 @@ root url : /dalalbull/api/
 	        'current_price': float(nifty.current_price),
 	        'change' : float(nifty.change) , 
 	    }
+		
 16: /graph/
-	GET
+	POST
+	{
+		'company': <company symbol>,
+	}
 	RETURNS
 		{
 			'graph_data' : graph_data,
