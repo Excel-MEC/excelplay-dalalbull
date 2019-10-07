@@ -347,7 +347,7 @@ POST format
     'quantity':<qty>,
     'company':<company>,
     's_sc':<"sell"/"short cover">,
-    'pending':<null or price>,
+    'pending':<'' or price>,
 }
 '''
 @csrf_exempt
