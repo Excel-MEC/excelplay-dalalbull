@@ -34,5 +34,6 @@ urlpatterns = [
     url(r'pending', views.pending, name='pending'),
     url(r'sell', views.sell, name='sell'), 
     url(r'graph', views.graphView, name='graph'),
+    url(r'is_share_market_open', views.is_share_market_open, name='is_share_market_open'),
 
 ]

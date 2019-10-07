@@ -160,6 +160,14 @@ root url : /dalalbull/api/
 		    'trans':transactions,
 	    }
 
+18: /is_share_market_open/
+GET
+RETURNS
+	{
+		'response': <true or false>
+	}
+
+
 WEBSOCKET
 
 	/portfolio-channel/

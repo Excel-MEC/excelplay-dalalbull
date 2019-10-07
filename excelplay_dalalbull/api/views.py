@@ -743,6 +743,12 @@ def niftyData():
     
     return data_to_send
 
+
+# @login_required
+def is_share_market_open(request):
+    return JsonResponse({'response': not isWrongTime()})
+
+
 def leaderboardData():
     p=Portfolio.objects.all().order_by('-net_worth')[:100]
     i=1
