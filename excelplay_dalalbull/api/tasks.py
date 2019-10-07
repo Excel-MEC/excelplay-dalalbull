@@ -21,9 +21,12 @@ _start_time, _end_time = [settings._start_time, settings._end_time]
 
 
 @shared_task
-def stock_update():	
-	print("Stock Update")
-	stockdata()
+def stock_update():
+	if isStockMarketTime():
+		print("Stock Update")
+		stockdata()
+	else:
+		print("Stock update: Not trading time")
 	print("Orders")
 	orders()
 	return
