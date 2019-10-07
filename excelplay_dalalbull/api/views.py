@@ -860,7 +860,7 @@ def graph(company):
         temp=[]
         timez=timezone(settings.TIME_ZONE)
         time=i.time.astimezone(timez)
-        temp.append( (time.hour-9)*60 + time.minute -15 )
+        temp.append( (time.hour)*60 + time.minute)
         temp.append( i.current_price )
         graph_data.append(temp)
 
