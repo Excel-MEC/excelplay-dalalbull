@@ -170,8 +170,6 @@ RETURNS
 
 WEBSOCKET
 
-	/portfolio-channel/
-	/nifty-channel/
-	/graph-channel/
-	/ticker-channel/
-	/sell-channel/
+	/dalalbullws/channel/graph/
+	/dalalbullws/channel/ticker/
+	/dalalbullws/channel/portfolio/
