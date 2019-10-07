@@ -715,7 +715,7 @@ def ticker(request):
     return JsonResponse(ticker_data())
 
 def ticker_data():
-    stocks = Stock_data.objects.all()
+    stocks = Stock_data.objects.all().order_by('symbol')
     tickerData = []
     for stock in stocks:
         tickerData.append({
