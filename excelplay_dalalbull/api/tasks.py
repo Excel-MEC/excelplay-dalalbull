@@ -97,6 +97,10 @@ def broadcastPortfolioData():
 	else:
 		print("Not the time for portfolio broadcast")
 
+@shared_task
+def delete_history():
+	StockDataHistory.objects.all().delete()
+
 
 #=================================================================================================================
 

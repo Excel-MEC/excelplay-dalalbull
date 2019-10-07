@@ -147,6 +147,8 @@ SESSION_REDIS = {
     'socket_timeout': 10
 }
 
+from celery.schedules import crontab
+
 
 CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_RESULT_BACKEND = 'redis://redis:6379'
@@ -191,7 +193,11 @@ CELERY_BEAT_SCHEDULE = {
     'ticker data': {
         'task': 'api.tasks.broadcastTickerData',
         'schedule': timedelta(seconds=20),
-    }
+    },
+    'Delete history': {
+        'task': 'api.tasks.delete_history',
+        'schedule': crontab(hour=18, minute=30),
+    },
 }
 
 # Share market start and end time
