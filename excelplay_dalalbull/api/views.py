@@ -45,7 +45,7 @@ def handShake(request):
             )
 
         if (not Portfolio.objects.filter(user_id=user_id).exists()):
-            initial = 1000000.00
+            initial = 10000.00
             Portfolio.objects.create(
                 user_id=user_id,
                 cash_bal=initial,
