@@ -655,6 +655,7 @@ POST format
         'company':<company code>,
     }
 '''
+@csrf_exempt
 @login_required
 def graphView(request):
 
