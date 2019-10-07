@@ -178,7 +178,7 @@ CELERY_BEAT_SCHEDULE = {
     # },
     'Graph ': { 
         'task': 'api.tasks.StockDataHistoryUpdate',
-        'schedule': timedelta(seconds=120),
+        'schedule': timedelta(minutes=60),
     },
     # 'nifty data ': { 
     #     'task': 'api.tasks.broadcastNiftyData',
