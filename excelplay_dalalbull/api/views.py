@@ -860,7 +860,7 @@ def getMostActiveValue():
     return mostActiveVal
 
 def graph(company):
-    graph_values=StockDataHistory.objects.filter(symbol=company).order_by('time')
+    graph_values = reversed(StockDataHistory.objects.filter(symbol=company).order_by('-time')[:12])
     graph_data=[]
     for i in graph_values:
         temp=[]

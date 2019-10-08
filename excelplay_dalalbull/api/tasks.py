@@ -99,7 +99,11 @@ def broadcastPortfolioData():
 
 @shared_task
 def delete_history():
-	StockDataHistory.objects.all().delete()
+	time_threshold = datetime.datetime.now() - datetime.timedelta(days=2)
+
+	results = StockDataHistory.objects.filter(time__lt=time_threshold)
+
+	results.delete()
 
 
 #=================================================================================================================
