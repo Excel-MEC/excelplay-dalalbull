@@ -175,6 +175,9 @@ def submit_buy_fun(request):
     no_trans=user_portfolio.no_trans
     margin=(user_portfolio.margin)
 
+    if(quantity == 0):
+        return 'Quantity cannot be 0'
+
     try:
         pending_price=data['pending']
     except:
@@ -264,6 +267,9 @@ def submit_shortSell_fun(request):
     user_portfolio = Portfolio.objects.get(user_id=request.session['user'])
     no_trans = user_portfolio.no_trans
     margin = (user_portfolio.margin)
+
+    if(quantity == 0):
+        return 'Quantity cannot be 0'
 
     try:
         pending_price=data['pending']
@@ -387,7 +393,7 @@ def submit_sell_fun(request):
     transaction = TransactionBuy.objects.get(user_id=request.session['user'],symbol=data['company'])
 
     #Checking if the posted quantity is greater than the quantity user owns
-    if(transaction.quantity-quantity<0):
+    if(quantity == 0 or transaction.quantity-quantity<0):
         msg="Quantity error"
         return msg
 
@@ -468,7 +474,7 @@ def submit_shortCover_fun(request):
     transaction=TransactionShortSell.objects.get(user_id=request.session['user'],symbol=data['company'])
 
     #Checking if the posted quantity is greater than the quantity user owns
-    if(transaction.quantity-quantity<0):
+    if(quantity == 0 or transaction.quantity-quantity<0):
         msg="Quantity error"
         return msg
 
