@@ -468,7 +468,7 @@ def submit_shortCover_fun(request):
 
     #Checking if the user has any share of the company
     if (not TransactionShortSell.objects.filter(user_id=request.session['user'],symbol=data['company']).exists()):
-        msg="No quantity to sell"
+        msg="No quantity to Short cover"
         return msg
 
     transaction=TransactionShortSell.objects.get(user_id=request.session['user'],symbol=data['company'])
