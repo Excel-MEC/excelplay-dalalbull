@@ -225,8 +225,8 @@ def submit_buy_fun(request):
     #===Executed only if the user has enough cash balance===#
     if TransactionBuy.objects.filter(user_id=request.session['user'],symbol=company).exists():
         transaction=TransactionBuy.objects.get(user_id=request.session['user'],symbol=company)
+        transaction.value=(current_price*quantity + transaction.value*transaction.quantity)/(quantity+transaction.quantity)
         transaction.quantity+=int(quantity)
-        transaction.value=current_price
         transaction.time=now=datetime.datetime.now()
         transaction.save()
     else:	
@@ -316,8 +316,8 @@ def submit_shortSell_fun(request):
     #===Executed only if the user has enough cash balance===#
     if TransactionShortSell.objects.filter(user_id=request.session['user'],symbol=company).exists():
         transaction=TransactionShortSell.objects.get(user_id=request.session['user'],symbol=company)
+        transaction.value=(current_price*quantity + transaction.value*transaction.quantity)/(quantity+transaction.quantity)
         transaction.quantity+=int(quantity)
-        transaction.value=current_price
         transaction.time=now=datetime.datetime.now()
         transaction.save()
     else:	
