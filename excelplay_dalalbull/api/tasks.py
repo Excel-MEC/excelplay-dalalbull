@@ -357,6 +357,7 @@ def orders():
 				ret = sell_sc(username,symbol,quantity,type_temp)
 		except:
 			print("No Transactions")
+		Portfolio.objects.all().update(margin=0)
 		Pending.objects.all().delete()
 
 #========= Store company data in History ===========#
