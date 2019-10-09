@@ -10,13 +10,21 @@ import datetime
 from .decorators import login_required
 from pytz import timezone
 from excelplay_dalalbull import settings
-from .models import *
+from .models import (
+    User,
+    Portfolio,
+    TransactionBuy,
+    TransactionShortSell,
+    Stock_data,
+    StockDataHistory,
+    History,
+    Pending,
+)
 from .utils import (
     submit_buy_fun,
     submit_sell_fun,
     submit_shortSell_fun,
     submit_shortCover_fun,
-    calculateBrokerage,
 )
 
 
