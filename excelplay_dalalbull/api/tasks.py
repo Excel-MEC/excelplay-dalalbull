@@ -272,7 +272,7 @@ def buy_ss(username,symbol,quantity,typ):
 					trans= TransactionShortSell.objects.get(user_id=username,symbol=symbol)
 
 				old_qnty = float(trans.quantity)
-				value = float(trans.value)
+				value = (trans.value*trans.quantity + qnty*price) / (trans.quantity + qnty)
 				new_qnty = old_qnty + qnty
 				trans.quantity = new_qnty
 				trans.value = value
