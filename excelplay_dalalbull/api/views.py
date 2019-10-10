@@ -165,9 +165,9 @@ def submit_buy(request):
     quantity=Decimal(data['quantity'])
     company=data['company']
     try:
-        pending_price = NULL if data['pending'] == '' else data['pending']
+        pending_price = None if data['pending'] == '' else data['pending']
     except:
-        pending_price = NULL
+        pending_price = None
     
     cclose = isWrongTime()
     if(cclose):
