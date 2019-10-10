@@ -211,9 +211,11 @@ def submit_sell(request):
         return JsonResponse({'cclose': True})
 
     if data['s_sc']=="sell":
-        msg=submit_sell_fun(user_id, quantity, company, pending_price)
+        response = submit_sell_fun(user_id, quantity, company, pending_price)
     else:
-        msg=submit_shortCover_fun(user_id, quantity, company, pending_price)
+        response = submit_shortCover_fun(user_id, quantity, company, pending_price)
+
+    msg = response['msg']
 
     return JsonResponse({'msg':msg})
 
