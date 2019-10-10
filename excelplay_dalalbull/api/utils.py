@@ -180,7 +180,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
     return {'msg': msg}
 
 
-def submit_sell_fun(user_id, quantity, company, pending_price):
+def submit_sell_fun(user_id, quantity, company, pending_price=None):
 
     user_portfolio=Portfolio.objects.get(user_id=user_id)
     no_trans=user_portfolio.no_trans
@@ -192,21 +192,16 @@ def submit_sell_fun(user_id, quantity, company, pending_price):
     #Checking if the user has any share of the company
     if (not TransactionBuy.objects.filter(user_id=user_id,symbol=company).exists()):
         msg="No quantity to sell"
-        return msg
+        return {'msg': msg}
 
     transaction = TransactionBuy.objects.get(user_id=user_id,symbol=company)
 
     #Checking if the posted quantity is greater than the quantity user owns
     if(quantity == 0 or transaction.quantity-quantity<0):
         msg="Quantity error"
-        return msg
+        return {'msg': msg}
 
-    try:
-        pending_price=data['pending']
-    except:
-        pending_price=''
-
-    if(pending_price!=''):
+    if(pending_price!=None):
         if pending_price==current_price:  
             return JsonResponse({'msg':'Pending price error'})
         pending_price=Decimal(pending_price)
@@ -214,7 +209,7 @@ def submit_sell_fun(user_id, quantity, company, pending_price):
 
         if(pending_price<current_price):
             msg='Pending Price for selling should be greater current price'
-            return msg
+            return {'msg': msg}
         else:
             p=Pending(
                 user_id=user_id,
@@ -226,7 +221,7 @@ def submit_sell_fun(user_id, quantity, company, pending_price):
             )
             p.save()
             msg = "You have made a Pending Order to "+"sell"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
-            return msg
+            return {'msg': msg}
 
     #SELL
 
@@ -256,9 +251,9 @@ def submit_sell_fun(user_id, quantity, company, pending_price):
         )
     history.save()
 
-    return msg
+    return {'msg': msg}
 
-def submit_shortCover_fun(user_id, quantity, company, pending_price):
+def submit_shortCover_fun(user_id, quantity, company, pending_price=None):
 
     user_portfolio=Portfolio.objects.get(user_id=user_id)
     no_trans=user_portfolio.no_trans
@@ -270,31 +265,25 @@ def submit_shortCover_fun(user_id, quantity, company, pending_price):
     #Checking if the user has any share of the company
     if (not TransactionShortSell.objects.filter(user_id=user_id,symbol=company).exists()):
         msg="No quantity to Short cover"
-        return msg
+        return {'msg': msg}
 
     transaction=TransactionShortSell.objects.get(user_id=user_id,symbol=company)
 
     #Checking if the posted quantity is greater than the quantity user owns
     if(quantity == 0 or transaction.quantity-quantity<0):
         msg="Quantity error"
-        return msg
+        return {'msg': msg}
 
-
-    try:
-        pending_price=data['pending']
-    except:
-        pending_price=''
-
-    if(pending_price!=''):
+    if(pending_price!=None):
         if pending_price==current_price:  
             msg='Pending price error'
-            return msg
+            return {'msg': msg}
         pending_price=Decimal(pending_price)
         percentager = Decimal(0.05 * float(current_price))
 
         if(pending_price>current_price):
             msg='Pending Price for short cover should be less than current price'
-            return msg
+            return {'msg': msg}
         else:
             p=Pending(
                 user_id=user_id,
@@ -306,7 +295,7 @@ def submit_shortCover_fun(user_id, quantity, company, pending_price):
             )
             p.save()
             msg= "You have made a Pending Order to "+"short cover"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
-            return msg
+            return {'msg': msg}
 
     #SHORT COVER
 
@@ -337,7 +326,7 @@ def submit_shortCover_fun(user_id, quantity, company, pending_price):
         )
     history.save()
 
-    return msg
+    return {'msg': msg}
 
 
 def calculateBrokerage(no_trans,quantity,current_price):
