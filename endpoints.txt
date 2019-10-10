@@ -92,12 +92,11 @@ root url : /dalalbull/api/
 			'pending':,
 		}
 
-10: /cancels/ (for cancelling pending orders)
+10: /cancel_pending/ (for cancelling pending orders)
 	POST
 	{
-		'iddel' : <id>, 
-		'company' : <company code>,
-	}
+        'p_id' : <id>,
+    }
 	RETURNS
 		{
 			'msg' : <message>,

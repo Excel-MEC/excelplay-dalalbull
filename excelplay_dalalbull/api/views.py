@@ -230,6 +230,7 @@ def pending(request):
         for i in t:
             print(i.symbol)
             temp={}
+            temp['id'] = i.id
             temp['quantity']=float(i.quantity)
             temp['value']=float(i.value)
             temp['type']=i.buy_ss
@@ -239,7 +240,6 @@ def pending(request):
                 temp['current_price']=(str(s.current_price))
             except Stock_data.DoesNotExist:
                 temp['current_price']='Not Listed'
-                temp['id']=i.id
             row.append(temp)
     except Pending.DoesNotExist:
         no_stock=True
@@ -252,39 +252,26 @@ def pending(request):
 
 '''
 POST DATA Format:
-{
-'iddel' : <id>, 
-'company' : <company code>,
-}
-
+    {
+        'p_id' : <id>,
+    }
 '''
 @login_required
-def cancels(request):
+def cancel_pending(request):
     cclose = isWrongTime()
     if(cclose):
         return JsonResponse({'cclose': True})
 
-    iddel=request.POST['iddel']
-    company=request.POST['company']
-    username=request.session['user']
-    msg=""
-    if(iddel!="" and company !=""):
-        try:
-            p=Pending.objects.get(user_id=username,
-            id=iddel,
-            symbol=company,
-            )
-            p.delete()
-            msg = "Specified pending order has been cancelled"
+    p_id = request.POST['p_id']
+    user_id=request.session['user']
+    try:
+        p=Pending.objects.get(user_id=user_id, id=p_id)
+        p.delete()
+        msg = "Specified pending order has been cancelled"
+    except Pending.DoesNotExist:
+        msg="Error Cancelling"
 
-        except Pending.DoesNotExist:
-            msg="Error Cancelling"
-    else:
-        msg="Invalid Data"
-
-    data_to_send = {
-    'msg' : msg,
-    }
+    data_to_send = {'msg' : msg}
 
     return JsonResponse(data_to_send)
 
