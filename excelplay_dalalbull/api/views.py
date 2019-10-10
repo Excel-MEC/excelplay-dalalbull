@@ -6,6 +6,7 @@ from redis_leaderboard.wrapper import RedisLeaderboard
 
 import numbers
 import datetime
+from decimal import Decimal
 
 from .decorators import login_required
 from pytz import timezone
