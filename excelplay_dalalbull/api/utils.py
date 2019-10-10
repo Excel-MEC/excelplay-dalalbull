@@ -201,7 +201,8 @@ def submit_shortSell_fun(request):
 
     data=request.POST
 def submit_sell_fun(request):
-    company=company
+    data=request.POST
+    company=data['company']
     user_id = request.session['user']
     quantity=Decimal(data['quantity'])
 
