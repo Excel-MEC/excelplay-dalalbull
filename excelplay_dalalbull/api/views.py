@@ -258,6 +258,7 @@ POST DATA Format:
         'p_id' : <id>,
     }
 '''
+@csrf_exempt
 @login_required
 def cancel_pending(request):
     cclose = isWrongTime()
