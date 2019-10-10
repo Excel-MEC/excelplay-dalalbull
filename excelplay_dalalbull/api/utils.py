@@ -21,11 +21,11 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
     margin=(user_portfolio.margin)
 
     if(quantity == 0):
-        return 'Quantity cannot be 0'
+        return {'msg': 'Quantity cannot be 0'}
 
     if(pending_price!=None):
         if pending_price==current_price:  
-            return JsonResponse({'msg':'Pending price error'})
+            return {'msg':'Pending price error'}
         pending_price=Decimal(pending_price)
         percentager = Decimal(0.05 * float(current_price))
         t=current_price-percentager
@@ -36,7 +36,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
 
         if (q):
             msg='Pending Price for Buying should be less than and maximum of 5% below Current Price'
-            return msg
+            return {'msg': msg}
         # elif r:
         # 	return JsonResponse({'msg':'Pending Price for Short Selling should be greater than and maximum of 5% above Current Price'})
         else:
@@ -50,7 +50,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
             )
             p.save()
             msg = "You have made a Pending Order to "+"buy"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
-            return msg
+            return {'msg': msg}
 
 
     #Brokerage
@@ -60,7 +60,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
     user_cash_balance=user_portfolio.cash_bal
     if(user_cash_balance-(quantity*current_price)-margin-brokerage<0):
         msg="Not enough balance"
-        return msg
+        return {'msg': msg}
 
     #===Executed only if the user has enough cash balance===#
     if TransactionBuy.objects.filter(user_id=user_id,symbol=company).exists():
@@ -93,7 +93,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
     )
     history.save()
 
-    return msg
+    return {'msg': msg}
 
 
 def submit_shortSell_fun(user_id, quantity, company, pending_price):
@@ -107,11 +107,11 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
     margin = (user_portfolio.margin)
 
     if(quantity == 0):
-        return 'Quantity cannot be 0'
+        return {'msg': 'Quantity cannot be 0'}
 
     if(pending_price!=None):
         if pending_price==current_price:  
-            return JsonResponse({'msg':'Pending price error'})
+            return {'msg':'Pending price error'}
         pending_price=Decimal(pending_price)
         percentager = Decimal(0.05 * float(current_price))
         t = current_price-percentager
@@ -123,7 +123,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
 
         if r:
             msg='Pending Price for Short Selling should be greater than and maximum of 5% above Current Price'
-            return msg
+            return {'msg': msg}
         else:
             p = Pending(
                 user_id=user_id,
@@ -135,7 +135,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
             )
             p.save()
             msg= "You have made a Pending Order to "+"short sell"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
-            return msg
+            return {'msg': msg}
 
     #Brokerage
     brokerage=calculateBrokerage(no_trans,quantity,current_price)
@@ -144,7 +144,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
     user_cash_balance=user_portfolio.cash_bal
     if(user_cash_balance-margin-(quantity*current_price)/2-brokerage<0):
         msg="Not enough balance"
-        return msg
+        return {'msg': msg}
 
     #===Executed only if the user has enough cash balance===#
     if TransactionShortSell.objects.filter(user_id=user_id,symbol=company).exists():
@@ -177,7 +177,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
     )
     history.save()
 
-    return msg
+    return {'msg': msg}
 
 
 def submit_sell_fun(user_id, quantity, company, pending_price):

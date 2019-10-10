@@ -175,13 +175,13 @@ def submit_buy(request):
         return JsonResponse({'cclose': True})
 
     if(data['b_ss']=="buy"):
-        msg=submit_buy_fun(user_id, quantity, company, pending_price)
+        response=submit_buy_fun(user_id, quantity, company, pending_price)
     else:
-        msg=submit_shortSell_fun(user_id, quantity, company, pending_price)
+        response=submit_shortSell_fun(user_id, quantity, company, pending_price)
 
-    print(msg)
+    print(response['msg'])
 
-    return JsonResponse({'msg':msg})
+    return JsonResponse({'msg': response['msg']})
 
 
 #=======SELL========#
