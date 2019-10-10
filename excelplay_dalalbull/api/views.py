@@ -6,6 +6,7 @@ from redis_leaderboard.wrapper import RedisLeaderboard
 
 import numbers
 import datetime
+from decimal import Decimal
 
 from .decorators import login_required
 from pytz import timezone
@@ -161,19 +162,26 @@ def sell(request):
 @login_required
 def submit_buy(request):
     data=request.POST
+    user_id = request.session['user']
+    quantity=Decimal(data['quantity'])
+    company=data['company']
+    try:
+        pending_price = None if data['pending'] == '' else data['pending']
+    except:
+        pending_price = None
     
     cclose = isWrongTime()
     if(cclose):
         return JsonResponse({'cclose': True})
 
     if(data['b_ss']=="buy"):
-        msg=submit_buy_fun(request)
+        response=submit_buy_fun(user_id, quantity, company, pending_price)
     else:
-        msg=submit_shortSell_fun(request)
+        response=submit_shortSell_fun(user_id, quantity, company, pending_price)
 
-    print(msg)
+    print(response['msg'])
 
-    return JsonResponse({'msg':msg})
+    return JsonResponse({'msg': response['msg']})
 
 
 #=======SELL========#
@@ -190,15 +198,22 @@ POST format
 @login_required
 def submit_sell(request):
     data=request.POST
+    user_id = request.session['user']
+    quantity=Decimal(data['quantity'])
+    company=data['company']
+    try:
+        pending_price = None if data['pending'] == '' else data['pending']
+    except:
+        pending_price = None
 
     cclose = isWrongTime()
     if(cclose):
         return JsonResponse({'cclose': True})
 
     if data['s_sc']=="sell":
-        msg=submit_sell_fun(request)
+        msg=submit_sell_fun(user_id, quantity, company, pending_price)
     else:
-        msg=submit_shortCover_fun(request)
+        msg=submit_shortCover_fun(user_id, quantity, company, pending_price)
 
     return JsonResponse({'msg':msg})
 
