@@ -24,11 +24,11 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
     margin=(user_portfolio.margin)
 
     if(quantity == 0):
-        return {'msg': 'Quantity cannot be 0'}
+        return {'msg': 'Quantity cannot be 0', 'error': True}
 
     if(pending_price!=None):
-        if pending_price==current_price:  
-            return {'msg':'Pending price error'}
+        if pending_price==current_price:
+            return {'msg':'Pending price error', 'error': True}
         pending_price=Decimal(pending_price)
         percentager = Decimal(0.05 * float(current_price))
         t=current_price-percentager
@@ -39,7 +39,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
 
         if (q):
             msg='Pending Price for Buying should be less than and maximum of 5% below Current Price'
-            return {'msg': msg}
+            return {'msg': msg, 'error': True}
         # elif r:
         # 	return JsonResponse({'msg':'Pending Price for Short Selling should be greater than and maximum of 5% above Current Price'})
         else:
@@ -53,7 +53,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
             )
             p.save()
             msg = "You have made a Pending Order to "+"buy"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
-            return {'msg': msg}
+            return {'msg': msg, 'error': False}
 
 
     #Brokerage
@@ -63,7 +63,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
     user_cash_balance=user_portfolio.cash_bal
     if(user_cash_balance-(quantity*current_price)-margin-brokerage<0):
         msg="Not enough balance"
-        return {'msg': msg}
+        return {'msg': msg, 'error': True}
 
     #===Executed only if the user has enough cash balance===#
     if TransactionBuy.objects.filter(user_id=user_id,symbol=company).exists():
@@ -96,7 +96,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
     )
     history.save()
 
-    return {'msg': msg}
+    return {'msg': msg, 'error': False}
 
 
 def submit_shortSell_fun(user_id, quantity, company, pending_price):
@@ -113,11 +113,11 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
     margin = (user_portfolio.margin)
 
     if(quantity == 0):
-        return {'msg': 'Quantity cannot be 0'}
+        return {'msg': 'Quantity cannot be 0', 'error': True}
 
     if(pending_price!=None):
         if pending_price==current_price:  
-            return {'msg':'Pending price error'}
+            return {'msg':'Pending price error', 'error': True}
         pending_price=Decimal(pending_price)
         percentager = Decimal(0.05 * float(current_price))
         t = current_price-percentager
@@ -129,7 +129,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
 
         if r:
             msg='Pending Price for Short Selling should be greater than and maximum of 5% above Current Price'
-            return {'msg': msg}
+            return {'msg': msg, 'error': True}
         else:
             p = Pending(
                 user_id=user_id,
@@ -141,7 +141,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
             )
             p.save()
             msg= "You have made a Pending Order to "+"short sell"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
-            return {'msg': msg}
+            return {'msg': msg, 'error': False}
 
     #Brokerage
     brokerage=calculateBrokerage(no_trans,quantity,current_price)
@@ -150,7 +150,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
     user_cash_balance=user_portfolio.cash_bal
     if(user_cash_balance-margin-(quantity*current_price)/2-brokerage<0):
         msg="Not enough balance"
-        return {'msg': msg}
+        return {'msg': msg, 'error': True}
 
     #===Executed only if the user has enough cash balance===#
     if TransactionShortSell.objects.filter(user_id=user_id,symbol=company).exists():
@@ -183,7 +183,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
     )
     history.save()
 
-    return {'msg': msg}
+    return {'msg': msg, 'error': False}
 
 
 def submit_sell_fun(user_id, quantity, company, pending_price=None):
@@ -201,24 +201,24 @@ def submit_sell_fun(user_id, quantity, company, pending_price=None):
     #Checking if the user has any share of the company
     if (not TransactionBuy.objects.filter(user_id=user_id,symbol=company).exists()):
         msg="No quantity to sell"
-        return {'msg': msg}
+        return {'msg': msg, 'error': True}
 
     transaction = TransactionBuy.objects.get(user_id=user_id,symbol=company)
 
     #Checking if the posted quantity is greater than the quantity user owns
     if(quantity == 0 or transaction.quantity-quantity<0):
         msg="Quantity error"
-        return {'msg': msg}
+        return {'msg': msg, 'error': True}
 
     if(pending_price!=None):
-        if pending_price==current_price:  
-            return JsonResponse({'msg':'Pending price error'})
+        if pending_price==current_price:
+            return {'msg': 'Pending price error', 'error': True}
         pending_price=Decimal(pending_price)
         percentager = Decimal(0.05 * float(current_price))
 
         if(pending_price<current_price):
             msg='Pending Price for selling should be greater current price'
-            return {'msg': msg}
+            return {'msg': msg, 'error': True}
         else:
             p=Pending(
                 user_id=user_id,
@@ -230,7 +230,7 @@ def submit_sell_fun(user_id, quantity, company, pending_price=None):
             )
             p.save()
             msg = "You have made a Pending Order to "+"sell"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
-            return {'msg': msg}
+            return {'msg': msg, 'error': False}
 
     #SELL
 
@@ -260,7 +260,7 @@ def submit_sell_fun(user_id, quantity, company, pending_price=None):
         )
     history.save()
 
-    return {'msg': msg}
+    return {'msg': msg, 'error': False}
 
 def submit_shortCover_fun(user_id, quantity, company, pending_price=None):
 
@@ -277,25 +277,25 @@ def submit_shortCover_fun(user_id, quantity, company, pending_price=None):
     #Checking if the user has any share of the company
     if (not TransactionShortSell.objects.filter(user_id=user_id,symbol=company).exists()):
         msg="No quantity to Short cover"
-        return {'msg': msg}
+        return {'msg': msg, 'error': True}
 
     transaction=TransactionShortSell.objects.get(user_id=user_id,symbol=company)
 
     #Checking if the posted quantity is greater than the quantity user owns
     if(quantity == 0 or transaction.quantity-quantity<0):
         msg="Quantity error"
-        return {'msg': msg}
+        return {'msg': msg, 'error': True}
 
     if(pending_price!=None):
         if pending_price==current_price:  
             msg='Pending price error'
-            return {'msg': msg}
+            return {'msg': msg, 'error': True}
         pending_price=Decimal(pending_price)
         percentager = Decimal(0.05 * float(current_price))
 
         if(pending_price>current_price):
             msg='Pending Price for short cover should be less than current price'
-            return {'msg': msg}
+            return {'msg': msg, 'error': True}
         else:
             p=Pending(
                 user_id=user_id,
@@ -307,7 +307,7 @@ def submit_shortCover_fun(user_id, quantity, company, pending_price=None):
             )
             p.save()
             msg= "You have made a Pending Order to "+"short cover"+" "+str(quantity)+" shares of '"+company+"' at a Desired Price of'"+'RS. '+str(pending_price)
-            return {'msg': msg}
+            return {'msg': msg, 'error': False}
 
     #SHORT COVER
 
@@ -338,7 +338,7 @@ def submit_shortCover_fun(user_id, quantity, company, pending_price=None):
         )
     history.save()
 
-    return {'msg': msg}
+    return {'msg': msg, 'error': False}
 
 
 def calculateBrokerage(no_trans,quantity,current_price):
