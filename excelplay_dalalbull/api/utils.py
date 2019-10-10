@@ -14,7 +14,10 @@ from api.models import (
 def submit_buy_fun(user_id, quantity, company, pending_price=None):
 
     #Checking if the Company exists
-    stock_data=companyCheck(company)
+    stock_data_response = companyCheck(company)
+    if stock_data_response['error']:
+        return stock_data_response
+    stock_data = stock_data_response['stock_data']
     current_price=stock_data.current_price
     user_portfolio=Portfolio.objects.get(user_id=user_id)
     no_trans=user_portfolio.no_trans
@@ -77,7 +80,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
             value=current_price,
         )
     user_portfolio.cash_bal=user_cash_balance-(quantity*current_price)
-    msg="You have succcessfully bought {1} quantities of {2}".format(user_id,quantity,company)
+    msg="You have successfully bought {1} quantities of {2}".format(user_id,quantity,company)
 
     user_portfolio.cash_bal-=brokerage
     user_portfolio.no_trans+=1
@@ -99,7 +102,10 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
 def submit_shortSell_fun(user_id, quantity, company, pending_price):
 
     #Checking if the Company exists
-    stock_data = companyCheck(company)
+    stock_data_response = companyCheck(company)
+    if stock_data_response['error']:
+        return stock_data_response
+    stock_data = stock_data_response['stock_data']
     current_price = stock_data.current_price
 
     user_portfolio = Portfolio.objects.get(user_id=user_id)
@@ -186,7 +192,10 @@ def submit_sell_fun(user_id, quantity, company, pending_price=None):
     no_trans=user_portfolio.no_trans
 
     #Checking if the Company exists
-    stock_data=companyCheck(company)
+    stock_data_response = companyCheck(company)
+    if stock_data_response['error']:
+        return stock_data_response
+    stock_data = stock_data_response['stock_data']
     current_price=Decimal(stock_data.current_price)
 
     #Checking if the user has any share of the company
@@ -259,7 +268,10 @@ def submit_shortCover_fun(user_id, quantity, company, pending_price=None):
     no_trans=user_portfolio.no_trans
 
     #Checking if the Company exists
-    stock_data=companyCheck(company)
+    stock_data_response = companyCheck(company)
+    if stock_data_response['error']:
+        return stock_data_response
+    stock_data = stock_data_response['stock_data']
     current_price=Decimal(stock_data.current_price)
 
     #Checking if the user has any share of the company
@@ -341,17 +353,16 @@ def calculateBrokerage(no_trans,quantity,current_price):
 
 def companyCheck(company):
     if company =="" or company =="NIFTY 50":
-        return JsonResponse({'msg':'Error'})
+        return {'msg':'Error', 'error': True}
     try:
         stock_data=Stock_data.objects.get(symbol=company)
     except:
-        return JsonResponse({'msg':'Company does exist'})
-    return stock_data
+        return {'msg':'Company does not exist', 'error': True}
+    return {'stock_data': stock_data, 'error': False}
 
 
 def quantityCheck(quantity):
     if int(quantity)-quantity==0 and int(quantity)!=0:
-        pass
+        return {'error': False}
     else:
-        return JsonResponse({'msg':'Quantity error'})
-    return
+        return {'msg':'Quantity error', 'error': True}
