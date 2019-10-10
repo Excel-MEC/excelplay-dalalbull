@@ -161,15 +161,22 @@ def sell(request):
 @login_required
 def submit_buy(request):
     data=request.POST
+    user_id = request.session['user']
+    quantity=Decimal(data['quantity'])
+    company=data['company']
+    try:
+        pending_price = NULL if data['pending'] == '' else data['pending']
+    except:
+        pending_price = NULL
     
     cclose = isWrongTime()
     if(cclose):
         return JsonResponse({'cclose': True})
 
     if(data['b_ss']=="buy"):
-        msg=submit_buy_fun(request)
+        msg=submit_buy_fun(user_id, quantity, company, pending_price)
     else:
-        msg=submit_shortSell_fun(request)
+        msg=submit_shortSell_fun(user_id, quantity, company, pending_price)
 
     print(msg)
 

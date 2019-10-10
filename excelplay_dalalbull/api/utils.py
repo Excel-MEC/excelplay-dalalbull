@@ -11,12 +11,7 @@ from api.models import (
 )
 
 
-def submit_buy_fun(request):
-
-    data=request.POST
-    user_id = request.session['user']
-    quantity=Decimal(data['quantity'])
-    company=data['company']
+def submit_buy_fun(user_id, quantity, company, pending_price=NULL):
 
     #Checking if the Company exists
     stock_data=companyCheck(company)
@@ -28,12 +23,7 @@ def submit_buy_fun(request):
     if(quantity == 0):
         return 'Quantity cannot be 0'
 
-    try:
-        pending_price=data['pending']
-    except:
-        pending_price=''
-
-    if(pending_price!=''):
+    if(pending_price!=NULL):
         if pending_price==current_price:  
             return JsonResponse({'msg':'Pending price error'})
         pending_price=Decimal(pending_price)
@@ -106,11 +96,7 @@ def submit_buy_fun(request):
     return msg
 
 
-def submit_shortSell_fun(request):
-    data = request.POST
-    user_id = request.session['user']
-    quantity = Decimal(data['quantity'])
-    company = data['company']
+def submit_shortSell_fun(user_id, quantity, company, pending_price):
 
     #Checking if the Company exists
     stock_data = companyCheck(company)
@@ -123,12 +109,7 @@ def submit_shortSell_fun(request):
     if(quantity == 0):
         return 'Quantity cannot be 0'
 
-    try:
-        pending_price=data['pending']
-    except:
-        pending_price=''
-
-    if(pending_price!=''):
+    if(pending_price!=NULL):
         if pending_price==current_price:  
             return JsonResponse({'msg':'Pending price error'})
         pending_price=Decimal(pending_price)
