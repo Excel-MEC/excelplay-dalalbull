@@ -187,7 +187,6 @@ def networth():
 
 #===============Orders=================#
 def orders():
-	ret=False
 	if isStockMarketTime():
 		try:
 			pending_ord = Pending.objects.all()
