@@ -258,7 +258,7 @@ def submit_sell_fun(user_id, quantity, company, pending_price):
 
     return msg
 
-def submit_shortCover_fun(user_id, quantity, company, pending_price:
+def submit_shortCover_fun(user_id, quantity, company, pending_price):
 
     user_portfolio=Portfolio.objects.get(user_id=user_id)
     no_trans=user_portfolio.no_trans
