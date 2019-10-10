@@ -180,12 +180,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price):
     return msg
 
 
-    data=request.POST
-def submit_sell_fun(request):
-    data=request.POST
-    company=data['company']
-    user_id = request.session['user']
-    quantity=Decimal(data['quantity'])
+def submit_sell_fun(user_id, quantity, company, pending_price):
 
     user_portfolio=Portfolio.objects.get(user_id=user_id)
     no_trans=user_portfolio.no_trans
@@ -263,11 +258,7 @@ def submit_sell_fun(request):
 
     return msg
 
-def submit_shortCover_fun(request):
-    data=request.POST
-    company=data['company']
-    user_id = request.session['user']
-    quantity=Decimal(data['quantity'])
+def submit_shortCover_fun(user_id, quantity, company, pending_price:
 
     user_portfolio=Portfolio.objects.get(user_id=user_id)
     no_trans=user_portfolio.no_trans

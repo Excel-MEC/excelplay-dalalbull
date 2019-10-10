@@ -198,15 +198,22 @@ POST format
 @login_required
 def submit_sell(request):
     data=request.POST
+    user_id = request.session['user']
+    quantity=Decimal(data['quantity'])
+    company=data['company']
+    try:
+        pending_price = None if data['pending'] == '' else data['pending']
+    except:
+        pending_price = None
 
     cclose = isWrongTime()
     if(cclose):
         return JsonResponse({'cclose': True})
 
     if data['s_sc']=="sell":
-        msg=submit_sell_fun(request)
+        msg=submit_sell_fun(user_id, quantity, company, pending_price)
     else:
-        msg=submit_shortCover_fun(request)
+        msg=submit_shortCover_fun(user_id, quantity, company, pending_price)
 
     return JsonResponse({'msg':msg})
 
