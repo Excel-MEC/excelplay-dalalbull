@@ -136,7 +136,10 @@ def stockdata():
 		data['day_high'] = float(data['day_high'])
 		data['day_low'] = float(data['day_low'])
 		data['price_open'] = float(data['price_open'])
-		data['day_change'] = float(data['day_change'])
+		try:
+			data['day_change'] = float(data['day_change'])
+		except ValueError:
+			data['day_change'] = float(0)
 		if(data['currency'] != 'USD'):
 			multiplier = currency_converter.convert(1, data['currency'], 'USD')
 			data['currency'] = 'USD'
