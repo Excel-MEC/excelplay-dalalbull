@@ -99,7 +99,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
     return {'msg': msg, 'error': False}
 
 
-def submit_shortSell_fun(user_id, quantity, company, pending_price):
+def submit_shortSell_fun(user_id, quantity, company, pending_price=None):
 
     #Checking if the Company exists
     stock_data_response = companyCheck(company)
