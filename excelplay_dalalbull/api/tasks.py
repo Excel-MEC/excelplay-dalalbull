@@ -175,7 +175,7 @@ def networth():
 			except TransactionBuy.DoesNotExist:
 				print("No Transactons")
 		except Portfolio.DoesNotExist:
-			print("Fail")
+			print("Failed for user {0}".format(k.user_id))
 	return
 
 
