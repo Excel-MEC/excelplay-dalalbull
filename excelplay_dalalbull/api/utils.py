@@ -14,14 +14,14 @@ from api.models import (
 def submit_buy_fun(request):
 
     data=request.POST
+    user_id = request.session['user']
     quantity=Decimal(data['quantity'])
     company=data['company']
 
     #Checking if the Company exists
     stock_data=companyCheck(company)
     current_price=stock_data.current_price
-
-    user_portfolio=Portfolio.objects.get(user_id=request.session['user'])
+    user_portfolio=Portfolio.objects.get(user_id=user_id)
     no_trans=user_portfolio.no_trans
     margin=(user_portfolio.margin)
 
@@ -51,7 +51,7 @@ def submit_buy_fun(request):
         # 	return JsonResponse({'msg':'Pending Price for Short Selling should be greater than and maximum of 5% above Current Price'})
         else:
             p = Pending(
-                user_id=request.session['user'],
+                user_id=user_id,
                 symbol=company,
                 buy_ss="BUY",
                 quantity=quantity,
@@ -73,28 +73,28 @@ def submit_buy_fun(request):
         return msg
 
     #===Executed only if the user has enough cash balance===#
-    if TransactionBuy.objects.filter(user_id=request.session['user'],symbol=company).exists():
-        transaction=TransactionBuy.objects.get(user_id=request.session['user'],symbol=company)
+    if TransactionBuy.objects.filter(user_id=user_id,symbol=company).exists():
+        transaction=TransactionBuy.objects.get(user_id=user_id,symbol=company)
         transaction.value=(current_price*quantity + transaction.value*transaction.quantity)/(quantity+transaction.quantity)
         transaction.quantity+=int(quantity)
         transaction.time=now=datetime.datetime.now()
         transaction.save()
     else:	
         TransactionBuy.objects.create(
-            user_id=request.session['user'],
+            user_id=user_id,
             symbol=company,
             quantity=quantity,
             value=current_price,
         )
     user_portfolio.cash_bal=user_cash_balance-(quantity*current_price)
-    msg="You have succcessfully bought {1} quantities of {2}".format(request.session['user'],quantity,company)
+    msg="You have succcessfully bought {1} quantities of {2}".format(user_id,quantity,company)
 
     user_portfolio.cash_bal-=brokerage
     user_portfolio.no_trans+=1
     user_portfolio.save()
 
     history=History(
-        user_id=request.session['user'],
+        user_id=user_id,
         time=datetime.datetime.now().time(),
         symbol=company,
         buy_ss="BUY",
@@ -108,6 +108,7 @@ def submit_buy_fun(request):
 
 def submit_shortSell_fun(request):
     data = request.POST
+    user_id = request.session['user']
     quantity = Decimal(data['quantity'])
     company = data['company']
 
@@ -115,7 +116,7 @@ def submit_shortSell_fun(request):
     stock_data = companyCheck(company)
     current_price = stock_data.current_price
 
-    user_portfolio = Portfolio.objects.get(user_id=request.session['user'])
+    user_portfolio = Portfolio.objects.get(user_id=user_id)
     no_trans = user_portfolio.no_trans
     margin = (user_portfolio.margin)
 
@@ -144,7 +145,7 @@ def submit_shortSell_fun(request):
             return msg
         else:
             p = Pending(
-                user_id=request.session['user'],
+                user_id=user_id,
                 symbol=company,
                 buy_ss="SHORT SELL",
                 quantity=quantity,
@@ -165,28 +166,28 @@ def submit_shortSell_fun(request):
         return msg
 
     #===Executed only if the user has enough cash balance===#
-    if TransactionShortSell.objects.filter(user_id=request.session['user'],symbol=company).exists():
-        transaction=TransactionShortSell.objects.get(user_id=request.session['user'],symbol=company)
+    if TransactionShortSell.objects.filter(user_id=user_id,symbol=company).exists():
+        transaction=TransactionShortSell.objects.get(user_id=user_id,symbol=company)
         transaction.value=(current_price*quantity + transaction.value*transaction.quantity)/(quantity+transaction.quantity)
         transaction.quantity+=int(quantity)
         transaction.time=now=datetime.datetime.now()
         transaction.save()
     else:	
         TransactionShortSell.objects.create(
-            user_id=request.session['user'],
+            user_id=user_id,
             symbol=company,
             quantity=quantity,
             value=current_price,
         )
     user_portfolio.margin=(user_portfolio.margin)+(quantity*current_price)/2
-    msg="You have succcessfully short sold {1} quantities of {2}".format(request.session['user'],quantity,company)
+    msg="You have succcessfully short sold {1} quantities of {2}".format(user_id,quantity,company)
 
     user_portfolio.cash_bal-=brokerage
     user_portfolio.no_trans+=1
     user_portfolio.save()
 
     history = History(
-        user_id=request.session['user'],
+        user_id=user_id,
         time=datetime.datetime.now().time(),
         symbol=company,
         buy_ss="SHORT SELL",
@@ -198,24 +199,25 @@ def submit_shortSell_fun(request):
     return msg
 
 
-def submit_sell_fun(request):
     data=request.POST
-    company=data['company']
+def submit_sell_fun(request):
+    company=company
+    user_id = request.session['user']
     quantity=Decimal(data['quantity'])
-    user_portfolio=Portfolio.objects.get(user_id=request.session['user'])
-    no_trans=user_portfolio.no_trans
 
+    user_portfolio=Portfolio.objects.get(user_id=user_id)
+    no_trans=user_portfolio.no_trans
 
     #Checking if the Company exists
     stock_data=companyCheck(company)
     current_price=Decimal(stock_data.current_price)
 
     #Checking if the user has any share of the company
-    if (not TransactionBuy.objects.filter(user_id=request.session['user'],symbol=data['company']).exists()):
+    if (not TransactionBuy.objects.filter(user_id=user_id,symbol=company).exists()):
         msg="No quantity to sell"
         return msg
 
-    transaction = TransactionBuy.objects.get(user_id=request.session['user'],symbol=data['company'])
+    transaction = TransactionBuy.objects.get(user_id=user_id,symbol=company)
 
     #Checking if the posted quantity is greater than the quantity user owns
     if(quantity == 0 or transaction.quantity-quantity<0):
@@ -238,7 +240,7 @@ def submit_sell_fun(request):
             return msg
         else:
             p=Pending(
-                user_id=request.session['user'],
+                user_id=user_id,
                 symbol=company,
                 buy_ss="SELL",
                 quantity=quantity,
@@ -268,7 +270,7 @@ def submit_sell_fun(request):
     msg="Success"
 
     history=History(
-        user_id=request.session['user'],
+        user_id=user_id,
         time=datetime.datetime.now().time(),
         symbol=company,
         buy_ss="SELL",
@@ -282,21 +284,22 @@ def submit_sell_fun(request):
 def submit_shortCover_fun(request):
     data=request.POST
     company=data['company']
+    user_id = request.session['user']
     quantity=Decimal(data['quantity'])
-    user_portfolio=Portfolio.objects.get(user_id=request.session['user'])
-    no_trans=user_portfolio.no_trans
 
+    user_portfolio=Portfolio.objects.get(user_id=user_id)
+    no_trans=user_portfolio.no_trans
 
     #Checking if the Company exists
     stock_data=companyCheck(company)
     current_price=Decimal(stock_data.current_price)
 
     #Checking if the user has any share of the company
-    if (not TransactionShortSell.objects.filter(user_id=request.session['user'],symbol=data['company']).exists()):
+    if (not TransactionShortSell.objects.filter(user_id=user_id,symbol=company).exists()):
         msg="No quantity to Short cover"
         return msg
 
-    transaction=TransactionShortSell.objects.get(user_id=request.session['user'],symbol=data['company'])
+    transaction=TransactionShortSell.objects.get(user_id=user_id,symbol=company)
 
     #Checking if the posted quantity is greater than the quantity user owns
     if(quantity == 0 or transaction.quantity-quantity<0):
@@ -321,7 +324,7 @@ def submit_shortCover_fun(request):
             return msg
         else:
             p=Pending(
-                user_id=request.session['user'],
+                user_id=user_id,
                 symbol=company,
                 buy_ss="SHORT COVER",
                 quantity=quantity,
@@ -352,7 +355,7 @@ def submit_shortCover_fun(request):
     msg="Success"
 
     history=History(
-        user_id=request.session['user'],
+        user_id=user_id,
         time=datetime.datetime.now().time(),
         symbol=company,
         buy_ss="SHORT COVER",
