@@ -180,7 +180,7 @@ CELERY_BEAT_SCHEDULE = {
     # },
     'Graph ': { 
         'task': 'api.tasks.StockDataHistoryUpdate',
-        'schedule': crontab(minute='5,35'),
+        'schedule': crontab(minute='2,29'),
     },
     # 'nifty data ': { 
     #     'task': 'api.tasks.broadcastNiftyData',
