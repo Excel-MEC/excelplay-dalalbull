@@ -61,7 +61,7 @@ def submit_buy_fun(user_id, quantity, company, pending_price=None):
 
     #Checking if the user has enough cash balance
     user_cash_balance=user_portfolio.cash_bal
-    if(user_cash_balance-(quantity*current_price)-margin-brokerage<0):
+    if(user_cash_balance-(quantity*current_price)-brokerage<0):
         msg="Not enough balance"
         return {'msg': msg, 'error': True}
 
@@ -148,7 +148,7 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price=None):
 
     #Checking if the user has enough cash balance
     user_cash_balance=user_portfolio.cash_bal
-    if(user_cash_balance-margin-(quantity*current_price)/2-brokerage<0):
+    if(user_cash_balance-(quantity*current_price)/2-brokerage<0):
         msg="Not enough balance"
         return {'msg': msg, 'error': True}
 
@@ -166,7 +166,9 @@ def submit_shortSell_fun(user_id, quantity, company, pending_price=None):
             quantity=quantity,
             value=current_price,
         )
-    user_portfolio.margin=(user_portfolio.margin)+(quantity*current_price)/2
+    margin = (quantity*current_price)/2
+    user_portfolio.cash_bal -=  margin
+    user_portfolio.margin=(user_portfolio.margin) + margin
     msg="You have succcessfully short sold {1} quantities of {2}".format(user_id,quantity,company)
 
     user_portfolio.cash_bal-=brokerage
@@ -313,8 +315,9 @@ def submit_shortCover_fun(user_id, quantity, company, pending_price=None):
 
     brokerage=calculateBrokerage(user_portfolio.no_trans,quantity,current_price)
 
-    user_portfolio.margin=user_portfolio.margin-(quantity*transaction.value)/2
-    user_portfolio.cash_bal=user_portfolio.cash_bal+(transaction.value-stock_data.current_price)*quantity
+    margin = (quantity*transaction.value)/2
+    user_portfolio.margin=user_portfolio.margin - margin
+    user_portfolio.cash_bal=user_portfolio.cash_bal + (transaction.value-stock_data.current_price)*quantity + margin
 
     if(transaction.quantity==quantity):
         transaction.delete()

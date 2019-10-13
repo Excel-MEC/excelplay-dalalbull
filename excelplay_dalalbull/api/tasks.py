@@ -169,7 +169,7 @@ def networth():
 	for k in u:
 		try:
 			i=Portfolio.objects.get(user_id=k.user_id)	
-			net_worth=float(i.cash_bal)
+			net_worth=float(i.cash_bal + i.margin)
 			try:
 				trans=TransactionBuy.objects.filter(user_id=i.user_id)
 				for j in trans:
