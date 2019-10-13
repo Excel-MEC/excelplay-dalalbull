@@ -12,37 +12,37 @@ from .models import (
 
 class PortfolioAdmin(admin.ModelAdmin):
 	list_display = ('user_id', 'cash_bal', 'net_worth', 'no_trans', 'margin')
-	search_field = ('user_id',)
+	search_fields = ('user_id',)
 
 
 class TransactionBuyAdmin(admin.ModelAdmin):
 	list_display = ('user_id', 'symbol', 'quantity', 'value', 'time')
-	search_field = ('user_id', 'symbol')
+	search_fields = ('user_id', 'symbol')
 
 
 class TransactionShortSellAdmin(admin.ModelAdmin):
 	list_display = ('user_id', 'symbol', 'quantity', 'value', 'time')
-	search_field = ('user_id', 'symbol')
+	search_fields = ('user_id', 'symbol')
 
 
 class Stock_dataAdmin(admin.ModelAdmin):
 	list_display = ('symbol', 'name', 'current_price', 'high', 'low', 'open_price', 'change', 'change_per')
-	search_field = ('symbo', 'name')
+	search_fields = ('symbo', 'name')
 
 
 class StockDataHistoryAdmin(admin.ModelAdmin):
 	list_display = ('symbol', 'current_price', 'time')
-	search_field = ('symbol')
+	search_fields = ('symbol',)
 
 
 class HistoryAdmin(admin.ModelAdmin):
 	list_display = ('user_id', 'time', 'symbol', 'buy_ss', 'quantity', 'price')
-	search_field = ('user_id')
+	search_fields = ('user_id',)
 
 
 class PendingAdmin(admin.ModelAdmin):
 	list_display = ('user_id', 'symbol', 'buy_ss', 'quantity', 'value', 'time')
-	search_field = ('user_id')
+	search_fields = ('user_id',)
 
 
 # Register your models here.
