@@ -17,11 +17,16 @@ class Portfolio(models.Model):
 	rank = models.IntegerField(default=131)
 	no_trans = models.DecimalField(max_digits=19, decimal_places=0, default=Decimal('0'))
 	margin = models.DecimalField(max_digits=19, decimal_places=2, default=Decimal('0.00'))
+
 	def __str__(self):
 		return ' %10s | %10s | %10s '%(self.user_id,
 			self.cash_bal,
 			self.no_trans,
 			)
+
+	class Meta:
+		ordering = ['-net_worth',]
+
 
 #Details of the company user owns
 class TransactionBuy(models.Model):
