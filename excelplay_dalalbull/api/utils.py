@@ -346,11 +346,11 @@ def submit_shortCover_fun(user_id, quantity, company, pending_price=None):
 
 def calculateBrokerage(no_trans,quantity,current_price):
     if(no_trans+1<=100):
-        brokerage=(Decimal(0.5/100)*current_price)*(quantity) 
+        brokerage=(Decimal(0.1/100)*current_price)*(quantity)
     elif(no_trans+1<=1000):                     
-        brokerage=(Decimal(1/100)*current_price)*(quantity)
+        brokerage=(Decimal(0.15/100)*current_price)*(quantity)
     else :                      
-        brokerage=(Decimal(1.5/100)*current_price)*(quantity)
+        brokerage=(Decimal(0.3/100)*current_price)*(quantity)
     return Decimal(brokerage)
 
 
