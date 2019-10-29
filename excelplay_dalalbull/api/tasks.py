@@ -179,6 +179,7 @@ def networth():
 						rdb.add('dalalbull', i.user_id, net_worth)
 					except Stock_data.DoesNotExist:
 						print("Company Not Listed")
+				rdb.add('dalalbull', i.user_id, net_worth)
 				i.net_worth = net_worth
 				i.save()
 			except TransactionBuy.DoesNotExist:
