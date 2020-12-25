@@ -15,17 +15,17 @@ import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-from secret import secretkey
+# from secret import secretkey
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = secretkey
+SECRET_KEY = "1234password"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
@@ -33,66 +33,63 @@ CORS_ALLOW_CREDENTIALS = True
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'api.apps.AppConfig',
-
-    'channels',
-
-    'django_celery_beat',
-
-    'corsheaders',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "api.apps.AppConfig",
+    "channels",
+    "django_celery_beat",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
-ROOT_URLCONF = 'excelplay_dalalbull.urls'
+ROOT_URLCONF = "excelplay_dalalbull.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'excelplay_dalalbull.wsgi.application'
+WSGI_APPLICATION = "excelplay_dalalbull.wsgi.application"
 
-ASGI_APPLICATION = 'excelplay_dalalbull.routing.application'
+ASGI_APPLICATION = "excelplay_dalalbull.routing.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db3',
-        'PORT': 5432,
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "dalalbull",
+        "USER": "test",
+        "PASSWORD": "password",
+        "HOST": "db3",
+        "PORT": 5432,
     }
 }
 
@@ -102,16 +99,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -119,9 +116,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Asia/Kolkata'
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 
@@ -133,82 +130,82 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/django_static/'
+STATIC_URL = "/django_static/"
 
 from datetime import timedelta
 
 # Redis session settings
-SESSION_ENGINE = 'redis_sessions.session'
+SESSION_ENGINE = "redis_sessions.session"
 SESSION_REDIS = {
-    'host': 'redis',
-    'port': 6379,
-    'db': 0,
-    'prefix': 'session',
-    'socket_timeout': 10
+    "host": "redis",
+    "port": 6379,
+    "db": 0,
+    "prefix": "session",
+    "socket_timeout": 10,
 }
 
 from celery.schedules import crontab
 
 
-CELERY_BROKER_URL = 'redis://redis:6379'
-CELERY_RESULT_BACKEND = 'redis://redis:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Kolkata'
-CELERY_IMPORTS = ('api.tasks', )
+CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Kolkata"
+CELERY_IMPORTS = ("api.tasks",)
 CELERY_BEAT_SCHEDULE = {
-    'stocks update': { #update Company Details
-        'task': 'api.tasks.stock_update',
-        'schedule': timedelta(seconds=10),
-     },
-    'net-worth': { #networth
-        'task': 'api.tasks.net',
-        'schedule': timedelta(seconds=10),
+    "stocks update": {  # update Company Details
+        "task": "api.tasks.stock_update",
+        "schedule": timedelta(seconds=10),
+    },
+    "net-worth": {  # networth
+        "task": "api.tasks.net",
+        "schedule": timedelta(seconds=10),
     },
     # 'Leaderboard': { #Leaderboard
     #     'task': 'api.tasks.leaderboard_update',
     #     'schedule': timedelta(seconds=20),
     # },
-    'Portfolio ': { #Portfolio data
-        'task': 'api.tasks.broadcastPortfolioData',
-        'schedule': timedelta(seconds=10),
+    "Portfolio ": {  # Portfolio data
+        "task": "api.tasks.broadcastPortfolioData",
+        "schedule": timedelta(seconds=10),
     },
     # 'Graph ': {
     #     'task': 'api.tasks.broadcastGraphData',
     #     'schedule': timedelta(seconds=20),
     # },
-    'Graph ': { 
-        'task': 'api.tasks.StockDataHistoryUpdate',
-        'schedule': crontab(minute='2,29'),
+    "Graph ": {
+        "task": "api.tasks.StockDataHistoryUpdate",
+        "schedule": crontab(minute="2,29"),
     },
-    # 'nifty data ': { 
+    # 'nifty data ': {
     #     'task': 'api.tasks.broadcastNiftyData',
     #     'schedule': timedelta(seconds=20),
     # },
-    # 'sell data ': { 
+    # 'sell data ': {
     #     'task': 'api.tasks.broadcastSellData',
     #     'schedule': timedelta(seconds=100),
     # },
-    'ticker data': {
-        'task': 'api.tasks.broadcastTickerData',
-        'schedule': timedelta(seconds=20),
+    "ticker data": {
+        "task": "api.tasks.broadcastTickerData",
+        "schedule": timedelta(seconds=20),
     },
-    'Delete history': {
-        'task': 'api.tasks.delete_history',
-        'schedule': crontab(hour=18, minute=30),
+    "Delete history": {
+        "task": "api.tasks.delete_history",
+        "schedule": crontab(hour=18, minute=30),
     },
 }
 
 # Share market start and end time
-_start_time = datetime.time(hour=19,minute=00,second=30)#,second=00)
-_end_time = datetime.time(hour=1,minute=29,second=30)#,minute=30,second=00)
+_start_time = datetime.time(hour=19, minute=00, second=30)  # ,second=00)
+_end_time = datetime.time(hour=1, minute=29, second=30)  # ,minute=30,second=00)
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [('redis', 6379)],
+            "hosts": [("redis", 6379)],
         },
     },
 }
