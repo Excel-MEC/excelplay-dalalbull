@@ -448,7 +448,7 @@ def is_share_market_open(request):
 
 
 def leaderboardData():
-    p = Portfolio.objects.all().order_by("-net_worth")[:100]
+    p = Portfolio.objects.all().order_by("-net_worth", "last_transaction_time")[:100]
     i = 1
     l = []
     for t in p:

@@ -39,7 +39,7 @@ def stock_update():
 def leaderboard_update():
     if isStockMarketTime():
         print("Leaderboard ordered!")
-        ordered_data = Portfolio.objects.order_by("-net_worth")
+        ordered_data = Portfolio.objects.order_by("-net_worth", "last_transaction_time")
         rank = 1
         for e in ordered_data:
             e.rank = rank
