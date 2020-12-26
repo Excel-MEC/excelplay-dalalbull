@@ -37,3 +37,4 @@ Twisted==18.9.0
 txaio==18.8.1
 vine==1.1.4
 zope.interface==4.6.0
+django-environ==0.4.5
