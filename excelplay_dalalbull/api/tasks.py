@@ -403,6 +403,6 @@ def isStockMarketTime():
     if now.strftime("%A") != "Sunday" and now.strftime("%A") != "Saturday":
         if _start_time <= now.time() or now.time() < _end_time:
             return True
-    elif now.strftime("%A") == "Saturday" and now.time() < _end_time:
-        return True
+    # elif now.strftime("%A") == "Saturday" and now.time() < _end_time:
+    # return True
     return False
