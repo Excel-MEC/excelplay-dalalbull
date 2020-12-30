@@ -112,107 +112,188 @@ def delete_history():
 
 # =================================================================================================================
 
-api_token_key = "HodrBJaddlZmkQiWn4wOBv44snyZIpAMUn58Ef5oPfUiME1lv8ojl2lwV4A1"
-root_url = "https://api.worldtradingdata.com/api/v1/stock?symbol={}&api_token={}"
+# NIFTY50 companies as of December 2020
 company_symbols = [
-    "AAPL",
-    "GOOGL",
-    "MSFT",
-    "FB",
-    "SNAP",
-    "NFLX",
-    "AMZN",
-    "ADBE",
-    "ORCL",
-    "TSLA",
-    "INTC",
-    "AMD",
-    "NVDA",
-    "IBM",
-    "QCOM",
-    "CSCO",
-    "TXN",
-    "ACN",
-    "UBER",
-    "CRM",
-    "CTSH",
-    "SNE",
+    "ADANIPORTS",
+    "ASIANPAINT",
+    "AXISBANK",
+    "BAJAJ-AUTO",
+    "BAJFINANCE",
+    "BAJAJFINSV",
+    "BHARTIARTL",
+    "BPCL",
+    "BRITANNIA",
+    "CIPLA",
+    "COALINDIA",
+    "DIVISLAB",
+    "DRREDDY",
+    "EICHERMOT",
+    "GAIL",
+    "GRASIM",
+    "HCLTECH",
+    "HDFC",
+    "HDFCBANK",
+    "HDFCLIFE",
+    "HEROMOTOCO",
+    "HINDALCO",
+    "HINDUNILVR",
+    "ICICIBANK",
+    "INDUSINDBK",
     "INFY",
-    "BIDU",
-    "BABA",
-    "NOW",
-    "DIS",
-    "SPOT",
-    "HPQ",
-    "DELL",
-    "PYPL",
-    "EBAY",
-    "SAP",
-    "TM",
-    "TWTR",
-    "T",
-    "VZ",
-    "PEP",
-    "SBUX",
-    "MAR",
-    "WDC",
-    "ADSK",
-    "AKAM",
-    "ANSS",
-    "APA",
-    "JPM",
-    "PAAS",
-    "MVIS",
-    "SPPI",
-    "SNPS",
+    "IOC",
+    "ITC",
+    "JSWSTEEL",
+    "KOTAKBANK",
+    "LT",
+    "M&M",
+    "MARUTI",
+    "NESTLEIND",
+    "NTPC",
+    "ONGC",
+    "POWERGRID",
+    "RELIANCE",
+    "SBIN",
+    "SBILIFE",
+    "SHREECEM",
+    "SUNPHARMA",
+    "TCS",
+    "TATAMOTORS",
+    "TATASTEEL",
+    "TECHM",
+    "TITAN",
+    "ULTRACEMCO",
+    "UPL",
+    "WIPRO",
 ]
-no_companies_at_a_time = 50
+
+from nsetools import Nse
+
+nse = Nse()
 
 
 def stockdata():
-    company_data_generator = []
-    for i in range(0, len(company_symbols), no_companies_at_a_time):
-        symbols = company_symbols[i : i + no_companies_at_a_time]
-        url = root_url.format(",".join(symbols), api_token_key)
-        r = requests.get(url)
+    for c in company_symbols:
         try:
-            data = r.json()["data"]
-        except KeyError:
-            print(f"Failed to fetch stock data. The data returned is: {r.content}")
-            break
-        company_data_generator += data
+            data = nse.get_quote(c)
+            c, __ = Stock_data.objects.get_or_create(symbol=c)
+            c.name = data["companyName"]
+            c.current_price = float(data["lastPrice"])
+            c.high = float(data["dayHigh"])
+            c.low = float(data["dayLow"])
+            c.open_price = float(data["open"])
+            c.change = float(data["lastPrice"]) - float(data["previousClose"])
+            c.change_per = (
+                (float(data["lastPrice"]) - float(data["previousClose"])) * 100
+            ) / float(data["open"])
+            c.trade_Qty = float(data["quantityTraded"])
+            c.trade_Value = 0
+            c.save()
+        except Exception as e:
+            print("Failed to fetch stock data of {}".format(c))
+            print(e)
 
-    for data in company_data_generator:
-        data["price"] = float(data["price"])
-        data["day_high"] = float(data["day_high"])
-        data["day_low"] = float(data["day_low"])
-        data["price_open"] = float(data["price_open"])
-        try:
-            data["day_change"] = float(data["day_change"])
-        except ValueError:
-            data["day_change"] = float(0)
-        if data["currency"] != "USD":
-            multiplier = currency_converter.convert(1, data["currency"], "USD")
-            data["currency"] = "USD"
-            data["price"] = data["price"] * multiplier
-            data["day_high"] = data["day_high"] * multiplier
-            data["day_low"] = data["day_low"] * multiplier
-            data["price_open"] = data["price_open"] * multiplier
-            data["day_change"] = data["day_change"] * multiplier
 
-        symbol = data["symbol"]
-        c, __ = Stock_data.objects.get_or_create(symbol=symbol)
-        c.name = data["name"]
-        c.current_price = data["price"]
-        c.high = data["day_high"]
-        c.low = data["day_low"]
-        c.open_price = data["price_open"]
-        c.change = data["day_change"]
-        c.change_per = data["change_pct"]
-        c.trade_Qty = data["volume"]
-        c.trade_Value = 0  # data['trade_Value']
-        c.save()
+# CODE FOR OLD API USING US COMPANY DATA, API IS NO LONGER AVAILABLE
+# api_token_key = "75706fc939f61154ed943df0a874c831"
+# # root_url = "https://api.worldtradingdata.com/api/v1/stock?symbol={}&api_token={}"
+# company_symbols = [
+#     "AAPL",
+#     "GOOGL",
+#     "MSFT",
+#     "FB",
+#     "SNAP",
+#     "NFLX",
+#     "AMZN",
+#     "ADBE",
+#     "ORCL",
+#     "TSLA",
+#     "INTC",
+#     "AMD",
+#     "NVDA",
+#     "IBM",
+#     "QCOM",
+#     "CSCO",
+#     "TXN",
+#     "ACN",
+#     "UBER",
+#     "CRM",
+#     "CTSH",
+#     "SNE",
+#     "INFY",
+#     "BIDU",
+#     "BABA",
+#     "NOW",
+#     "DIS",
+#     "SPOT",
+#     "HPQ",
+#     "DELL",
+#     "PYPL",
+#     "EBAY",
+#     "SAP",
+#     "TM",
+#     "TWTR",
+#     "T",
+#     "VZ",
+#     "PEP",
+#     "SBUX",
+#     "MAR",
+#     "WDC",
+#     "ADSK",
+#     "AKAM",
+#     "ANSS",
+#     "APA",
+#     "JPM",
+#     "PAAS",
+#     "MVIS",
+#     "SPPI",
+#     "SNPS",
+# ]
+# no_companies_at_a_time = 50
 
+
+# def stockdata():
+#     company_data_generator = []
+#     for i in range(0, len(company_symbols), no_companies_at_a_time):
+#         symbols = company_symbols[i : i + no_companies_at_a_time]
+#         url = root_url.format(",".join(symbols), api_token_key)
+#         r = requests.get(url)
+#         try:
+#             data = r.json()["data"]
+#         except KeyError:
+#             print(f"Failed to fetch stock data. The data returned is: {r.content}")
+#             break
+#         company_data_generator += data
+
+#     for data in company_data_generator:
+#         data["price"] = float(data["price"])
+#         data["day_high"] = float(data["day_high"])
+#         data["day_low"] = float(data["day_low"])
+#         data["price_open"] = float(data["price_open"])
+#         try:
+#             data["day_change"] = float(data["day_change"])
+#         except ValueError:
+#             data["day_change"] = float(0)
+#         if data["currency"] != "USD":
+#             multiplier = currency_converter.convert(1, data["currency"], "USD")
+#             data["currency"] = "USD"
+#             data["price"] = data["price"] * multiplier
+#             data["day_high"] = data["day_high"] * multiplier
+#             data["day_low"] = data["day_low"] * multiplier
+#             data["price_open"] = data["price_open"] * multiplier
+#             data["day_change"] = data["day_change"] * multiplier
+
+#         symbol = data["symbol"]
+#         c, __ = Stock_data.objects.get_or_create(symbol=symbol)
+#         c.name = data["name"]
+#         c.current_price = data["price"]
+#         c.high = data["day_high"]
+#         c.low = data["day_low"]
+#         c.open_price = data["price_open"]
+#         c.change = data["day_change"]
+#         c.change_per = data["change_pct"]
+#         c.trade_Qty = data["volume"]
+#         c.trade_Value = 0  # data['trade_Value']
+#         c.save()
 
 # ========Networth Update========#
 def networth():
@@ -322,6 +403,6 @@ def isStockMarketTime():
     if now.strftime("%A") != "Sunday" and now.strftime("%A") != "Saturday":
         if _start_time <= now.time() or now.time() < _end_time:
             return True
-    elif now.strftime("%A") == "Saturday" and now.time() < _end_time:
-        return True
+    # elif now.strftime("%A") == "Saturday" and now.time() < _end_time:
+    # return True
     return False

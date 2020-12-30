@@ -88,10 +88,10 @@ ASGI_APPLICATION = "excelplay_dalalbull.routing.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "dalalbull",
-        "USER": "test",
-        "PASSWORD": "password",
-        "HOST": "db3",
+        "NAME": env("DB_DBULL_NAME"),
+        "USER": env("DB_DBULL_USER"),
+        "PASSWORD": env("DB_DBULL_PASSWORD"),
+        "HOST": env("DB_DBULL_HOST"),
         "PORT": 5432,
     }
 }
@@ -160,7 +160,7 @@ CELERY_IMPORTS = ("api.tasks",)
 CELERY_BEAT_SCHEDULE = {
     "stocks update": {  # update Company Details
         "task": "api.tasks.stock_update",
-        "schedule": timedelta(seconds=10),
+        "schedule": timedelta(seconds=300),
     },
     "net-worth": {  # networth
         "task": "api.tasks.net",
@@ -201,8 +201,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # Share market start and end time
-_start_time = datetime.time(hour=19, minute=00, second=30)  # ,second=00)
-_end_time = datetime.time(hour=1, minute=29, second=30)  # ,minute=30,second=00)
+_start_time = datetime.time(hour=9, minute=15, second=30)  # ,second=00)
+_end_time = datetime.time(hour=15, minute=29, second=30)  # ,minute=30,second=00)
 
 CHANNEL_LAYERS = {
     "default": {
