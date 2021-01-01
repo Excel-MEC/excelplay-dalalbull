@@ -9,7 +9,7 @@ django-redis-sessions = "==0.6.1"
 mysqlclient = "*"
 nsetools = "==1.0.5"
 redis = "==2.10.6"
-Django = "==2.1.5"
+Django = "==2.2.13"
 
 [dev-packages]
 
