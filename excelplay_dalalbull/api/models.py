@@ -7,7 +7,7 @@ from django.core.validators import MinValueValidator
 
 class User(models.Model):
     user_id = models.CharField(primary_key=True, max_length=100)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, default="John Doe")
     profile_picture = models.URLField(
         null=False,
         blank=False,
