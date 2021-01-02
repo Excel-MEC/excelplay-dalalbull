@@ -25,6 +25,8 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, ".env"))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 
+USER_DETAIL_API_ENDPOINT = env("USER_DETAIL_API_ENDPOINT")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

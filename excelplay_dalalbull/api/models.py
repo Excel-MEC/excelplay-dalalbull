@@ -7,9 +7,12 @@ from django.core.validators import MinValueValidator
 
 class User(models.Model):
     user_id = models.CharField(primary_key=True, max_length=100)
+    name = models.CharField(max_length=100)
+    profile_picture = models.URLField(null=False, blank=False)
+    email = models.EmailField(null=False, blank=False)
 
     def __str__(self):
-        return self.user_id
+        return "{} {}".format(self.email, self.name)
 
 
 class Portfolio(models.Model):
