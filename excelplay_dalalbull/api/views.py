@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render, HttpResponse
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
@@ -6,6 +7,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 
 import numbers
 import datetime
+import requests
+
 from decimal import Decimal
 
 from .decorators import login_required
@@ -56,7 +59,19 @@ def handShake(request):
             total_users = 1
 
         if not User.objects.filter(user_id=user_id).exists():
-            User.objects.create(user_id=user_id)
+            r = requests.post(
+                settings.USER_DETAIL_API_ENDPOINT, json={"user_id": user_id}
+            )
+            details = r.json()
+            if details["userid"] == -1:
+                return JsonResponse({"Error": "User does not exist in auth service"})
+            else:
+                User.objects.create(
+                    user_id=user_id,
+                    name=details["name"],
+                    email=details["email"],
+                    profile_picture=details["picture"],
+                )
 
         if not Portfolio.objects.filter(user_id=user_id).exists():
             initial = 50000.00
