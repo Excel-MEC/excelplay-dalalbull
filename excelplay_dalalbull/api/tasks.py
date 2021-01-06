@@ -3,7 +3,7 @@ import requests
 import json
 from celery import shared_task, task
 import os
-import datetime
+from datetime import datetime, timedelta
 from currency_converter import CurrencyConverter
 
 # from redis_leaderboard.wrapper import RedisLeaderboard
@@ -105,7 +105,7 @@ def broadcastPortfolioData():
 
 @shared_task
 def delete_history():
-    time_threshold = datetime.datetime.now() - datetime.timedelta(days=5)
+    time_threshold = datetime.now() - timedelta(days=5)
 
     results = StockDataHistory.objects.filter(time__lt=time_threshold)
 
@@ -317,7 +317,7 @@ def networth():
                         print("Company Not Listed")
                 # rdb.add("dalalbull", i.user_id, net_worth)
                 i.net_worth = net_worth
-                i.last_networth_update_time = datetime.datetime.now()
+                i.last_networth_update_time = datetime.now()
                 i.save()
             except TransactionBuy.DoesNotExist:
                 print("No Transactons")
@@ -402,7 +402,7 @@ def updateGraphData():
 
 
 def isStockMarketTime():
-    now = datetime.datetime.now()
+    now = datetime.now()
     if now.strftime("%A") != "Sunday" and now.strftime("%A") != "Saturday":
         if _start_time <= now.time() and now.time() < _end_time:
             return True
