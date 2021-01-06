@@ -173,7 +173,7 @@ CELERY_IMPORTS = ("api.tasks",)
 CELERY_BEAT_SCHEDULE = {
     "stocks update": {  # update Company Details
         "task": "api.tasks.stock_update",
-        "schedule": timedelta(seconds=300),
+        "schedule": timedelta(seconds=40),
     },
     "net-worth": {  # networth
         "task": "api.tasks.net",
