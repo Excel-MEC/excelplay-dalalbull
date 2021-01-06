@@ -482,16 +482,16 @@ def leaderboardData():
     all_users = User.objects.values()
     users_dict = {}
     for u in all_users:
-        users_dict[u.user_id] = u
+        users_dict[u["user_id"]] = u
 
     i = 1
     l = []
     for t in p:
         user = {
             "user_id": t.user_id,
-            "name": users_dict[t.user_id].name,
-            "email": users_dict[t.user_id].email,
-            "picture": users_dict[t.user_id].profile_picture,
+            "name": users_dict[t.user_id]["name"],
+            "email": users_dict[t.user_id]["email"],
+            "picture": users_dict[t.user_id]["profile_picture"],
             "net_worth": t.net_worth,
             "cash_bal": float(t.cash_bal),
             "no_trans": float(t.no_trans),
