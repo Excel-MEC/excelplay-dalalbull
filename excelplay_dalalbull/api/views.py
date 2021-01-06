@@ -131,6 +131,19 @@ def leaderboard(request):
     return JsonResponse(leaderboardData())
 
 
+# ========GetRank============#
+@login_required
+def getrank(request):
+    curr_id = request.session["user"]
+    all_users = Portfolio.objects.all().order_by("-net_worth", "last_transaction_time")
+    rank = 1
+    for user in all_users:
+        if user.user_id == curr_id:
+            return JsonResponse({"rank": rank})
+    # If user is not found in portfolio
+    return JsonResponse({"rank": -1})
+
+
 # ========Company Info=====#
 """
 
