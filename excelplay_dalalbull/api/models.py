@@ -2,6 +2,8 @@ from django.db import models
 from decimal import Decimal
 from django.core.validators import MinValueValidator
 
+import datetime
+
 # Details of the user
 
 
@@ -34,7 +36,7 @@ class Portfolio(models.Model):
     margin = models.DecimalField(
         max_digits=19, decimal_places=2, default=Decimal("0.00")
     )
-    last_transaction_time = models.DateTimeField(auto_now=True)
+    last_networth_update_time = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
         return " %10s | %10s | %10s " % (

@@ -39,7 +39,9 @@ def stock_update():
 def leaderboard_update():
     if isStockMarketTime():
         print("Leaderboard ordered!")
-        ordered_data = Portfolio.objects.order_by("-net_worth", "last_transaction_time")
+        ordered_data = Portfolio.objects.order_by(
+            "-net_worth", "last_networth_update_time"
+        )
         rank = 1
         for e in ordered_data:
             e.rank = rank
@@ -181,11 +183,11 @@ def stockdata():
             c.high = float(data["dayHigh"])
             c.low = float(data["dayLow"])
             c.open_price = float(data["open"])
-            c.change = float(data["lastPrice"]) - float(data["previousClose"])
+            c.change = float(data["open"]) - float(data["previousClose"])
             c.change_per = (
-                (float(data["lastPrice"]) - float(data["previousClose"])) * 100
+                (float(data["open"]) - float(data["previousClose"])) * 100
             ) / float(data["open"])
-            c.trade_Qty = float(data["quantityTraded"])
+            c.trade_Qty = float(data["totalTradedVolume"])
             c.trade_Value = 0
             c.save()
         except Exception as e:
@@ -315,6 +317,7 @@ def networth():
                         print("Company Not Listed")
                 # rdb.add("dalalbull", i.user_id, net_worth)
                 i.net_worth = net_worth
+                i.last_networth_update_time = datetime.datetime.now()
                 i.save()
             except TransactionBuy.DoesNotExist:
                 print("No Transactons")

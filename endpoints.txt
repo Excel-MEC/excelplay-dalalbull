@@ -166,6 +166,13 @@ RETURNS
 		'response': <true or false>
 	}
 
+19: /getrank/
+	GET
+	RETURNS
+		{
+			'rank': rank
+		}
+
 
 WEBSOCKET
 
