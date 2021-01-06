@@ -2,7 +2,7 @@ from django.db import models
 from decimal import Decimal
 from django.core.validators import MinValueValidator
 
-import datetime
+from datetime import datetime
 
 # Details of the user
 
