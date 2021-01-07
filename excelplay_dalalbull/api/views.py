@@ -142,6 +142,7 @@ def getrank(request):
     for user in all_users:
         if user.user_id == curr_id:
             return JsonResponse({"rank": rank})
+        rank += 1
     # If user is not found in portfolio
     return JsonResponse({"rank": -1})
 
