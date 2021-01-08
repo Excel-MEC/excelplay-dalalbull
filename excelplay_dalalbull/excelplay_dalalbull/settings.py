@@ -173,11 +173,11 @@ CELERY_IMPORTS = ("api.tasks",)
 CELERY_BEAT_SCHEDULE = {
     "stocks update": {  # update Company Details
         "task": "api.tasks.stock_update",
-        "schedule": timedelta(seconds=40),
+        "schedule": timedelta(seconds=30),
     },
     "net-worth": {  # networth
         "task": "api.tasks.net",
-        "schedule": timedelta(seconds=10),
+        "schedule": timedelta(seconds=30),
     },
     # 'Leaderboard': { #Leaderboard
     #     'task': 'api.tasks.leaderboard_update',
@@ -185,7 +185,7 @@ CELERY_BEAT_SCHEDULE = {
     # },
     "Portfolio ": {  # Portfolio data
         "task": "api.tasks.broadcastPortfolioData",
-        "schedule": timedelta(seconds=10),
+        "schedule": timedelta(seconds=30),
     },
     # 'Graph ': {
     #     'task': 'api.tasks.broadcastGraphData',
@@ -205,7 +205,7 @@ CELERY_BEAT_SCHEDULE = {
     # },
     "ticker data": {
         "task": "api.tasks.broadcastTickerData",
-        "schedule": timedelta(seconds=20),
+        "schedule": timedelta(seconds=45),
     },
     "Delete history": {
         "task": "api.tasks.delete_history",
