@@ -183,9 +183,9 @@ def stockdata():
             c.high = float(data["dayHigh"])
             c.low = float(data["dayLow"])
             c.open_price = float(data["open"])
-            c.change = float(data["open"]) - float(data["previousClose"])
+            c.change = float(data["lastPrice"]) - float(data["open"])
             c.change_per = (
-                (float(data["open"]) - float(data["previousClose"])) * 100
+                (float(data["lastPrice"]) - float(data["open"])) * 100
             ) / float(data["open"])
             c.trade_Qty = float(data["totalTradedVolume"])
             c.trade_Value = 0
