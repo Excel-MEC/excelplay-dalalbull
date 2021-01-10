@@ -28,7 +28,7 @@ SECRET_KEY = env("SECRET_KEY")
 USER_DETAIL_API_ENDPOINT = env("USER_DETAIL_API_ENDPOINT")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
