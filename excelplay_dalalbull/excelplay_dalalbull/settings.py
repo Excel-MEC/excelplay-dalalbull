@@ -28,7 +28,7 @@ SECRET_KEY = env("SECRET_KEY")
 USER_DETAIL_API_ENDPOINT = env("USER_DETAIL_API_ENDPOINT")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -173,7 +173,7 @@ CELERY_IMPORTS = ("api.tasks",)
 CELERY_BEAT_SCHEDULE = {
     "stocks update": {  # update Company Details
         "task": "api.tasks.stock_update",
-        "schedule": timedelta(seconds=300),
+        "schedule": timedelta(seconds=30),
     },
     "net-worth": {  # networth
         "task": "api.tasks.net",
