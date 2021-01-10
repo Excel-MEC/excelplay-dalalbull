@@ -9,13 +9,12 @@ from datetime import datetime
 
 class User(models.Model):
     user_id = models.CharField(primary_key=True, max_length=100)
-    name = models.CharField(max_length=100, default="John Doe")
+    name = models.CharField(max_length=100)
     profile_picture = models.URLField(
         null=False,
         blank=False,
-        default="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
     )
-    email = models.EmailField(null=False, blank=False, default="placeholder@email.com")
+    email = models.EmailField(null=False, blank=False)
 
     def __str__(self):
         return "{} {}".format(self.email, self.name)
