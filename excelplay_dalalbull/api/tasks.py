@@ -202,14 +202,14 @@ def stockdata():
         for company in company_symbols:
             curr = data[company]
             c, __ = Stock_data.objects.get_or_create(symbol=company)
-            c.name = data["name"]
-            c.current_price = float(data["close"])
-            c.high = float(data["high"])
-            c.low = float(data["low"])
-            c.open_price = float(data["open"])
-            c.change = float(data["change"])
-            c.change_per = float(data["percent_change"])
-            c.trade_Qty = float(data["volume"])
+            c.name = curr["name"]
+            c.current_price = float(curr["close"])
+            c.high = float(curr["high"])
+            c.low = float(curr["low"])
+            c.open_price = float(curr["open"])
+            c.change = float(curr["change"])
+            c.change_per = float(curr["percent_change"])
+            c.trade_Qty = float(curr["volume"])
             c.trade_Value = 0
             c.save()
     except Exception as e:
@@ -426,7 +426,7 @@ def updateGraphData():
 def isStockMarketTime():
     now = datetime.now()
     if now.strftime("%A") != "Sunday" and now.strftime("%A") != "Saturday":
-        if _start_time <= now.time() and now.time() < _end_time:
+        if _start_time <= now.time() or now.time() < _end_time:
             return True
     elif now.strftime("%A") == "Saturday" and now.time() < _end_time:
         return True
