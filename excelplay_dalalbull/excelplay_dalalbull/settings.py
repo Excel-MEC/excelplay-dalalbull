@@ -26,6 +26,7 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")
 
 USER_DETAIL_API_ENDPOINT = env("USER_DETAIL_API_ENDPOINT")
+STOCK_API_KEY = env("STOCK_API_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -173,11 +174,11 @@ CELERY_IMPORTS = ("api.tasks",)
 CELERY_BEAT_SCHEDULE = {
     "stocks update": {  # update Company Details
         "task": "api.tasks.stock_update",
-        "schedule": timedelta(seconds=30),
+        "schedule": timedelta(seconds=122),  # 2 seconds buffer
     },
     "net-worth": {  # networth
         "task": "api.tasks.net",
-        "schedule": timedelta(seconds=30),
+        "schedule": timedelta(seconds=62),
     },
     # 'Leaderboard': { #Leaderboard
     #     'task': 'api.tasks.leaderboard_update',
@@ -185,7 +186,7 @@ CELERY_BEAT_SCHEDULE = {
     # },
     "Portfolio ": {  # Portfolio data
         "task": "api.tasks.broadcastPortfolioData",
-        "schedule": timedelta(seconds=30),
+        "schedule": timedelta(seconds=62),
     },
     # 'Graph ': {
     #     'task': 'api.tasks.broadcastGraphData',
@@ -205,7 +206,7 @@ CELERY_BEAT_SCHEDULE = {
     # },
     "ticker data": {
         "task": "api.tasks.broadcastTickerData",
-        "schedule": timedelta(seconds=45),
+        "schedule": timedelta(seconds=90),
     },
     "Delete history": {
         "task": "api.tasks.delete_history",
@@ -214,8 +215,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # Share market start and end time
-_start_time = datetime.time(hour=9, minute=15, second=30)  # ,second=00)
-_end_time = datetime.time(hour=15, minute=29, second=30)  # ,minute=30,second=00)
+_start_time = datetime.time(hour=20, minute=1, second=30)  # ,second=00)
+_end_time = datetime.time(hour=2, minute=29, second=30)  # ,minute=30,second=00)
 
 CHANNEL_LAYERS = {
     "default": {

@@ -115,69 +115,106 @@ def delete_history():
 # =================================================================================================================
 
 # 35 of the highest stock price NIFTY50 companies as of December 2020
+# company_symbols = [
+#     "ASIANPAINT",
+#     "AXISBANK",
+#     "BAJAJ-AUTO",
+#     "BAJFINANCE",
+#     "BAJAJFINSV",
+#     "BHARTIARTL",
+#     "BRITANNIA",
+#     "CIPLA",
+#     "DIVISLAB",
+#     "DRREDDY",
+#     "EICHERMOT",
+#     "GRASIM",
+#     "HCLTECH",
+#     "HDFC",
+#     "HDFCBANK",
+#     "HDFCLIFE",
+#     "HEROMOTOCO",
+#     "HINDUNILVR",
+#     "INDUSINDBK",
+#     "INFY",
+#     "KOTAKBANK",
+#     "LT",
+#     "M&M",
+#     "MARUTI",
+#     "NESTLEIND",
+#     "RELIANCE",
+#     "SBILIFE",
+#     "SHREECEM",
+#     "SUNPHARMA",
+#     "TCS",
+#     "TATASTEEL",
+#     "TECHM",
+#     "TITAN",
+#     "ULTRACEMCO",
+#     "WIPRO",
+# ]
+
+# from nsetools import Nse
+
+# nse = Nse()
+
+
+# def stockdata():
+#     for c in company_symbols:
+#         try:
+#             data = nse.get_quote(c)
+#             c, __ = Stock_data.objects.get_or_create(symbol=c)
+#             c.name = data["companyName"]
+#             c.current_price = float(data["lastPrice"])
+#             c.high = float(data["dayHigh"])
+#             c.low = float(data["dayLow"])
+#             c.open_price = float(data["open"])
+#             c.change = float(data["lastPrice"]) - float(data["previousClose"])
+#             c.change_per = (
+#                 (float(data["lastPrice"]) - float(data["previousClose"])) * 100
+#             ) / float(data["previousClose"])
+#             c.trade_Qty = float(data["totalTradedVolume"])
+#             c.trade_Value = 0
+#             c.save()
+#         except Exception as e:
+#             print("Failed to fetch stock data of {}".format(c))
+#             print(e)
+
 company_symbols = [
-    "ASIANPAINT",
-    "AXISBANK",
-    "BAJAJ-AUTO",
-    "BAJFINANCE",
-    "BAJAJFINSV",
-    "BHARTIARTL",
-    "BRITANNIA",
-    "CIPLA",
-    "DIVISLAB",
-    "DRREDDY",
-    "EICHERMOT",
-    "GRASIM",
-    "HCLTECH",
-    "HDFC",
-    "HDFCBANK",
-    "HDFCLIFE",
-    "HEROMOTOCO",
-    "HINDUNILVR",
-    "INDUSINDBK",
-    "INFY",
-    "KOTAKBANK",
-    "LT",
-    "M&M",
-    "MARUTI",
-    "NESTLEIND",
-    "RELIANCE",
-    "SBILIFE",
-    "SHREECEM",
-    "SUNPHARMA",
-    "TCS",
-    "TATASTEEL",
-    "TECHM",
-    "TITAN",
-    "ULTRACEMCO",
-    "WIPRO",
+    "AAPL",
+    "GOOGL",
+    "MSFT",
+    "FB",
 ]
-
-from nsetools import Nse
-
-nse = Nse()
+symbols = ",".join(company_symbols)
+api_key = settings.STOCK_API_KEY
+api_url = "https://api.twelvedata.com/quote?symbol={0}&interval=1day&apikey={1}".format(
+    symbols, api_key
+)
 
 
 def stockdata():
-    for c in company_symbols:
-        try:
-            data = nse.get_quote(c)
-            c, __ = Stock_data.objects.get_or_create(symbol=c)
-            c.name = data["companyName"]
-            c.current_price = float(data["lastPrice"])
-            c.high = float(data["dayHigh"])
-            c.low = float(data["dayLow"])
-            c.open_price = float(data["open"])
-            c.change = float(data["lastPrice"]) - float(data["previousClose"])
-            c.change_per = (
-                (float(data["lastPrice"]) - float(data["previousClose"])) * 100
-            ) / float(data["previousClose"])
-            c.trade_Qty = float(data["totalTradedVolume"])
+    r = requests.get(api_url)
+    if r.status_code == 429:
+        print("API use exceeded")
+        return
+    try:
+        data = r.json()
+        for company in company_symbols:
+            curr = data[company]
+            c, __ = Stock_data.objects.get_or_create(symbol=company)
+            c.name = curr["name"]
+            c.current_price = float(curr["close"])
+            c.high = float(curr["high"])
+            c.low = float(curr["low"])
+            c.open_price = float(curr["open"])
+            c.change = float(curr["change"])
+            c.change_per = float(curr["percent_change"])
+            c.trade_Qty = float(curr["volume"])
             c.trade_Value = 0
             c.save()
-        except Exception as e:
-            print("Failed to fetch stock data of {}".format(c))
-            print(e)
+    except Exception as e:
+        print(e)
+        print(f"Failed to fetch stock data. The data returned is: {r.content}")
 
 
 # CODE FOR OLD API USING US COMPANY DATA, API IS NO LONGER AVAILABLE
@@ -389,8 +426,8 @@ def updateGraphData():
 def isStockMarketTime():
     now = datetime.now()
     if now.strftime("%A") != "Sunday" and now.strftime("%A") != "Saturday":
-        if _start_time <= now.time() and now.time() < _end_time:
+        if _start_time <= now.time() or now.time() < _end_time:
             return True
-    # elif now.strftime("%A") == "Saturday" and now.time() < _end_time:
-    # return True
+    elif now.strftime("%A") == "Saturday" and now.time() < _end_time:
+        return True
     return False

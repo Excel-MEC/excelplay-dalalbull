@@ -23,10 +23,10 @@ class User(models.Model):
 class Portfolio(models.Model):
     user_id = models.CharField(primary_key=True, max_length=100)
     cash_bal = models.DecimalField(
-        max_digits=19, decimal_places=2, default=Decimal("100000")
+        max_digits=19, decimal_places=2, default=Decimal("50000")
     )
     net_worth = models.DecimalField(
-        max_digits=19, decimal_places=2, default=Decimal("100000")
+        max_digits=19, decimal_places=2, default=Decimal("50000")
     )
     rank = models.IntegerField(default=131)
     no_trans = models.DecimalField(
